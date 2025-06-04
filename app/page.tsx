@@ -1,16 +1,20 @@
+// app/page.tsx
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { calcularPerCapita } from '../api/calcularPerCapita';
-import type { Etapa, ResultadoCalculo } from '../api/types';
+import { useRouter } from 'next/navigation';
+import { calcularPerCapita } from './api/calcularPerCapita';
+import type { Etapa, ResultadoCalculo } from './api/types';
 import {
   normalizarTexto,
   converterListaParaMapaDeAlimentos,
   formatarPesoKg
-} from '../api/utils/alimentosUtils';
+} from './api/utils/alimentosUtils';
 import AlertaRestricao, { Restricao } from '../components/AlertaRestricao';
 
 export default function HomePage() {
+  const router = useRouter();
+
   const [alimento, setAlimento] = useState('');
   const [etapa, setEtapa] = useState<Etapa>('fundamental');
   const [alunos, setAlunos] = useState(120);
@@ -30,36 +34,31 @@ export default function HomePage() {
   const info = alimentosMapeados[chave];
 
   const restricoes: Restricao[] = [];
-
   if (alimento && !info) {
     restricoes.push({
       tipo: 'erro',
       mensagem: 'Alimento não encontrado.'
     });
   }
-
   if (info?.limitada_menor3 && etapa === 'creche') {
     restricoes.push({
       tipo: 'erro',
-      mensagem: 'O alimento não pode ser utilizado para a etapa "creche" devido à restrição nutricional.'
+      mensagem:
+        'O alimento não pode ser utilizado para a etapa "creche" devido à restrição nutricional.'
     });
   }
-
   if (info?.limitada_todas) {
     restricoes.push({
       tipo: 'aviso',
       mensagem: 'Oferta limitada para todas as idades.'
     });
   }
-
-  // Verifica se há "*" no valor da etapa selecionada
   const valorEtapa = info?.perCapita?.[etapa];
-  const valorComAsterisco = valorEtapa === '*';
 
-  if (valorComAsterisco) {
+  if (valorEtapa?.status === 'indisponivel') {
     restricoes.push({
-      tipo: 'aviso',
-      mensagem: 'Depende da preparação da receita.'
+      tipo: 'erro',
+      mensagem: `O alimento não pode ser utilizado para a etapa "${etapa}" porque está indisponível.`
     });
   }
 
@@ -69,7 +68,6 @@ export default function HomePage() {
       setSugestoes([]);
       return;
     }
-
     const filtradas = nomesAlimentos.filter(nome => {
       const normalizado = normalizarTexto(nome);
       return (
@@ -77,7 +75,6 @@ export default function HomePage() {
         normalizado !== normalizadoAtual
       );
     });
-
     setSugestoes(filtradas.slice(0, 5));
   }, [alimento, nomesAlimentos]);
 
@@ -90,7 +87,6 @@ export default function HomePage() {
         setSugestoes([]);
       }
     }
-
     document.addEventListener('mousedown', handleClickFora);
     return () => {
       document.removeEventListener('mousedown', handleClickFora);
@@ -110,7 +106,9 @@ export default function HomePage() {
   return (
     <main className="bg-fundo text-texto min-h-screen py-12 px-4 font-sans">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-center">Cálculo Per Capita - PNAE</h1>
+        <h1 className="text-3xl font-bold mb-8 text-center">
+          Cálculo Per Capita - PNAE
+        </h1>
 
         <div className="space-y-5 bg-cartao p-8 rounded-2xl shadow-lg border border-acento">
           {/* Campo de Autocomplete para Alimento */}
@@ -131,7 +129,7 @@ export default function HomePage() {
             />
             {sugestoes.length > 0 && (
               <ul className="absolute top-full z-10 mt-1 bg-white border border-gray-300 rounded shadow-md w-full">
-                {sugestoes.map((sugestao) => (
+                {sugestoes.map(sugestao => (
                   <li
                     key={sugestao}
                     onClick={() => {
@@ -191,26 +189,36 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* Botão Calcular */}
-          <button
-            onClick={calcular}
-            disabled={
-              !info ||
-              restricoes.some(r =>
-                r.tipo === 'erro' || r.mensagem.includes('Depende da preparação da receita')
-              )
-            }
-            className={`font-semibold px-6 py-2 rounded-md transition font-sans ${
-              !info ||
-              restricoes.some(r =>
-                r.tipo === 'erro' || r.mensagem.includes('Depende da preparação da receita')
-              )
+          {/* Botões: Calcular e Cadastrar Alimento */}
+          <div className="flex space-x-4">
+            {/* Botão Calcular */}
+            <button
+              onClick={calcular}
+              disabled={
+                !info ||
+                restricoes.some(r =>
+                  r.tipo === 'erro' || r.mensagem.includes('Depende da preparação da receita')
+                )
+              }
+              className={`font-semibold px-6 py-2 rounded-md transition font-sans ${!info ||
+                restricoes.some(r =>
+                  r.tipo === 'erro' || r.mensagem.includes('Depende da preparação da receita')
+                )
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-botao text-black hover:opacity-90'
-            }`}
-          >
-            Calcular
-          </button>
+                }`}
+            >
+              Calcular
+            </button>
+
+            {/* Botão Cadastrar Alimento */}
+            <button
+              onClick={() => router.push('/cadastrarAlimento')}
+              className="font-semibold px-6 py-2 rounded-md bg-acento text-black hover:opacity-90 transition font-sans"
+            >
+              Cadastrar alimento
+            </button>
+          </div>
         </div>
 
         {/* Resultado */}
@@ -218,12 +226,24 @@ export default function HomePage() {
           <div className="mt-8 bg-cartao p-6 rounded-xl border border-acento shadow-md font-sans">
             <h2 className="font-semibold text-xl mb-4 text-center">Resultado</h2>
             <ul className="space-y-1 text-base">
-              <li><strong>Alimento:</strong> {resultado.alimento}</li>
-              <li><strong>Etapa:</strong> {resultado.etapa}</li>
-              <li><strong>Alunos:</strong> {resultado.alunos}</li>
-              <li><strong>Bruto por aluno:</strong> {formatarPesoKg(resultado.brutoPorAluno)}</li>
-              <li><strong>Total bruto:</strong> {formatarPesoKg(resultado.totalBruto)}</li>
-              <li><strong>Total final (cozido):</strong> {formatarPesoKg(resultado.totalFinal)}</li>
+              <li>
+                <strong>Alimento:</strong> {resultado.alimento}
+              </li>
+              <li>
+                <strong>Etapa:</strong> {resultado.etapa}
+              </li>
+              <li>
+                <strong>Alunos:</strong> {resultado.alunos}
+              </li>
+              <li>
+                <strong>Bruto por aluno:</strong> {formatarPesoKg(resultado.brutoPorAluno)}
+              </li>
+              <li>
+                <strong>Total bruto:</strong> {formatarPesoKg(resultado.totalBruto)}
+              </li>
+              <li>
+                <strong>Total final (cozido):</strong> {formatarPesoKg(resultado.totalFinal)}
+              </li>
             </ul>
           </div>
         )}
