@@ -38,7 +38,6 @@ function converterStatusDisponibilidade(input: RawStatusDisponibilidade): Status
     return { status: 'Depende da preparação da receita' };
   }
 
-  // Valor inválido → força falha em tempo de execução
   throw new Error(`Status inválido no alimento JSON: ${JSON.stringify(input)}`);
 }
 

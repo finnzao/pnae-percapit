@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { alimentoSchema } from '@/app/api/types'; // ajuste o caminho conforme seu projeto
+import { alimentoSchema } from '@/app/api/types';
 
 export async function POST(request: Request) {
   let body: unknown;
