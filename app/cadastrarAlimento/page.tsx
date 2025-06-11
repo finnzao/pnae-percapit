@@ -1,10 +1,10 @@
 'use client';
+import { Alimento, Etapa } from '@/types';
 import { useState } from 'react';
-import type { Etapa, Alimento } from '../api/types';
 
 const etapas: Etapa[] = ['creche', 'pre', 'fundamental', 'medio'];
 
-type FormState = Omit<Alimento, 'fc' | 'fcc' | 'perCapita'> & {
+type FormState = Omit<Alimento, 'fc' | 'fcc' | 'perCapita' | 'unidade_medida'> & {
   fc: string;
   fcc: string;
   perCapita: Record<Etapa, string>;
@@ -23,6 +23,7 @@ export default function CadastrarAlimento() {
       fundamental: '',
       medio: '',
     },
+
   });
 
   const [perCapitaIndisponivel, setPerCapitaIndisponivel] = useState<Record<Etapa, boolean>>({

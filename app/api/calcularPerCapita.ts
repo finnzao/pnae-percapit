@@ -1,4 +1,5 @@
-import { Alimento, Etapa, ResultadoCalculo } from './types';
+import { ResultadoCalculo, Alimento, Etapa } from "@/types";
+
 
 export function calcularPerCapita(
   alimento: string,
@@ -17,8 +18,8 @@ export function calcularPerCapita(
     throw new Error(`O alimento não pode ser utilizado para a etapa "${etapa}" porque está indisponível.`);
   }
 
-  const fc = parseFloat(info.fc);
-  const fcc = parseFloat(info.fcc);
+  const fc = info.fc
+  const fcc = info.fcc
 
   if (isNaN(fc) || isNaN(fcc)) {
     throw new Error(`Fator de correção ou fator de cocção inválido para o alimento "${info.nome}".`);

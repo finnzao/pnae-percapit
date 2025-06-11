@@ -1,0 +1,27 @@
+[
+  {
+    "nome": "Frango para sopa",
+    "fc": 1,
+    "fcc": 1,
+    "perCapita": {
+      "creche": {
+        "status": "disponivel",
+        "valor": 1
+      },
+      "pre": {
+        "status": "disponivel",
+        "valor": 1
+      },
+      "fundamental": {
+        "status": "disponivel",
+        "valor": 2
+      },
+      "medio": {
+        "status": "disponivel",
+        "valor": 4
+      }
+    },
+    "limitada_menor3": false,
+    "limitada_todas": false
+  }
+]
