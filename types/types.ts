@@ -62,4 +62,4 @@ export interface ResultadoCalculo {
     brutoPorAluno: number;
     totalBruto: number;
     totalFinal: number;
-  }
+}

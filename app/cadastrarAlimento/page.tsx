@@ -15,7 +15,6 @@ export default function CadastrarAlimento() {
     nome: '',
     fc: '1',
     fcc: '1',
-    limitada_menor3: false,
     limitada_todas: false,
     perCapita: {
       creche: '',

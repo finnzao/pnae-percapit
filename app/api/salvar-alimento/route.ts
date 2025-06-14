@@ -1,16 +1,16 @@
 // app/api/salvar-alimento/route.ts
 import { NextResponse } from 'next/server';
-import { alimentoSchema } from '@/app/api/types';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { readJsonFile, writeJsonFile, generateId } from '../utils/jsonStorage';
+import { alimentoSchema, type Alimento } from '@/types/zodSchemas';
+const FILENAME = 'alimentos.json';
 
-// Caminho absoluto do arquivo alimentos.json
-const ALIMENTOS_PATH = path.resolve(process.cwd(), 'app/api/alimentos.json');
-// Função para normalizar nomes ignorando acentos e maiúsculas/minúsculas
+const alimentos = await readJsonFile<Alimento>(FILENAME);
 function normalizarTexto(texto: string): string {
   return texto
-    .normalize('NFD') // separa letras de acentos
-    .replace(/[\u0300-\u036f]/g, '') // remove acentos
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .trim();
 }
@@ -23,20 +23,31 @@ export async function POST(request: Request) {
     const parsed = alimentoSchema.parse(body);
     const nomeNormalizado = normalizarTexto(parsed.nome);
 
-    // Lê o conteúdo atual do arquivo (ou inicializa com um array vazio se não existir)
     let alimentos: typeof parsed[] = [];
-
+    const novoAlimento: Alimento = {
+      id: generateId(),
+      nome: parsed.nome.trim(),
+      fc: Number(parsed.fc.replace(',', '.')),
+      fcc: Number(parsed.fcc.replace(',', '.')),
+      perCapita: parsed.perCapita,
+      limitada_menor3: parsed.limitada_menor3,
+      limitada_todas: parsed.limitada_todas,
+      unidade_medida: parsed.unidade_medida || 'g',
+      peso_pacote_padrao: undefined,
+      ativo: true,
+      criado_em: new Date().toISOString(),
+    };
     try {
       const conteudoAtual = await fs.readFile(ALIMENTOS_PATH, 'utf-8');
       alimentos = JSON.parse(conteudoAtual);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       console.warn('[API] Nenhum arquivo existente ou erro ao ler, será criado um novo.');
     }
 
     // Verifica se o nome já existe (ignora acentos e maiúsculas)
     const existeDuplicado = alimentos.some(alimento =>
-      normalizarTexto(alimento.nome) === nomeNormalizado
+      normalizarTexto(alimento.nome) === nomeNormalizado && alimento.ativo
     );
 
     if (existeDuplicado) {
@@ -47,8 +58,8 @@ export async function POST(request: Request) {
     }
 
     // Adiciona e salva
-    alimentos.push(parsed);
-    await fs.writeFile(ALIMENTOS_PATH, JSON.stringify(alimentos, null, 2), 'utf-8');
+    alimentos.push(novoAlimento);
+    await writeJsonFile(FILENAME, alimentos);
 
     console.log('[API] Alimento salvo com sucesso:', parsed);
     return NextResponse.json({ ok: true, recebido: parsed }, { status: 200 });
