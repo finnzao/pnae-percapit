@@ -222,7 +222,7 @@ export default function HomePage() {
             </div>
           )}
 
-          <div className="flex space-x-4">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={calcular}
               disabled={!info || restricoes.some(r => r.tipo === 'erro' || r.mensagem.includes('Depende da preparação da receita'))}
@@ -236,6 +236,20 @@ export default function HomePage() {
               className="font-semibold px-6 py-2 rounded-md bg-acento text-black hover:opacity-90 transition font-sans"
             >
               Cadastrar alimento
+            </button>
+
+            <button
+              onClick={() => router.push('/cardapio')}
+              className="font-semibold px-6 py-2 rounded-md bg-acento text-black hover:opacity-90 transition font-sans"
+            >
+              Criar cardápio
+            </button>
+
+            <button
+              onClick={() => router.push('/instituicoes')}
+              className="font-semibold px-6 py-2 rounded-md bg-acento text-black hover:opacity-90 transition font-sans"
+            >
+              Instituições
             </button>
           </div>
         </div>

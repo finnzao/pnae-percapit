@@ -1,5 +1,5 @@
 'use client';
-import { Alimento, Etapa } from '@/types';
+import { Alimento, Etapa, RestricaoAlimentar, RestricaoAlimentarDescricao } from '@/types';
 import { useState } from 'react';
 
 const etapas: Etapa[] = ['creche', 'pre', 'fundamental', 'medio'];
@@ -8,6 +8,7 @@ type FormState = Omit<Alimento, 'fc' | 'fcc' | 'perCapita' | 'unidade_medida'> &
   fc: string;
   fcc: string;
   perCapita: Record<Etapa, string>;
+  restricoesAlimentares: RestricaoAlimentar[];
 };
 
 export default function CadastrarAlimento() {
@@ -15,6 +16,7 @@ export default function CadastrarAlimento() {
     nome: '',
     fc: '1',
     fcc: '1',
+    limitada_menor3: false,
     limitada_todas: false,
     perCapita: {
       creche: '',
@@ -22,7 +24,7 @@ export default function CadastrarAlimento() {
       fundamental: '',
       medio: '',
     },
-
+    restricoesAlimentares: [],
   });
 
   const [perCapitaIndisponivel, setPerCapitaIndisponivel] = useState<Record<Etapa, boolean>>({
@@ -84,6 +86,23 @@ export default function CadastrarAlimento() {
       }));
       setErrosPerCapita((prev) => ({ ...prev, [etapa]: null }));
     }
+  }
+
+  function alternarRestricao(restricao: RestricaoAlimentar) {
+    setForm((prev) => {
+      const restricoesAtuais = prev.restricoesAlimentares || [];
+      if (restricoesAtuais.includes(restricao)) {
+        return {
+          ...prev,
+          restricoesAlimentares: restricoesAtuais.filter(r => r !== restricao),
+        };
+      } else {
+        return {
+          ...prev,
+          restricoesAlimentares: [...restricoesAtuais, restricao],
+        };
+      }
+    });
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -150,6 +169,7 @@ export default function CadastrarAlimento() {
         fcc: Number(form.fcc.replace(',', '.')),
         limitada_menor3: form.limitada_menor3,
         limitada_todas: form.limitada_todas,
+        restricoesAlimentares: form.restricoesAlimentares,
         perCapita: Object.fromEntries(
           etapas.map((et) => {
             if (perCapitaIndisponivel[et]) {
@@ -185,9 +205,6 @@ export default function CadastrarAlimento() {
       setSalvando(false);
     }
   }
-
-
-
 
   return (
     <main className="bg-fundo text-texto min-h-screen py-12 px-4 font-sans">
@@ -259,6 +276,23 @@ export default function CadastrarAlimento() {
                 )}
               </div>
             ))}
+          </fieldset>
+
+          <fieldset className="space-y-3">
+            <legend className="text-sm font-medium">Restrições Alimentares</legend>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {Object.entries(RestricaoAlimentarDescricao).map(([key, value]) => (
+                <label key={key} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={form.restricoesAlimentares?.includes(key as RestricaoAlimentar) || false}
+                    onChange={() => alternarRestricao(key as RestricaoAlimentar)}
+                    className="accent-botao"
+                  />
+                  <span className="text-sm">{value}</span>
+                </label>
+              ))}
+            </div>
           </fieldset>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

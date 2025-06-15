@@ -63,3 +63,88 @@ export interface ResultadoCalculo {
     totalBruto: number;
     totalFinal: number;
 }
+
+// Novos tipos para Instituições
+export interface Endereco {
+    logradouro: string;
+    numero: string;
+    complemento?: string;
+    bairro: string;
+    cidade: string;
+    estado: string;
+    cep: string;
+}
+
+export interface AlunoAtipico {
+    restricaoId: string;
+    restricaoNome: string;
+    quantidade: number;
+}
+
+export interface Instituicao {
+    id: string;
+    nome: string;
+    tipo: TipoInstituicao;
+    endereco: Endereco;
+    totalAlunos: number;
+    alunosAtipicos: AlunoAtipico[];
+    dataCadastro: Date;
+    dataAtualizacao: Date;
+    ativo: boolean;
+}
+
+export type TipoInstituicao = 'Escola Municipal' | 'Creche' | 'Escola Estadual' | 'Centro de Educação Infantil';
+
+export enum RestricaoAlimentar {
+    ALERGICO_GLUTEN = "ALERGICO_GLUTEN",
+    ALERGICO_LACTOSE = "ALERGICO_LACTOSE",
+    ALERGICO_FRUTOS_MAR = "ALERGICO_FRUTOS_MAR",
+    ALERGICO_AMENDOIM = "ALERGICO_AMENDOIM",
+    ALERGICO_SOJA = "ALERGICO_SOJA",
+    ALERGICO_OVOS = "ALERGICO_OVOS",
+    INTOLERANTE_LACTOSE = "INTOLERANTE_LACTOSE",
+    INTOLERANTE_FRUTOSE = "INTOLERANTE_FRUTOSE",
+    CELIACO = "CELIACO",
+    DIABETES = "DIABETES",
+    FENILCETONURIA = "FENILCETONURIA",
+    RESTRICAO_CUSTOM = "RESTRICAO_CUSTOM"
+}
+
+export const RestricaoAlimentarDescricao: Record<RestricaoAlimentar, string> = {
+    [RestricaoAlimentar.ALERGICO_GLUTEN]: "Alérgico a Glúten",
+    [RestricaoAlimentar.ALERGICO_LACTOSE]: "Alérgico a Lactose",
+    [RestricaoAlimentar.ALERGICO_FRUTOS_MAR]: "Alérgico a Frutos do Mar",
+    [RestricaoAlimentar.ALERGICO_AMENDOIM]: "Alérgico a Amendoim",
+    [RestricaoAlimentar.ALERGICO_SOJA]: "Alérgico a Soja",
+    [RestricaoAlimentar.ALERGICO_OVOS]: "Alérgico a Ovos",
+    [RestricaoAlimentar.INTOLERANTE_LACTOSE]: "Intolerante a Lactose",
+    [RestricaoAlimentar.INTOLERANTE_FRUTOSE]: "Intolerante a Frutose",
+    [RestricaoAlimentar.CELIACO]: "Celíaco",
+    [RestricaoAlimentar.DIABETES]: "Diabetes",
+    [RestricaoAlimentar.FENILCETONURIA]: "Fenilcetonúria",
+    [RestricaoAlimentar.RESTRICAO_CUSTOM]: "Restrição Personalizada"
+};
+
+// Tipo para Cardápio completo
+export interface Cardapio {
+    id: string;
+    nome: string;
+    descricao: string;
+    refeicoes: RefeicaoCardapio[];
+    dataCadastro: Date;
+    dataAtualizacao: Date;
+    ativo: boolean;
+}
+
+export interface RefeicaoCardapio {
+    id: string;
+    nome: string;
+    horario?: string;
+    alimentos: AlimentoCardapio[];
+    ordem: number;
+}
+
+export interface AlimentoCardapio {
+    alimentoId: string;
+    quantidade: number; 
+}
