@@ -1,1 +1,151 @@
 @import "tailwindcss";
+
+/* Importar a fonte Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Variáveis CSS customizadas */
+:root {
+  --color-primary: #4C6E5D;
+  --color-secondary: #6B7F66;
+  --color-background: #FAFAF8;
+  --color-surface: #FFFFFF;
+  --color-surface-secondary: #F5F5F3;
+  --color-text-primary: #000000;
+  --color-text-secondary: #4C4C4C;
+  --color-border: #E5E5E5;
+  --color-accent: #C8D5B9;
+  --color-success: #4CAF50;
+  --color-error: #F44336;
+  --color-warning: #FF9800;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+}
+
+#__next {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Container responsivo personalizado - Melhor aproveitamento de tela */
+.container-custom {
+  width: 100%;
+  max-width: 1440px; /* Aumentado de 1200px */
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+@media (min-width: 640px) {
+  .container-custom {
+    padding: 0 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-custom {
+    padding: 0 32px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container-custom {
+    padding: 0 48px;
+  }
+}
+
+/* Animações suaves */
+* {
+  transition: all 0.2s ease;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary);
+}
+
+/* Classes utilitárias customizadas */
+.card-shadow {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.card-shadow-hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Animação de acordeão */
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.accordion-content.open {
+  max-height: 1000px;
+  transition: max-height 0.3s ease-in;
+}
+
+/* Botões com efeito de hover melhorado */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 110, 93, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(76, 110, 93, 0.2);
+}
+
+/* Layout de altura total */
+.full-height-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}

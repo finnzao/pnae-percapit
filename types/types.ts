@@ -145,6 +145,7 @@ export interface RefeicaoCardapio {
 }
 
 export interface AlimentoCardapio {
+    nome?: string;
     alimentoId: string;
     quantidade: number; 
 }

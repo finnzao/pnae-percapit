@@ -35,6 +35,7 @@ export async function POST(request: Request) {
     try {
       const conteudoAtual = await fs.readFile(INSTITUICOES_PATH, 'utf-8');
       instituicoes = JSON.parse(conteudoAtual);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       console.warn('[API] Nenhum arquivo de instituições existente, será criado um novo.');
     }
