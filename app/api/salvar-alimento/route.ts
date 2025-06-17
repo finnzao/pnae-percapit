@@ -1,85 +1,58 @@
 import { NextResponse } from 'next/server';
-import { instituicaoSchema } from '@/types/zodSchemas';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
+import { Alimento } from '@/types';
 
-const INSTITUICOES_PATH = path.resolve(process.cwd(), 'app/api/instituicoes.json');
-
-function normalizarTexto(texto: string): string {
-  return texto
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim();
-}
+const ALIMENTOS_PATH = path.resolve(process.cwd(), 'app/api/alimentos.json');
 
 export async function POST(request: Request) {
-  let body: unknown;
-
   try {
-    body = await request.json();
-    const parsed = instituicaoSchema.parse(body);
+    const body: Alimento = await request.json();
     
-    // Adiciona campos adicionais
-    const instituicao = {
-      id: uuidv4(),
-      ...parsed,
-      dataCadastro: new Date(),
-      dataAtualizacao: new Date(),
-      ativo: true
-    };
-
     // Lê o conteúdo atual do arquivo
-    let instituicoes: any[] = [];
+    let alimentos: Alimento[] = [];
     try {
-      const conteudoAtual = await fs.readFile(INSTITUICOES_PATH, 'utf-8');
-      instituicoes = JSON.parse(conteudoAtual);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
-      console.warn('[API] Nenhum arquivo de instituições existente, será criado um novo.');
+      const conteudoAtual = await fs.readFile(ALIMENTOS_PATH, 'utf-8');
+      alimentos = JSON.parse(conteudoAtual);
+    } catch {
+      // Arquivo não existe ainda, será criado
     }
 
-    // Verifica duplicados
-    const nomeNormalizado = normalizarTexto(instituicao.nome);
-    const existeDuplicado = instituicoes.some(inst =>
-      normalizarTexto(inst.nome) === nomeNormalizado && inst.ativo
+    // Verifica se já existe um alimento com o mesmo nome
+    const existe = alimentos.some(a => 
+      a.nome.toLowerCase() === body.nome.toLowerCase()
     );
 
-    if (existeDuplicado) {
+    if (existe) {
       return NextResponse.json(
-        { ok: false, error: 'Já existe uma instituição cadastrada com esse nome.' },
+        { ok: false, error: 'Já existe um alimento com esse nome.' },
         { status: 400 }
       );
     }
 
-    // Adiciona e salva
-    instituicoes.push(instituicao);
-    await fs.writeFile(INSTITUICOES_PATH, JSON.stringify(instituicoes, null, 2), 'utf-8');
+    // Adiciona o novo alimento
+    alimentos.push(body);
 
-    console.log('[API] Instituição salva com sucesso:', instituicao);
-    return NextResponse.json({ ok: true, data: instituicao }, { status: 200 });
+    // Salva no arquivo
+    await fs.writeFile(ALIMENTOS_PATH, JSON.stringify(alimentos, null, 2), 'utf-8');
 
+    return NextResponse.json({ ok: true, data: body }, { status: 200 });
   } catch (error) {
-    console.error('[API] Erro ao processar instituição:', error);
-    return NextResponse.json({ 
-      ok: false, 
-      error: error instanceof Error ? error.message : 'Erro ao salvar instituição' 
-    }, { status: 400 });
+    console.error('[API] Erro ao salvar alimento:', error);
+    return NextResponse.json(
+      { ok: false, error: 'Erro ao salvar alimento' },
+      { status: 500 }
+    );
   }
 }
 
 export async function GET() {
   try {
-    const conteudo = await fs.readFile(INSTITUICOES_PATH, 'utf-8');
-    const instituicoes = JSON.parse(conteudo);
-    
-    // Retorna apenas instituições ativas
-    const instituicoesAtivas = instituicoes.filter((inst: any) => inst.ativo);
-    
-    return NextResponse.json({ ok: true, data: instituicoesAtivas }, { status: 200 });
-  } catch (error) {
-    console.warn('[API] Erro ao ler instituições:', error);
+    const conteudo = await fs.readFile(ALIMENTOS_PATH, 'utf-8');
+    const alimentos: Alimento[] = JSON.parse(conteudo);
+    return NextResponse.json({ ok: true, data: alimentos }, { status: 200 });
+  } catch {
+    // Se não existir arquivo, retorna array vazio
     return NextResponse.json({ ok: true, data: [] }, { status: 200 });
   }
 }

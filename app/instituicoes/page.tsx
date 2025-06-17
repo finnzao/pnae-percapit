@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { RestricaoAlimentar, RestricaoAlimentarDescricao, TipoInstituicao, Instituicao, AlunoAtipico } from '@/types';
+import { Instituicao, AlunoAtipico } from '@/types';
 import Header from '@/components/Header';
 import { ArrowLeft, Building2, Plus } from 'lucide-react';
 
@@ -26,7 +26,7 @@ export default function InstituicoesPage() {
       } else {
         setErro('Erro ao carregar instituições');
       }
-    } catch (error) {
+    } catch {
       setErro('Erro ao conectar com o servidor');
     } finally {
       setCarregando(false);

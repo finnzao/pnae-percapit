@@ -83,6 +83,7 @@ export default function CadastrarInstituicaoPage() {
     }));
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const atualizarRestricao = (index: number, campo: keyof AlunoAtipico, valor: any) => {
     setForm((prev) => {
       const novasRestricoes = [...prev.alunosAtipicos];

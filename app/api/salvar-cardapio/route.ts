@@ -2,14 +2,18 @@ import { NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { Cardapio } from '@/types';
 
 const CARDAPIOS_PATH = path.resolve(process.cwd(), 'app/api/cardapios.json');
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface CardapioInput extends Omit<Cardapio, 'id' | 'dataCadastro' | 'dataAtualizacao' | 'ativo'> {}
+
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body: CardapioInput = await request.json();
     
-    const cardapio = {
+    const cardapio: Cardapio = {
       id: uuidv4(),
       ...body,
       dataCadastro: new Date(),
@@ -18,11 +22,11 @@ export async function POST(request: Request) {
     };
 
     // Lê cardápios existentes
-    let cardapios: any[] = [];
+    let cardapios: Cardapio[] = [];
     try {
       const conteudoAtual = await fs.readFile(CARDAPIOS_PATH, 'utf-8');
       cardapios = JSON.parse(conteudoAtual);
-    } catch (err) {
+    } catch {
       console.log('[API] Criando novo arquivo de cardápios');
     }
 
@@ -43,11 +47,11 @@ export async function POST(request: Request) {
 export async function GET() {
   try {
     const conteudo = await fs.readFile(CARDAPIOS_PATH, 'utf-8');
-    const cardapios = JSON.parse(conteudo);
-    const cardapiosAtivos = cardapios.filter((c: any) => c.ativo);
+    const cardapios: Cardapio[] = JSON.parse(conteudo);
+    const cardapiosAtivos = cardapios.filter((c: Cardapio) => c.ativo);
     
     return NextResponse.json({ ok: true, data: cardapiosAtivos }, { status: 200 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ ok: true, data: [] }, { status: 200 });
   }
 }

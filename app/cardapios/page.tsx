@@ -4,20 +4,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { ArrowLeft, Plus, Calendar, Clock, Utensils } from 'lucide-react';
-
-interface CardapioSalvo {
-  id: string;
-  nome: string;
-  descricao: string;
-  refeicoes: any[];
-  dataCadastro: string;
-  dataAtualizacao: string;
-  ativo: boolean;
-}
+import { Cardapio, RefeicaoCardapio } from '@/types';
 
 export default function CardapiosPage() {
   const router = useRouter();
-  const [cardapios, setCardapios] = useState<CardapioSalvo[]>([]);
+  const [cardapios, setCardapios] = useState<Cardapio[]>([]);
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
@@ -39,12 +30,12 @@ export default function CardapiosPage() {
     }
   };
 
-  const formatarData = (dataString: string) => {
+  const formatarData = (dataString: string | Date) => {
     const data = new Date(dataString);
     return data.toLocaleDateString('pt-BR');
   };
 
-  const contarAlimentos = (refeicoes: any[]) => {
+  const contarAlimentos = (refeicoes: RefeicaoCardapio[]) => {
     return refeicoes.reduce((total, refeicao) => total + refeicao.alimentos.length, 0);
   };
 
