@@ -3,8 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
-import { 
-  Utensils, 
+import {
+  Utensils,
   Calculator,
   Building2,
   Search,
@@ -49,9 +49,9 @@ export default function HomePage() {
       onClick: () => router.push('/cadastrarAlimento')
     },
     {
-      title: 'Guia de Abastecimento',
+      title: 'Cardápios Salvos',
       icon: <FileText className="h-5 w-5" />,
-      onClick: () => router.push('/guia-abastecimento')
+      onClick: () => router.push('/cardapios')
     },
     {
       title: 'Refeições',
@@ -68,7 +68,7 @@ export default function HomePage() {
   return (
     <div className="full-height-layout bg-background">
       <Header />
-      
+
       <main className="main-content">
         <div className="container-custom py-8 px-4 md:px-6">
           {/* Cabeçalho */}
@@ -78,7 +78,7 @@ export default function HomePage() {
               Simplifique o planejamento e distribuição de alimentos para instituições educacionais
             </p>
           </div>
-          
+
           {/* Barra de pesquisa */}
           <div className="relative max-w-3xl mx-auto mb-12">
             <div className="relative flex items-center">
@@ -101,7 +101,7 @@ export default function HomePage() {
                 onClick={action.onClick}
                 className="flex flex-col items-center justify-center bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 text-center h-64"
               >
-                <div 
+                <div
                   className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
                   style={{ backgroundColor: `${action.color}20` }}
                 >

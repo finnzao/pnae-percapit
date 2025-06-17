@@ -29,6 +29,9 @@ const config: Config = {
                 'card': '0 2px 8px rgba(0, 0, 0, 0.06)',
                 'card-hover': '0 4px 16px rgba(0, 0, 0, 0.1)',
             },
+            minHeight: {
+                '4/5': '80%',
+            }
         },
     },
     plugins: [],
