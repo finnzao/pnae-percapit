@@ -11,7 +11,7 @@ import {
 } from '../api/utils/alimentosUtils';
 import AlertaRestricao, { Restricao } from '@/components/AlertaRestricao';
 import Header from '@/components/Header';
-import { UnidadeMedida, Etapa, ResultadoCalculo, Alimento, UnidadePeso } from '@/types';
+import { Etapa, ResultadoCalculo, Alimento, UnidadePeso } from '@/types';
 import { ArrowLeft } from 'lucide-react';
 
 export default function CalcularPage() {
@@ -23,7 +23,7 @@ export default function CalcularPage() {
   const [mensagemErro, setMensagemErro] = useState<string | null>(null);
   const [sugestoes, setSugestoes] = useState<string[]>([]);
   const [pesoPorPacote, setPesoPorPacote] = useState<string>('');
-  const [unidadePacote, setUnidadePacote] = useState<UnidadeMedida>(UnidadePeso.KG);
+  const [unidadePacote, setUnidadePacote] = useState<UnidadePeso>(UnidadePeso.KG);
 
   const autocompleteRef = useRef<HTMLDivElement>(null);
 
@@ -43,7 +43,7 @@ export default function CalcularPage() {
       resultado,
       isNaN(pesoNumerico) ? '' : pesoNumerico,
       unidadePacote,
-      info?.unidade_medida || UnidadePeso.G
+      (info?.unidade_medida as UnidadePeso) || UnidadePeso.G
     );
   }, [resultado, pesoPorPacote, unidadePacote, info?.unidade_medida]);
 
@@ -226,11 +226,11 @@ export default function CalcularPage() {
                 />
                 <select
                   value={unidadePacote}
-                  onChange={e => setUnidadePacote(e.target.value as UnidadeMedida)}
+                  onChange={e => setUnidadePacote(e.target.value as UnidadePeso)}
                   className="px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6E5D] focus:border-transparent"
                 >
-                  <option value="kg">kg</option>
-                  <option value="g">g</option>
+                  <option value={UnidadePeso.KG}>kg</option>
+                  <option value={UnidadePeso.G}>g</option>
                 </select>
               </div>
             </div>
