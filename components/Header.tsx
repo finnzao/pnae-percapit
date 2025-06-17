@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Home } from 'lucide-react';
+import { Home, User } from 'lucide-react';
 
 export default function Header() {
   const router = useRouter();
@@ -15,21 +15,19 @@ export default function Header() {
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
-      <div className="container-custom">
-        <div className="flex items-center justify-between py-4 lg:py-5">
+      <div className="container-custom pt-1 px-4">
+        <div className="flex items-center justify-between py-4">
           {/* Logo e Nome do Sistema */}
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 lg:w-12 lg:h-12 bg-[#4C6E5D] rounded-lg flex items-center justify-center cursor-pointer hover:bg-[#6B7F66] transition-colors"
-                 onClick={() => router.push('/')}>
-              <span className="text-white font-bold text-xl lg:text-2xl">N</span>
+          <div className="flex items-center gap-x-3 cursor-pointer " onClick={() => router.push('/')}>
+            <div className="w-10 h-10 bg-[#4C6E5D] rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-xl">N</span>
             </div>
-            <h1 className="text-xl lg:text-2xl font-semibold text-[#4C6E5D] cursor-pointer hover:text-[#6B7F66] transition-colors"
-                onClick={() => router.push('/')}>
+            <h1 className="text-xl font-semibold text-[#4C6E5D]">
               NutriGestão
             </h1>
           </div>
 
-          {/* Saudação e Navegação */}
+          {/* Navegação e Usuário */}
           <div className="flex items-center gap-6">
             <button
               onClick={() => router.push('/')}
@@ -38,10 +36,15 @@ export default function Header() {
               <Home className="w-5 h-5" />
               <span className="hidden lg:inline">Início</span>
             </button>
-            
-            <div className="text-right">
-              <p className="text-lg font-semibold text-black">Olá, {userName}</p>
-              <p className="text-sm text-gray-600 hidden sm:block">Bem-vinda de volta</p>
+
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-[#E7E5DF] rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-[#4C6E5D]" />
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-semibold text-black">{userName}</p>
+                <p className="text-xs text-gray-600 hidden sm:block">Nutricionista</p>
+              </div>
             </div>
           </div>
         </div>

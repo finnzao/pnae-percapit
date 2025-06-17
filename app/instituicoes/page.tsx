@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { RestricaoAlimentar, RestricaoAlimentarDescricao, TipoInstituicao, Instituicao, AlunoAtipico } from '@/types';
+import Header from '@/components/Header';
+import { ArrowLeft, Building2, Plus } from 'lucide-react';
 
 export default function InstituicoesPage() {
   const router = useRouter();
@@ -37,39 +39,57 @@ export default function InstituicoesPage() {
 
   if (carregando) {
     return (
-      <main className="bg-fundo text-texto min-h-screen py-12 px-4 font-sans">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-center">Carregando instituições...</p>
-        </div>
-      </main>
+      <div className="min-h-screen bg-[#FAFAF8]">
+        <Header />
+        <main className="page-container">
+          <div className="flex justify-center items-center h-64">
+            <p className="text-center text-gray-500">Carregando instituições...</p>
+          </div>
+        </main>
+      </div>
     );
   }
 
   return (
-    <main className="bg-fundo text-texto min-h-screen py-12 px-4 font-sans">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-[#FAFAF8]">
+      <Header />
+      
+      <main className="page-container">
+        {/* Navegação */}
+        <button
+          onClick={() => router.push('/')}
+          className="flex items-center gap-2 text-[#4C6E5D] hover:text-[#6B7F66] mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Voltar ao início</span>
+        </button>
+        
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Instituições Cadastradas</h1>
+          <h1 className="text-3xl font-bold text-[#4C6E5D]">Instituições</h1>
           <button
             onClick={() => router.push('/instituicoes/cadastrar')}
-            className="px-6 py-2 bg-botao text-white rounded-md hover:opacity-90 transition"
+            className="px-4 py-2 bg-[#4C6E5D] text-white rounded-md hover:bg-[#6B7F66] transition flex items-center gap-2"
           >
+            <Plus className="w-4 h-4" />
             Nova Instituição
           </button>
         </div>
 
         {erro && (
-          <div className="text-red-700 bg-red-100 border border-red-400 p-3 rounded mb-4">
+          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6">
             {erro}
           </div>
         )}
 
         {instituicoes.length === 0 ? (
-          <div className="bg-cartao p-8 rounded-2xl shadow-lg text-center">
-            <p className="text-gray-600 mb-4">Nenhuma instituição cadastrada ainda.</p>
+          <div className="bg-white p-8 rounded-xl shadow-sm text-center">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+              <Building2 className="w-10 h-10 text-gray-400" />
+            </div>
+            <p className="text-gray-600 mb-6">Nenhuma instituição cadastrada ainda.</p>
             <button
               onClick={() => router.push('/instituicoes/cadastrar')}
-              className="px-6 py-2 bg-acento text-black rounded-md hover:opacity-90 transition"
+              className="px-6 py-2 bg-[#4C6E5D] text-white rounded-md hover:bg-[#6B7F66] transition"
             >
               Cadastrar Primeira Instituição
             </button>
@@ -79,7 +99,7 @@ export default function InstituicoesPage() {
             {instituicoes.map((instituicao) => (
               <div
                 key={instituicao.id}
-                className="bg-cartao p-6 rounded-2xl shadow-lg border border-acento hover:shadow-xl transition cursor-pointer"
+                className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer"
                 onClick={() => router.push(`/instituicoes/${instituicao.id}`)}
               >
                 <h2 className="text-xl font-bold mb-2">{instituicao.nome}</h2>
@@ -100,13 +120,13 @@ export default function InstituicoesPage() {
                 </div>
 
                 {instituicao.alunosAtipicos.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-gray-300">
+                  <div className="mt-4 pt-4 border-t border-gray-200">
                     <p className="text-sm font-medium mb-2">Restrições alimentares:</p>
                     <div className="flex flex-wrap gap-1">
                       {instituicao.alunosAtipicos.map((atipico, index) => (
                         <span
                           key={index}
-                          className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded"
+                          className="text-xs bg-red-50 text-red-700 px-2 py-1 rounded"
                         >
                           {atipico.restricaoNome}: {atipico.quantidade}
                         </span>
@@ -118,16 +138,7 @@ export default function InstituicoesPage() {
             ))}
           </div>
         )}
-
-        <div className="mt-8 flex justify-center">
-          <button
-            onClick={() => router.push('/')}
-            className="px-6 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400 transition"
-          >
-            Voltar ao Início
-          </button>
-        </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

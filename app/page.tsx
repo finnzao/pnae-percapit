@@ -3,220 +3,132 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
-import ActionCard from '@/components/ActionCard';
-import AccordionItem from '@/components/AccordionItem';
 import { 
   Utensils, 
-  Plus, 
-  FileText, 
-  BarChart3,
-  Search,
   Calculator,
-  Building2
+  Building2,
+  Search,
+  PlusSquare,
+  FileText,
+  Coffee,
+  BarChart
 } from 'lucide-react';
-import { converterListaParaMapaDeAlimentos } from './api/utils/alimentosUtils';
-import { Alimento, Etapa } from '@/types';
-
-interface AlimentoPorEtapa {
-  creche: string[];
-  pre: string[];
-  fundamental: string[];
-  medio: string[];
-}
 
 export default function HomePage() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
-  const [alimentosPorEtapa, setAlimentosPorEtapa] = useState<AlimentoPorEtapa>({
-    creche: [],
-    pre: [],
-    fundamental: [],
-    medio: []
-  });
 
-  useEffect(() => {
-    // Organizar alimentos por etapa
-    const alimentosMap = converterListaParaMapaDeAlimentos();
-    const organizados: AlimentoPorEtapa = {
-      creche: [],
-      pre: [],
-      fundamental: [],
-      medio: []
-    };
-
-    Object.values(alimentosMap).forEach((alimento: Alimento) => {
-      const etapas: Etapa[] = ['creche', 'pre', 'fundamental', 'medio'];
-      etapas.forEach(etapa => {
-        if (alimento.perCapita[etapa].status === 'disponivel') {
-          organizados[etapa].push(alimento.nome);
-        }
-      });
-    });
-
-    // Ordenar alfabeticamente
-    (Object.keys(organizados) as Etapa[]).forEach(etapa => {
-      organizados[etapa].sort();
-    });
-
-    setAlimentosPorEtapa(organizados);
-  }, []);
-
-  const actionCards = [
+  const mainActions = [
     {
-      icon: <Utensils />,
-      title: 'Criar cardápio',
-      description: 'Planeje as refeições do dia',
-      onClick: () => router.push('/cardapio'),
+      title: 'Calculadora',
+      description: 'Calcule quantidades necessárias para suas refeições',
+      icon: <Calculator className="h-6 w-6" />,
+      onClick: () => router.push('/calcular'),
       color: '#4C6E5D'
     },
     {
-      icon: <Plus />,
-      title: 'Novo alimento',
-      description: 'Cadastre ingredientes',
-      onClick: () => router.push('/cadastrarAlimento'),
+      title: 'Cardápios',
+      description: 'Crie e gerencie cardápios completos',
+      icon: <Utensils className="h-6 w-6" />,
+      onClick: () => router.push('/cardapio'),
       color: '#6B7F66'
     },
     {
-      icon: <FileText />,
-      title: 'Gerar guia',
-      description: 'Guia de abastecimento',
-      onClick: () => router.push('/guia-abastecimento'),
-      color: '#C8D5B9'
-    },
-    {
-      icon: <BarChart3 />,
-      title: 'Relatórios',
-      description: 'Dados consolidados',
-      onClick: () => router.push('/relatorios'),
+      title: 'Instituições',
+      description: 'Gerencie escolas e creches',
+      icon: <Building2 className="h-6 w-6" />,
+      onClick: () => router.push('/instituicoes'),
       color: '#4C6E5D'
     }
   ];
 
-  const filteredAlimentos = (alimentos: string[]) => {
-    if (!searchTerm) return alimentos;
-    return alimentos.filter(alimento => 
-      alimento.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  };
-
-  const etapasInfo = [
-    { key: 'creche' as Etapa, title: 'Creche', description: 'Crianças até 3 anos' },
-    { key: 'pre' as Etapa, title: 'Pré-escola', description: '4 a 5 anos' },
-    { key: 'fundamental' as Etapa, title: 'Ensino Fundamental', description: '6 a 14 anos' },
-    { key: 'medio' as Etapa, title: 'Ensino Médio', description: '15 a 17 anos' }
+  const secondaryActions = [
+    {
+      title: 'Novo Alimento',
+      icon: <PlusSquare className="h-5 w-5" />,
+      onClick: () => router.push('/cadastrarAlimento')
+    },
+    {
+      title: 'Guia de Abastecimento',
+      icon: <FileText className="h-5 w-5" />,
+      onClick: () => router.push('/guia-abastecimento')
+    },
+    {
+      title: 'Refeições',
+      icon: <Coffee className="h-5 w-5" />,
+      onClick: () => router.push('/refeicoes')
+    },
+    {
+      title: 'Relatórios',
+      icon: <BarChart className="h-5 w-5" />,
+      onClick: () => router.push('/relatorios')
+    }
   ];
 
   return (
-    <div className="full-height-layout">
+    <div className="full-height-layout bg-background">
       <Header />
       
       <main className="main-content">
-        <div className="container-custom flex-1 py-6 lg:py-8">
-          {/* Seção de Ações Rápidas */}
-          <section className="mb-8 lg:mb-12">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-              {actionCards.map((card, index) => (
-                <ActionCard key={index} {...card} />
-              ))}
+        <div className="container-custom py-8 px-4 md:px-6">
+          {/* Cabeçalho */}
+          <div className="text-center mb-12 max-w-3xl mx-auto">
+            <h1 className="text-3xl md:text-4xl font-bold text-primary mb-4">Sistema de Gestão Nutricional</h1>
+            <p className="text-text-secondary text-lg">
+              Simplifique o planejamento e distribuição de alimentos para instituições educacionais
+            </p>
+          </div>
+          
+          {/* Barra de pesquisa */}
+          <div className="relative max-w-3xl mx-auto mb-12">
+            <div className="relative flex items-center">
+              <Search className="absolute left-4 text-gray-400" size={20} />
+              <input
+                type="text"
+                placeholder="Pesquisar por alimentos, instituições ou cardápios..."
+                className="w-full bg-white py-4 pl-12 pr-4 rounded-full shadow-sm border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
-          </section>
+          </div>
 
-          {/* Grid de 2 colunas em telas grandes */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-            {/* Coluna Esquerda - Calculadora e Links Rápidos */}
-            <div className="space-y-6 lg:space-y-8">
-              {/* Botão de Cálculo Per Capita */}
-              <div className="bg-white rounded-xl p-6 lg:p-8 card-shadow h-full">
-                <div className="flex flex-col h-full">
-                  <div className="flex-1">
-                    <h2 className="text-xl lg:text-2xl font-semibold text-[#4C6E5D] mb-3">
-                      Calculadora Per Capita
-                    </h2>
-                    <p className="text-[#4C4C4C] mb-6">
-                      Calcule rapidamente as quantidades necessárias para suas refeições
-                    </p>
+          {/* Ações principais */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-5xl mx-auto">
+            {mainActions.map((action, index) => (
+              <button
+                key={index}
+                onClick={action.onClick}
+                className="flex flex-col items-center justify-center bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 text-center h-64"
+              >
+                <div 
+                  className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+                  style={{ backgroundColor: `${action.color}20` }}
+                >
+                  <div style={{ color: action.color }}>
+                    {action.icon}
                   </div>
-                  <button
-                    onClick={() => router.push('/calcular')}
-                    className="btn-primary w-full flex items-center justify-center gap-2"
-                  >
-                    <Calculator className="w-5 h-5" />
-                    Calcular Agora
-                  </button>
                 </div>
-              </div>
+                <h2 className="text-xl font-semibold mb-2">{action.title}</h2>
+                <p className="text-text-secondary">{action.description}</p>
+              </button>
+            ))}
+          </div>
 
-              {/* Card de Instituições */}
-              <div className="bg-white rounded-xl p-6 lg:p-8 card-shadow">
-                <div className="flex flex-col h-full">
-                  <div className="flex-1">
-                    <h2 className="text-xl lg:text-2xl font-semibold text-[#4C6E5D] mb-3">
-                      Gerenciar Instituições
-                    </h2>
-                    <p className="text-[#4C4C4C] mb-6">
-                      Cadastre e gerencie as escolas e creches atendidas
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => router.push('/instituicoes')}
-                    className="btn-primary w-full flex items-center justify-center gap-2"
-                    style={{ backgroundColor: '#6B7F66' }}
-                  >
-                    <Building2 className="w-5 h-5" />
-                    Acessar Instituições
-                  </button>
+          {/* Ações secundárias */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+            {secondaryActions.map((action, index) => (
+              <button
+                key={index}
+                onClick={action.onClick}
+                className="flex items-center gap-3 bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all"
+              >
+                <div className="text-primary">
+                  {action.icon}
                 </div>
-              </div>
-            </div>
-
-            {/* Coluna Direita - Alimentos por Categoria */}
-            <div className="bg-white rounded-xl card-shadow h-fit">
-              <div className="p-6 lg:p-8 border-b border-gray-200">
-                <h2 className="text-xl lg:text-2xl font-semibold text-black mb-4">
-                  Alimentos por Categoria Educacional
-                </h2>
-                
-                {/* Barra de pesquisa */}
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="text"
-                    placeholder="Pesquisar alimentos..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6E5D] focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              <div className="divide-y divide-gray-200">
-                {etapasInfo.map((etapa) => (
-                  <AccordionItem 
-                    key={etapa.key} 
-                    title={`${etapa.title} (${filteredAlimentos(alimentosPorEtapa[etapa.key]).length} alimentos)`}
-                    defaultOpen={etapa.key === 'fundamental'}
-                  >
-                    <p className="text-sm text-[#4C4C4C] mb-3">{etapa.description}</p>
-                    {filteredAlimentos(alimentosPorEtapa[etapa.key]).length > 0 ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
-                        {filteredAlimentos(alimentosPorEtapa[etapa.key]).map((alimento, index) => (
-                          <div
-                            key={index}
-                            className="px-3 py-2 bg-gray-50 rounded-lg text-sm text-[#4C4C4C] hover:bg-gray-100 cursor-pointer transition-colors"
-                          >
-                            {alimento}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-gray-400 italic">
-                        {searchTerm ? 'Nenhum alimento encontrado' : 'Nenhum alimento cadastrado para esta etapa'}
-                      </p>
-                    )}
-                  </AccordionItem>
-                ))}
-              </div>
-            </div>
+                <span className="font-medium">{action.title}</span>
+              </button>
+            ))}
           </div>
         </div>
       </main>

@@ -1,6 +1,9 @@
 'use client';
 import { Alimento, Etapa, RestricaoAlimentar, RestricaoAlimentarDescricao } from '@/types';
 import { useState } from 'react';
+import Header from '@/components/Header';
+import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const etapas: Etapa[] = ['creche', 'pre', 'fundamental', 'medio'];
 
@@ -12,6 +15,7 @@ type FormState = Omit<Alimento, 'fc' | 'fcc' | 'perCapita' | 'unidade_medida'> &
 };
 
 export default function CadastrarAlimento() {
+  const router = useRouter();
   const [form, setForm] = useState<FormState>({
     nome: '',
     fc: '1',
@@ -199,6 +203,9 @@ export default function CadastrarAlimento() {
       }
 
       setSucesso(true);
+      setTimeout(() => {
+        router.push('/');
+      }, 2000);
     } catch (err: unknown) {
       setErro(err instanceof Error ? err.message : 'Erro desconhecido');
     } finally {
@@ -207,139 +214,163 @@ export default function CadastrarAlimento() {
   }
 
   return (
-    <main className="bg-fundo text-texto min-h-screen py-12 px-4 font-sans">
-      <div className="max-w-3xl mx-auto bg-cartao p-8 rounded-2xl shadow-lg border border-acento">
-        <h1 className="text-2xl font-bold mb-6 text-center">Cadastrar novo alimento</h1>
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="flex flex-col space-y-1">
-            <label htmlFor="nome" className="text-sm font-medium">Nome</label>
-            <input
-              id="nome"
-              className="border border-acento p-2 rounded bg-white"
-              value={form.nome}
-              onChange={(e) => atualizarCampo('nome', e.target.value)}
-              required
-              placeholder="Ex: Arroz tipo 1"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="min-h-screen bg-[#FAFAF8]">
+      <Header />
+      
+      <main className="page-container">
+        {/* Navegação */}
+        <button
+          onClick={() => router.push('/')}
+          className="flex items-center gap-2 text-[#4C6E5D] hover:text-[#6B7F66] mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Voltar ao início</span>
+        </button>
+        
+        <div className="card-container">
+          <h1 className="text-2xl font-bold mb-6 text-center text-[#4C6E5D]">Cadastrar Novo Alimento</h1>
+          
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="flex flex-col space-y-1">
-              <label htmlFor="fc" className="text-sm font-medium">Fator de Correção (FC)</label>
+              <label htmlFor="nome" className="text-sm font-medium">Nome</label>
               <input
-                id="fc"
-                type="text"
-                className="border border-acento p-2 rounded bg-white"
-                value={form.fc}
-                onChange={(e) => handleNumeroChange('fc', e.target.value)}
+                id="nome"
+                className="border border-gray-200 p-2 rounded bg-white"
+                value={form.nome}
+                onChange={(e) => atualizarCampo('nome', e.target.value)}
                 required
+                placeholder="Ex: Arroz tipo 1"
               />
             </div>
-            <div className="flex flex-col space-y-1">
-              <label htmlFor="fcc" className="text-sm font-medium">Fator de Cozimento (FCC)</label>
-              <input
-                id="fcc"
-                type="text"
-                className="border border-acento p-2 rounded bg-white"
-                value={form.fcc}
-                onChange={(e) => handleNumeroChange('fcc', e.target.value)}
-                required
-              />
-            </div>
-          </div>
 
-          <fieldset className="space-y-3">
-            <legend className="text-sm font-medium">Per Capita (g)</legend>
-            {etapas.map((et) => (
-              <div key={et} className="grid grid-cols-[120px_1fr_auto] gap-3 items-center">
-                <label className="capitalize">{et}</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex flex-col space-y-1">
+                <label htmlFor="fc" className="text-sm font-medium">Fator de Correção (FC)</label>
                 <input
+                  id="fc"
                   type="text"
-                  className="border border-acento p-2 rounded bg-white"
-                  value={form.perCapita[et]}
-                  onChange={(e) => atualizarPerCapita(et, e.target.value)}
-                  disabled={perCapitaIndisponivel[et]}
-                  placeholder='Ex: "35"'
+                  className="border border-gray-200 p-2 rounded bg-white"
+                  value={form.fc}
+                  onChange={(e) => handleNumeroChange('fc', e.target.value)}
+                  required
                 />
-                <label className="flex items-center space-x-1 text-gray-600 text-xs">
-                  <input
-                    type="checkbox"
-                    checked={perCapitaIndisponivel[et]}
-                    onChange={() => alternarIndisponivel(et)}
-                  />
-                  <span>Indisponível para essa etapa</span>
-                </label>
-                {errosPerCapita[et] && (
-                  <div className="col-span-2 text-red-600 text-xs">
-                    {errosPerCapita[et]}
-                  </div>
-                )}
               </div>
-            ))}
-          </fieldset>
+              <div className="flex flex-col space-y-1">
+                <label htmlFor="fcc" className="text-sm font-medium">Fator de Cozimento (FCC)</label>
+                <input
+                  id="fcc"
+                  type="text"
+                  className="border border-gray-200 p-2 rounded bg-white"
+                  value={form.fcc}
+                  onChange={(e) => handleNumeroChange('fcc', e.target.value)}
+                  required
+                />
+              </div>
+            </div>
 
-          <fieldset className="space-y-3">
-            <legend className="text-sm font-medium">Restrições Alimentares</legend>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {Object.entries(RestricaoAlimentarDescricao).map(([key, value]) => (
-                <label key={key} className="flex items-center space-x-2">
+            <fieldset className="space-y-3">
+              <legend className="text-sm font-medium">Per Capita (g)</legend>
+              {etapas.map((et) => (
+                <div key={et} className="grid grid-cols-[120px_1fr_auto] gap-3 items-center">
+                  <label className="capitalize">{et}</label>
                   <input
-                    type="checkbox"
-                    checked={form.restricoesAlimentares?.includes(key as RestricaoAlimentar) || false}
-                    onChange={() => alternarRestricao(key as RestricaoAlimentar)}
-                    className="accent-botao"
+                    type="text"
+                    className="border border-gray-200 p-2 rounded bg-white"
+                    value={form.perCapita[et]}
+                    onChange={(e) => atualizarPerCapita(et, e.target.value)}
+                    disabled={perCapitaIndisponivel[et]}
+                    placeholder='Ex: "35"'
                   />
-                  <span className="text-sm">{value}</span>
-                </label>
+                  <label className="flex items-center space-x-1 text-gray-600 text-xs">
+                    <input
+                      type="checkbox"
+                      checked={perCapitaIndisponivel[et]}
+                      onChange={() => alternarIndisponivel(et)}
+                    />
+                    <span>Indisponível para essa etapa</span>
+                  </label>
+                  {errosPerCapita[et] && (
+                    <div className="col-span-2 text-red-600 text-xs">
+                      {errosPerCapita[et]}
+                    </div>
+                  )}
+                </div>
               ))}
+            </fieldset>
+
+            <fieldset className="space-y-3">
+              <legend className="text-sm font-medium">Restrições Alimentares</legend>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {Object.entries(RestricaoAlimentarDescricao).map(([key, value]) => (
+                  <label key={key} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={form.restricoesAlimentares?.includes(key as RestricaoAlimentar) || false}
+                      onChange={() => alternarRestricao(key as RestricaoAlimentar)}
+                      className="accent-[#4C6E5D]"
+                    />
+                    <span className="text-sm">{value}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <label className="inline-flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={!!form.limitada_menor3}
+                  onChange={(e) => atualizarCampo('limitada_menor3', e.target.checked)}
+                  className="accent-[#4C6E5D]"
+                />
+                <span>Restrita para menores de 3 anos</span>
+              </label>
+
+              <label className="inline-flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={!!form.limitada_todas}
+                  onChange={(e) => atualizarCampo('limitada_todas', e.target.checked)}
+                  className="accent-[#4C6E5D]"
+                />
+                <span>Oferta limitada para todas as idades</span>
+              </label>
             </div>
-          </fieldset>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <label className="inline-flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={!!form.limitada_menor3}
-                onChange={(e) => atualizarCampo('limitada_menor3', e.target.checked)}
-                className="accent-botao"
-              />
-              <span>Restrita para menores de 3 anos</span>
-            </label>
+            {erro && (
+              <div className="text-red-700 bg-red-100 border border-red-400 p-3 rounded">
+                {erro}
+              </div>
+            )}
+            {sucesso && (
+              <div className="text-green-700 bg-green-100 border border-green-400 p-3 rounded">
+                Alimento salvo com sucesso! Redirecionando...
+              </div>
+            )}
 
-            <label className="inline-flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={!!form.limitada_todas}
-                onChange={(e) => atualizarCampo('limitada_todas', e.target.checked)}
-                className="accent-botao"
-              />
-              <span>Oferta limitada para todas as idades</span>
-            </label>
-          </div>
-
-          {erro && (
-            <div className="text-red-700 bg-red-100 border border-red-400 p-3 rounded">
-              {erro}
+            <div className="flex justify-between">
+              <button
+                type="button"
+                onClick={() => router.push('/')}
+                className="px-6 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400 transition"
+              >
+                Cancelar
+              </button>
+              
+              <button
+                type="submit"
+                disabled={salvando}
+                className={`px-6 py-2 rounded-md font-semibold transition ${salvando
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-[#4C6E5D] text-white hover:bg-[#6B7F66]'
+                  }`}
+              >
+                {salvando ? 'Salvando…' : 'Salvar'}
+              </button>
             </div>
-          )}
-          {sucesso && (
-            <div className="text-green-700 bg-green-100 border border-green-400 p-3 rounded">
-              Alimento salvo com sucesso!
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={salvando}
-            className={`w-full sm:w-auto px-6 py-2 rounded-md font-semibold transition ${salvando
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-botao text-black hover:opacity-90'
-              }`}
-          >
-            {salvando ? 'Salvando…' : 'Salvar'}
-          </button>
-        </form>
-      </div>
-    </main>
+          </form>
+        </div>
+      </main>
+    </div>
   );
 }
