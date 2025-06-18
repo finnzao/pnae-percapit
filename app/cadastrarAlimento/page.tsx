@@ -1,9 +1,10 @@
 'use client';
 import { Alimento, Etapa, RestricaoAlimentar, RestricaoAlimentarDescricao } from '@/types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { usePreventDoubleClick } from '@/hooks/usePreventDoubleClick';
 
 const etapas: Etapa[] = ['creche', 'pre', 'fundamental', 'medio'];
 
@@ -45,11 +46,34 @@ export default function CadastrarAlimento() {
     medio: null,
   });
 
-  const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState(false);
 
   const regexNumero = /^\d*([.,]?\d*)?$/;
+
+  // Hook para prevenir duplo clique
+  const { handleClick: handleSubmitClick, isLoading, cleanup } = usePreventDoubleClick(
+    async () => {
+      await salvarAlimento();
+    },
+    {
+      delay: 2000,
+      onError: (error) => setErro(error.message),
+      onSuccess: () => {
+        setSucesso(true);
+        setTimeout(() => {
+          router.push('/');
+        }, 2000);
+      }
+    }
+  );
+
+  // Cleanup quando o componente for desmontado
+  useEffect(() => {
+    return () => {
+      cleanup();
+    };
+  }, [cleanup]);
 
   function atualizarCampo<K extends keyof FormState>(campo: K, valor: FormState[K]) {
     setForm((prev) => ({ ...prev, [campo]: valor }));
@@ -109,28 +133,20 @@ export default function CadastrarAlimento() {
     });
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function salvarAlimento() {
     setErro(null);
     setSucesso(false);
-    setSalvando(true);
 
     if (form.nome.trim() === '') {
-      setErro('O campo Nome é obrigatório e não pode conter apenas espaços.');
-      setSalvando(false);
-      return;
+      throw new Error('O campo Nome é obrigatório e não pode conter apenas espaços.');
     }
 
     if (form.fc.trim() === '') {
-      setErro('O campo Fator de Correção (FC) é obrigatório.');
-      setSalvando(false);
-      return;
+      throw new Error('O campo Fator de Correção (FC) é obrigatório.');
     }
 
     if (form.fcc.trim() === '') {
-      setErro('O campo Fator de Cozimento (FCC) é obrigatório.');
-      setSalvando(false);
-      return;
+      throw new Error('O campo Fator de Cozimento (FCC) é obrigatório.');
     }
 
     let temErro = false;
@@ -154,63 +170,56 @@ export default function CadastrarAlimento() {
     );
 
     if (!peloMenosUmPreenchido) {
-      setErro('É obrigatório informar o per capita de pelo menos uma etapa.');
-      setSalvando(false);
-      return;
+      throw new Error('É obrigatório informar o per capita de pelo menos uma etapa.');
     }
 
     if (temErro) {
       setErrosPerCapita(novosErros);
-      setErro('Corrija os campos de per capita antes de continuar.');
-      setSalvando(false);
-      return;
+      throw new Error('Corrija os campos de per capita antes de continuar.');
     }
 
-    try {
-      const payload: Alimento = {
-        nome: form.nome.trim(),
-        fc: Number(form.fc.replace(',', '.')),
-        fcc: Number(form.fcc.replace(',', '.')),
-        limitada_menor3: form.limitada_menor3,
-        limitada_todas: form.limitada_todas,
-        restricoesAlimentares: form.restricoesAlimentares,
-        perCapita: Object.fromEntries(
-          etapas.map((et) => {
-            if (perCapitaIndisponivel[et]) {
-              return [et, { status: 'indisponivel' }];
-            }
-            return [
-              et,
-              {
-                status: 'disponivel',
-                valor: Number(form.perCapita[et].replace(',', '.')),
-              },
-            ];
-          })
-        ) as Alimento['perCapita'],
-      };
+    const payload: Alimento = {
+      nome: form.nome.trim(),
+      fc: Number(form.fc.replace(',', '.')),
+      fcc: Number(form.fcc.replace(',', '.')),
+      limitada_menor3: form.limitada_menor3,
+      limitada_todas: form.limitada_todas,
+      restricoesAlimentares: form.restricoesAlimentares,
+      perCapita: Object.fromEntries(
+        etapas.map((et) => {
+          if (perCapitaIndisponivel[et]) {
+            return [et, { status: 'indisponivel' }];
+          }
+          return [
+            et,
+            {
+              status: 'disponivel',
+              valor: Number(form.perCapita[et].replace(',', '.')),
+            },
+          ];
+        })
+      ) as Alimento['perCapita'],
+    };
 
-      const resposta = await fetch('/api/salvar-alimento', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+    const resposta = await fetch('/api/salvar-alimento', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
 
-      if (!resposta.ok) {
-        throw new Error(
-          `Erro ${resposta.status}: ${(await resposta.text()) || 'Falha ao salvar.'}`
-        );
+    const data = await resposta.json();
+
+    if (!resposta.ok) {
+      if (resposta.status === 429) {
+        throw new Error('Aguarde alguns segundos antes de tentar novamente.');
       }
-
-      setSucesso(true);
-      setTimeout(() => {
-        router.push('/');
-      }, 2000);
-    } catch (err: unknown) {
-      setErro(err instanceof Error ? err.message : 'Erro desconhecido');
-    } finally {
-      setSalvando(false);
+      throw new Error(data.error || 'Falha ao salvar.');
     }
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    handleSubmitClick();
   }
 
   return (
@@ -352,20 +361,26 @@ export default function CadastrarAlimento() {
               <button
                 type="button"
                 onClick={() => router.push('/')}
-                className="px-6 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400 transition"
+                disabled={isLoading}
+                className={`px-6 py-2 rounded-md transition ${
+                  isLoading 
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                    : 'bg-gray-300 text-black hover:bg-gray-400'
+                }`}
               >
                 Cancelar
               </button>
               
               <button
                 type="submit"
-                disabled={salvando}
-                className={`px-6 py-2 rounded-md font-semibold transition ${salvando
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-[#4C6E5D] text-white hover:bg-[#6B7F66]'
-                  }`}
+                disabled={isLoading}
+                className={`px-6 py-2 rounded-md font-semibold transition ${
+                  isLoading
+                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                    : 'bg-[#4C6E5D] text-white hover:bg-[#6B7F66]'
+                }`}
               >
-                {salvando ? 'Salvando…' : 'Salvar'}
+                {isLoading ? 'Salvando…' : 'Salvar'}
               </button>
             </div>
           </form>

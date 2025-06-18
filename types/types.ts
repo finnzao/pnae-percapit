@@ -149,3 +149,39 @@ export interface AlimentoCardapio {
     alimentoId: string;
     quantidade: number; 
 }
+
+// Tipos para Guia de Abastecimento
+export interface GuiaAbastecimento {
+    id: string;
+    instituicaoId: string;
+    instituicaoNome?: string;
+    dataInicio: Date;
+    dataFim: Date;
+    cardapiosDiarios: CardapioDiario[];
+    calculosDistribuicao: CalculoDistribuicao[];
+    observacoes: string;
+    versao: number;
+    dataGeracao: Date;
+    usuarioGeracao: string;
+    status: 'Rascunho' | 'Finalizado' | 'Distribuído';
+}
+
+export interface CardapioDiario {
+    data: Date;
+    cardapioId: string;
+    cardapioNome?: string;
+}
+
+export interface CalculoDistribuicao {
+    alimentoId: string;
+    alimentoNome: string;
+    quantidadeTotal: number;
+    unidadeMedida: string;
+    detalhamentoRefeicoes: DetalhamentoRefeicao[];
+}
+
+export interface DetalhamentoRefeicao {
+    refeicaoId: string;
+    refeicaoNome: string;
+    quantidade: number;
+}

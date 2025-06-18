@@ -1,0 +1,97 @@
+[
+  {
+    "id": "da7ae12d-128e-4f52-912b-ea72d14a05b9",
+    "nome": "Teste 1",
+    "descricao": "Cardapio teste",
+    "refeicoes": [
+      {
+        "id": "ref-0",
+        "nome": "Café da Manhã",
+        "horario": "07:00",
+        "alimentos": [
+          {
+            "nome": "Macarrão, trigo, cru, com ovos",
+            "alimentoId": "macarrao, trigo, cru, com ovos",
+            "quantidade": 1
+          },
+          {
+            "nome": "Macarrão, trigo, cru, com ovos",
+            "alimentoId": "macarrao, trigo, cru, com ovos",
+            "quantidade": 2
+          },
+          {
+            "nome": "Feijão, preto, cru",
+            "alimentoId": "feijao, preto, cru",
+            "quantidade": 1
+          }
+        ],
+        "ordem": 0
+      },
+      {
+        "id": "ref-1",
+        "nome": "Almoço",
+        "horario": "07:00",
+        "alimentos": [
+          {
+            "nome": "Víscera bovina",
+            "alimentoId": "viscera bovina",
+            "quantidade": 2
+          }
+        ],
+        "ordem": 1
+      },
+      {
+        "id": "ref-2",
+        "nome": "Lanche da Tarde",
+        "horario": "07:00",
+        "alimentos": [
+          {
+            "nome": "Azeite, de oliva, extra virgem",
+            "alimentoId": "azeite, de oliva, extra virgem",
+            "quantidade": 1
+          }
+        ],
+        "ordem": 2
+      }
+    ],
+    "dataCadastro": "2025-06-17T19:10:01.537Z",
+    "dataAtualizacao": "2025-06-17T19:10:01.537Z",
+    "ativo": true
+  },
+  {
+    "id": "86caceb2-6868-43e2-8197-1b279977efdd",
+    "nome": "Teste 2",
+    "descricao": "teste",
+    "refeicoes": [
+      {
+        "id": "ref-0",
+        "nome": "Café da Manhã",
+        "horario": "07:00",
+        "alimentos": [
+          {
+            "nome": "Trigo, farelo",
+            "alimentoId": "trigo, farelo",
+            "quantidade": 0
+          }
+        ],
+        "ordem": 0
+      },
+      {
+        "id": "ref-1",
+        "nome": "Almoço",
+        "horario": "12:00",
+        "alimentos": [
+          {
+            "nome": "Víscera bovina",
+            "alimentoId": "viscera bovina",
+            "quantidade": 0
+          }
+        ],
+        "ordem": 1
+      }
+    ],
+    "dataCadastro": "2025-06-17T23:43:12.476Z",
+    "dataAtualizacao": "2025-06-17T23:43:12.476Z",
+    "ativo": true
+  }
+]

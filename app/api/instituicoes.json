@@ -1,0 +1,27 @@
+[
+  {
+    "id": "59e20636-c89b-484c-8b6d-90a1e8400fac",
+    "nome": "Escola teste",
+    "tipo": "Escola Municipal",
+    "endereco": {
+      "logradouro": "Rua das Flores",
+      "numero": "123",
+      "complemento": "Fundos",
+      "bairro": "Centro",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "cep": "13131-31"
+    },
+    "totalAlunos": 250,
+    "alunosAtipicos": [
+      {
+        "restricaoId": "ALERGICO_GLUTEN",
+        "restricaoNome": "Alérgico a Glúten",
+        "quantidade": 10
+      }
+    ],
+    "dataCadastro": "2025-06-17T23:54:20.684Z",
+    "dataAtualizacao": "2025-06-17T23:54:20.684Z",
+    "ativo": true
+  }
+]
