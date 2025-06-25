@@ -12,6 +12,7 @@ export const statusDisponibilidadeSchema = z.discriminatedUnion('status', [
 export type ZodStatusDisponibilidade = z.infer<typeof statusDisponibilidadeSchema>;
 
 export const alimentoSchema = z.object({
+  id: z.string(),
   nome: z.string(),
   fc: z.number(),
   fcc: z.number(),
@@ -25,6 +26,7 @@ export const alimentoSchema = z.object({
   limitada_todas: z.boolean().optional(),
   unidade_medida: z.string().optional(),
   restricoesAlimentares: z.array(z.nativeEnum(RestricaoAlimentar)).optional(),
+  _createdAt:z.string()
 });
 export type Alimento = z.infer<typeof alimentoSchema>;
 

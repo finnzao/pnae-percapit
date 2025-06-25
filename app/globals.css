@@ -200,3 +200,73 @@ ul, ol {
 button {
   padding: 0.5rem 1rem;
 }
+
+/* Container responsivo personalizado - Otimizado para tablets e desktops */
+.container-custom {
+  width: 100%;
+  max-width: 1600px; /* Aumentado para melhor aproveitamento em telas grandes */
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.content-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Mobile */
+@media (min-width: 640px) {
+  .container-custom {
+    padding: 0 24px;
+  }
+}
+
+/* Tablet (768px - 1024px) */
+@media (min-width: 768px) {
+  .container-custom {
+    padding: 0 32px;
+  }
+  
+  .content-container {
+    padding: 0 32px;
+  }
+}
+
+/* Desktop pequeno */
+@media (min-width: 1024px) {
+  .container-custom {
+    padding: 0 40px;
+  }
+}
+
+/* Desktop médio */
+@media (min-width: 1280px) {
+  .container-custom {
+    padding: 0 48px;
+  }
+}
+
+/* Desktop grande (até 2560px) */
+@media (min-width: 1536px) {
+  .container-custom {
+    padding: 0 64px;
+    max-width: 2000px;
+  }
+  
+  .content-container {
+    max-width: 1600px;
+  }
+}
+
+/* Ajustes específicos para tablets */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .page-container {
+    padding: 1.5rem;
+  }
+  
+  .card-container {
+    padding: 1.5rem;
+  }
+}

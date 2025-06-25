@@ -1,0 +1,417 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { Alimento, Etapa, RestricaoAlimentar, RestricaoAlimentarDescricao } from '@/types';
+import Header from '@/components/Header';
+import { ArrowLeft } from 'lucide-react';
+import { usePreventDoubleClick } from '@/hooks/usePreventDoubleClick';
+
+const etapas: Etapa[] = ['creche', 'pre', 'fundamental', 'medio'];
+
+type FormState = Omit<Alimento, 'fc' | 'fcc' | 'perCapita' | 'unidade_medida' | 'id'> & {
+    fc: string;
+    fcc: string;
+    perCapita: Record<Etapa, string>;
+    restricoesAlimentares: RestricaoAlimentar[];
+};
+
+export default function EditarAlimentoPage() {
+    const router = useRouter();
+    const params = useParams();
+    const id = params.id as string;
+
+    const [form, setForm] = useState<FormState>({
+        nome: '',
+        fc: '1',
+        fcc: '1',
+        limitada_menor3: false,
+        limitada_todas: false,
+        perCapita: {
+            creche: '',
+            pre: '',
+            fundamental: '',
+            medio: '',
+        },
+        restricoesAlimentares: [],
+    });
+
+    const [perCapitaIndisponivel, setPerCapitaIndisponivel] = useState<Record<Etapa, boolean>>({
+        creche: false,
+        pre: false,
+        fundamental: false,
+        medio: false,
+    });
+
+    const [carregando, setCarregando] = useState(true);
+    const [erro, setErro] = useState<string | null>(null);
+    const [sucesso, setSucesso] = useState(false);
+
+    const regexNumero = /^\d*([.,]?\d*)?$/;
+
+    // Hook para prevenir duplo clique
+    const { handleClick: handleSubmitClick, isLoading, cleanup } = usePreventDoubleClick(
+        async () => {
+            await salvarAlimento();
+        },
+        {
+            delay: 2000,
+            onError: (error) => setErro(error.message),
+            onSuccess: () => {
+                setSucesso(true);
+                setTimeout(() => {
+                    router.push('/alimentos');
+                }, 2000);
+            }
+        }
+    );
+
+    useEffect(() => {
+        carregarAlimento();
+        return () => {
+            cleanup();
+        };
+    }, [id, cleanup]);
+
+    const carregarAlimento = async () => {
+        try {
+            const response = await fetch('/api/alimentos');
+            const data = await response.json();
+
+            if (data.ok) {
+                const alimento = data.data.find((a: Alimento) => a.id === id);
+
+                if (alimento) {
+                    setForm({
+                        nome: alimento.nome,
+                        fc: alimento.fc.toString(),
+                        fcc: alimento.fcc.toString(),
+                        limitada_menor3: alimento.limitada_menor3 || false,
+                        limitada_todas: alimento.limitada_todas || false,
+                        perCapita: {
+                            creche: alimento.perCapita.creche.status === 'disponivel' ? alimento.perCapita.creche.valor.toString() : '',
+                            pre: alimento.perCapita.pre.status === 'disponivel' ? alimento.perCapita.pre.valor.toString() : '',
+                            fundamental: alimento.perCapita.fundamental.status === 'disponivel' ? alimento.perCapita.fundamental.valor.toString() : '',
+                            medio: alimento.perCapita.medio.status === 'disponivel' ? alimento.perCapita.medio.valor.toString() : '',
+                        },
+                        restricoesAlimentares: alimento.restricoesAlimentares || [],
+                    });
+
+                    setPerCapitaIndisponivel({
+                        creche: alimento.perCapita.creche.status !== 'disponivel',
+                        pre: alimento.perCapita.pre.status !== 'disponivel',
+                        fundamental: alimento.perCapita.fundamental.status !== 'disponivel',
+                        medio: alimento.perCapita.medio.status !== 'disponivel',
+                    });
+                } else {
+                    setErro('Alimento não encontrado');
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao carregar alimento:', error);
+            setErro('Erro ao carregar alimento');
+        } finally {
+            setCarregando(false);
+        }
+    };
+
+    function atualizarCampo<K extends keyof FormState>(campo: K, valor: FormState[K]) {
+        setForm((prev) => ({ ...prev, [campo]: valor }));
+    }
+
+    function handleNumeroChange(campo: 'fc' | 'fcc', valor: string) {
+        if (valor === '' || regexNumero.test(valor)) {
+            atualizarCampo(campo, valor);
+        }
+    }
+
+    function atualizarPerCapita(etapa: Etapa, valor: string) {
+        if (valor === '' || regexNumero.test(valor)) {
+            setForm((prev) => ({
+                ...prev,
+                perCapita: {
+                    ...prev.perCapita,
+                    [etapa]: valor,
+                },
+            }));
+        }
+    }
+
+    function alternarIndisponivel(etapa: Etapa) {
+        const novoEstado = !perCapitaIndisponivel[etapa];
+        setPerCapitaIndisponivel((prev) => ({ ...prev, [etapa]: novoEstado }));
+
+        if (novoEstado) {
+            setForm((prev) => ({
+                ...prev,
+                perCapita: { ...prev.perCapita, [etapa]: '' },
+            }));
+        }
+    }
+
+    function alternarRestricao(restricao: RestricaoAlimentar) {
+        setForm((prev) => {
+            const restricoesAtuais = prev.restricoesAlimentares || [];
+            if (restricoesAtuais.includes(restricao)) {
+                return {
+                    ...prev,
+                    restricoesAlimentares: restricoesAtuais.filter(r => r !== restricao),
+                };
+            } else {
+                return {
+                    ...prev,
+                    restricoesAlimentares: [...restricoesAtuais, restricao],
+                };
+            }
+        });
+    }
+
+    async function salvarAlimento() {
+        setErro(null);
+        setSucesso(false);
+
+        if (form.nome.trim() === '') {
+            throw new Error('O campo Nome é obrigatório.');
+        }
+
+        const payload = {
+            id, // Inclui o ID na requisição
+            nome: form.nome.trim(),
+            fc: Number(form.fc.replace(',', '.')),
+            fcc: Number(form.fcc.replace(',', '.')),
+            limitada_menor3: form.limitada_menor3,
+            limitada_todas: form.limitada_todas,
+            restricoesAlimentares: form.restricoesAlimentares,
+            perCapita: Object.fromEntries(
+                etapas.map((et) => {
+                    if (perCapitaIndisponivel[et]) {
+                        return [et, { status: 'indisponivel' }];
+                    }
+                    return [
+                        et,
+                        {
+                            status: 'disponivel',
+                            valor: Number(form.perCapita[et].replace(',', '.')),
+                        },
+                    ];
+                })
+            ) as Alimento['perCapita'],
+        };
+
+        const resposta = await fetch('/api/alimentos', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        const data = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(data.error || 'Falha ao atualizar.');
+        }
+    }
+
+    function handleSubmit(e: React.FormEvent) {
+        e.preventDefault();
+        handleSubmitClick();
+    }
+
+    if (carregando) {
+        return (
+            <div className="min-h-screen bg-[#FAFAF8]">
+                <Header />
+                <main className="page-container">
+                    <div className="flex justify-center items-center h-64">
+                        <p className="text-center text-gray-500">Carregando alimento...</p>
+                    </div>
+                </main>
+            </div>
+        );
+    }
+
+    if (erro && !form.nome) {
+        return (
+            <div className="min-h-screen bg-[#FAFAF8]">
+                <Header />
+                <main className="page-container">
+                    <button
+                        onClick={() => router.push('/alimentos')}
+                        className="flex items-center gap-2 text-[#4C6E5D] hover:text-[#6B7F66] mb-6 transition-colors"
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                        <span>Voltar para alimentos</span>
+                    </button>
+                    
+                    <div className="bg-red-50 border border-red-200 text-red-700 p-8 rounded-lg text-center">
+                        <p className="text-lg font-medium mb-4">{erro}</p>
+                        <button
+                            onClick={() => router.push('/alimentos')}
+                            className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+                        >
+                            Voltar aos Alimentos
+                        </button>
+                    </div>
+                </main>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-[#FAFAF8]">
+            <Header />
+
+            <main className="page-container">
+                <button
+                    onClick={() => router.push('/alimentos')}
+                    className="flex items-center gap-2 text-[#4C6E5D] hover:text-[#6B7F66] mb-6 transition-colors"
+                >
+                    <ArrowLeft className="w-4 h-4" />
+                    <span>Voltar para alimentos</span>
+                </button>
+
+                <div className="card-container">
+                    <h1 className="text-2xl font-bold mb-6 text-center text-[#4C6E5D]">Editar Alimento</h1>
+
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                        <div className="flex flex-col space-y-1">
+                            <label htmlFor="nome" className="text-sm font-medium">Nome</label>
+                            <input
+                                id="nome"
+                                className="border border-gray-200 p-2 rounded bg-white"
+                                value={form.nome}
+                                onChange={(e) => atualizarCampo('nome', e.target.value)}
+                                required
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="flex flex-col space-y-1">
+                                <label htmlFor="fc" className="text-sm font-medium">Fator de Correção (FC)</label>
+                                <input
+                                    id="fc"
+                                    type="text"
+                                    className="border border-gray-200 p-2 rounded bg-white"
+                                    value={form.fc}
+                                    onChange={(e) => handleNumeroChange('fc', e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="flex flex-col space-y-1">
+                                <label htmlFor="fcc" className="text-sm font-medium">Fator de Cozimento (FCC)</label>
+                                <input
+                                    id="fcc"
+                                    type="text"
+                                    className="border border-gray-200 p-2 rounded bg-white"
+                                    value={form.fcc}
+                                    onChange={(e) => handleNumeroChange('fcc', e.target.value)}
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <fieldset className="space-y-3">
+                            <legend className="text-sm font-medium">Per Capita (g)</legend>
+                            {etapas.map((et) => (
+                                <div key={et} className="grid grid-cols-[120px_1fr_auto] gap-3 items-center">
+                                    <label className="capitalize">{et}</label>
+                                    <input
+                                        type="text"
+                                        className="border border-gray-200 p-2 rounded bg-white"
+                                        value={form.perCapita[et]}
+                                        onChange={(e) => atualizarPerCapita(et, e.target.value)}
+                                        disabled={perCapitaIndisponivel[et]}
+                                    />
+                                    <label className="flex items-center space-x-1 text-gray-600 text-xs">
+                                        <input
+                                            type="checkbox"
+                                            checked={perCapitaIndisponivel[et]}
+                                            onChange={() => alternarIndisponivel(et)}
+                                        />
+                                        <span>Indisponível para essa etapa</span>
+                                    </label>
+                                </div>
+                            ))}
+                        </fieldset>
+
+                        <fieldset className="space-y-3">
+                            <legend className="text-sm font-medium">Restrições Alimentares</legend>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {Object.entries(RestricaoAlimentarDescricao).map(([key, value]) => (
+                                    <label key={key} className="flex items-center space-x-2">
+                                        <input
+                                            type="checkbox"
+                                            checked={form.restricoesAlimentares?.includes(key as RestricaoAlimentar) || false}
+                                            onChange={() => alternarRestricao(key as RestricaoAlimentar)}
+                                            className="accent-[#4C6E5D]"
+                                        />
+                                        <span className="text-sm">{value}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </fieldset>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <label className="inline-flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    checked={!!form.limitada_menor3}
+                                    onChange={(e) => atualizarCampo('limitada_menor3', e.target.checked)}
+                                    className="accent-[#4C6E5D]"
+                                />
+                                <span>Restrita para menores de 3 anos</span>
+                            </label>
+
+                            <label className="inline-flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    checked={!!form.limitada_todas}
+                                    onChange={(e) => atualizarCampo('limitada_todas', e.target.checked)}
+                                    className="accent-[#4C6E5D]"
+                                />
+                                <span>Oferta limitada para todas as idades</span>
+                            </label>
+                        </div>
+
+                        {erro && (
+                            <div className="text-red-700 bg-red-100 border border-red-400 p-3 rounded">
+                                {erro}
+                            </div>
+                        )}
+                        {sucesso && (
+                            <div className="text-green-700 bg-green-100 border border-green-400 p-3 rounded">
+                                Alimento atualizado com sucesso! Redirecionando...
+                            </div>
+                        )}
+
+                        <div className="flex justify-between">
+                            <button
+                                type="button"
+                                onClick={() => router.push('/alimentos')}
+                                disabled={isLoading}
+                                className={`px-6 py-2 rounded-md transition ${
+                                    isLoading
+                                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                        : 'bg-gray-300 text-black hover:bg-gray-400'
+                                }`}
+                            >
+                                Cancelar
+                            </button>
+
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className={`px-6 py-2 rounded-md font-semibold transition ${
+                                    isLoading
+                                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                                        : 'bg-[#4C6E5D] text-white hover:bg-[#6B7F66]'
+                                }`}
+                            >
+                                {isLoading ? 'Salvando…' : 'Salvar Alterações'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </main>
+        </div>
+    );
+}

@@ -7,6 +7,7 @@ export type StatusDisponibilidade =
 
 // Tipo que representa como o dado vem cru do JSON
 export interface RawAlimento {
+    id: string,
     nome: string;
     fc: number | string;
     fcc: number | string;
@@ -147,7 +148,7 @@ export interface RefeicaoCardapio {
 export interface AlimentoCardapio {
     nome?: string;
     alimentoId: string;
-    quantidade: number; 
+    quantidade: number;
 }
 
 // Tipos para Guia de Abastecimento

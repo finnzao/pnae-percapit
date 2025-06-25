@@ -7,17 +7,17 @@ import {
   Utensils,
   Calculator,
   Building2,
-  PlusSquare,
   FileText,
   BarChart,
-  Calendar,
+  //Calendar,
   ChevronLeft,
   ChevronRight,
   Package,
   Clock,
   CheckCircle
 } from 'lucide-react';
-import { GuiaAbastecimento } from '@/types';
+import { GuiaAbastecimento, CalculoDistribuicao } from '@/types';
+import RelatorioSemanal from '@/components/RelatorioSemanal';
 
 interface DiaCalendario {
   dia: number;
@@ -32,6 +32,7 @@ export default function HomePage() {
   const [guias, setGuias] = useState<GuiaAbastecimento[]>([]);
   const [carregandoGuias, setCarregandoGuias] = useState(true);
   const [diaSelecionado, setDiaSelecionado] = useState<number | null>(null);
+  const [distribuicaoSemanal, setDistribuicaoSemanal] = useState<CalculoDistribuicao[]>([]);
 
   useEffect(() => {
     carregarGuias();
@@ -39,6 +40,7 @@ export default function HomePage() {
 
   useEffect(() => {
     gerarCalendario();
+    calcularDistribuicaoSemanal();
   }, [mesAtual, guias]);
 
   const carregarGuias = async () => {
@@ -54,6 +56,38 @@ export default function HomePage() {
     } finally {
       setCarregandoGuias(false);
     }
+  };
+
+  const calcularDistribuicaoSemanal = () => {
+    const hoje = new Date();
+    const seteDiasAtras = new Date(hoje);
+    seteDiasAtras.setDate(hoje.getDate() - 7);
+
+    // Filtra guias distribuídas nos últimos 7 dias
+    const guiasDistribuidas = guias.filter(guia => {
+      if (guia.status !== 'Distribuído') return false;
+      
+      const dataGeracao = new Date(guia.dataGeracao);
+      return dataGeracao >= seteDiasAtras && dataGeracao <= hoje;
+    });
+
+    // Agrupa todos os alimentos distribuídos
+    const alimentosAgregados: Record<string, CalculoDistribuicao> = {};
+
+    guiasDistribuidas.forEach(guia => {
+      guia.calculosDistribuicao.forEach(calculo => {
+        if (!alimentosAgregados[calculo.alimentoId]) {
+          alimentosAgregados[calculo.alimentoId] = {
+            ...calculo,
+            quantidadeTotal: 0,
+            detalhamentoRefeicoes: []
+          };
+        }
+        alimentosAgregados[calculo.alimentoId].quantidadeTotal += calculo.quantidadeTotal;
+      });
+    });
+
+    setDistribuicaoSemanal(Object.values(alimentosAgregados));
   };
 
   const gerarCalendario = () => {
@@ -158,10 +192,10 @@ export default function HomePage() {
 
   const mainActions = [
     {
-      title: 'Cadastrar Alimento',
-      description: 'Adicione novos alimentos ao sistema',
-      icon: <PlusSquare className="h-6 w-6" />,
-      onClick: () => router.push('/cadastrarAlimento'),
+      title: 'Alimentos',
+      description: 'Gerencie os alimentos do sistema',
+      icon: <Package className="h-6 w-6" />,
+      onClick: () => router.push('/alimentos'),
       color: '#4C6E5D',
       primary: true
     },
@@ -215,39 +249,42 @@ export default function HomePage() {
     <div className="min-h-screen bg-[#FAFAF8]">
       <Header />
 
-      <main className="container-custom py-6 px-4 md:px-6">
+      <main className="container-custom py-4 sm:py-6 px-4 sm:px-6 lg:px-8">
         {/* Dashboard com Calendário */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-[#4C6E5D] mb-6">Dashboard</h1>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl font-bold text-[#4C6E5D] mb-4 sm:mb-6">Dashboard</h1>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Calendário */}
-            <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold text-[#4C6E5D] capitalize">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+            {/* Calendário - Responsivo */}
+            <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-4 sm:p-6">
+              <div className="flex justify-between items-center mb-4 sm:mb-6">
+                <h2 className="text-lg sm:text-xl font-semibold text-[#4C6E5D] capitalize">
                   {getNomeMes()}
                 </h2>
-                <div className="flex gap-2">
+                <div className="flex gap-1 sm:gap-2">
                   <button
                     onClick={() => navegarMes('anterior')}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition"
+                    className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition"
                   >
-                    <ChevronLeft className="w-5 h-5" />
+                    <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                   <button
                     onClick={() => navegarMes('proximo')}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition"
+                    className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition"
                   >
-                    <ChevronRight className="w-5 h-5" />
+                    <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
               </div>
 
-              {/* Grid do Calendário */}
-              <div className="grid grid-cols-7 gap-1">
-                {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(dia => (
-                  <div key={dia} className="text-center text-sm font-medium text-gray-600 py-2">
-                    {dia}
+              {/* Grid do Calendário - Responsivo */}
+              <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
+                {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((dia, index) => (
+                  <div key={index} className="text-center text-xs sm:text-sm font-medium text-gray-600 py-1 sm:py-2">
+                    <span className="hidden sm:inline">
+                      {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'][index]}
+                    </span>
+                    <span className="sm:hidden">{dia}</span>
                   </div>
                 ))}
                 
@@ -256,19 +293,19 @@ export default function HomePage() {
                     key={index}
                     onClick={() => dia.mesAtual && setDiaSelecionado(dia.dia)}
                     className={`
-                      min-h-[80px] p-2 border rounded-lg transition-all cursor-pointer
+                      min-h-[60px] sm:min-h-[80px] p-1 sm:p-2 border rounded-md sm:rounded-lg transition-all cursor-pointer
                       ${dia.mesAtual ? 'bg-white hover:bg-gray-50' : 'bg-gray-50 text-gray-400'}
                       ${diaSelecionado === dia.dia && dia.mesAtual ? 'ring-2 ring-[#4C6E5D]' : ''}
                       ${dia.guias.length > 0 ? 'border-[#4C6E5D]' : 'border-gray-200'}
                     `}
                   >
-                    <div className="font-medium text-sm mb-1">{dia.dia}</div>
+                    <div className="font-medium text-xs sm:text-sm mb-1">{dia.dia}</div>
                     {dia.guias.length > 0 && (
-                      <div className="space-y-1">
+                      <div className="space-y-0.5 sm:space-y-1">
                         {dia.guias.slice(0, 2).map((guia, i) => (
                           <div
                             key={i}
-                            className={`h-1.5 rounded-full ${getStatusColor(guia.status)}`}
+                            className={`h-1 sm:h-1.5 rounded-full ${getStatusColor(guia.status)}`}
                             title={`${guia.instituicaoNome} - ${guia.status}`}
                           />
                         ))}
@@ -281,18 +318,18 @@ export default function HomePage() {
                 ))}
               </div>
 
-              {/* Legenda */}
-              <div className="mt-6 flex gap-4 text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-yellow-400 rounded"></div>
+              {/* Legenda - Responsiva */}
+              <div className="mt-4 sm:mt-6 flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm">
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <div className="w-3 h-3 sm:w-4 sm:h-4 bg-yellow-400 rounded"></div>
                   <span>Rascunho</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-blue-400 rounded"></div>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <div className="w-3 h-3 sm:w-4 sm:h-4 bg-blue-400 rounded"></div>
                   <span>Finalizado</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-green-400 rounded"></div>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-400 rounded"></div>
                   <span>Distribuído</span>
                 </div>
               </div>
@@ -356,45 +393,52 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Ações Principais */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-[#4C6E5D] mb-4">Ações Principais</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Relatório Semanal */}
+        <RelatorioSemanal
+          distribuicaoSemanal={distribuicaoSemanal}
+          guias={guias}
+          carregando={carregandoGuias}
+        />
+
+        {/* Ações Principais - Responsivas */}
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-lg sm:text-xl font-semibold text-[#4C6E5D] mb-3 sm:mb-4">Ações Principais</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {mainActions.map((action, index) => (
               <button
                 key={index}
                 onClick={action.onClick}
-                className="flex flex-col items-center justify-center bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-1 text-center h-48 border-2 border-transparent hover:border-[#C8D5B9]"
+                className="flex flex-col items-center justify-center bg-white rounded-xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-1 text-center h-40 sm:h-48 border-2 border-transparent hover:border-[#C8D5B9]"
               >
                 <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4"
                   style={{ backgroundColor: `${action.color}20` }}
                 >
                   <div style={{ color: action.color }}>
                     {action.icon}
                   </div>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{action.title}</h3>
-                <p className="text-sm text-gray-600">{action.description}</p>
+                <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2">{action.title}</h3>
+                <p className="text-xs sm:text-sm text-gray-600">{action.description}</p>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Ações Secundárias */}
+        {/* Ações Secundárias - Responsivas */}
         <div>
-          <h2 className="text-xl font-semibold text-[#4C6E5D] mb-4">Mais Opções</h2>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <h2 className="text-lg sm:text-xl font-semibold text-[#4C6E5D] mb-3 sm:mb-4">Mais Opções</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3">
             {secondaryActions.map((action, index) => (
               <button
                 key={index}
                 onClick={action.onClick}
-                className="flex items-center gap-3 bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all justify-center md:justify-start"
+                className="flex items-center gap-2 sm:gap-3 bg-white rounded-lg p-3 sm:p-4 shadow-sm hover:shadow-md transition-all justify-center md:justify-start"
               >
                 <div className="text-[#4C6E5D]">
                   {action.icon}
                 </div>
-                <span className="font-medium text-sm hidden md:inline">{action.title}</span>
+                <span className="font-medium text-xs sm:text-sm md:inline">{action.title}</span>
               </button>
             ))}
           </div>
