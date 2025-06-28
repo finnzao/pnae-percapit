@@ -246,7 +246,7 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8]">
+    <div className="min-h-screen bg-[#FAFAF8] ">
       <Header />
 
       <main className="container-custom py-4 sm:py-6 px-4 sm:px-6 lg:px-8">
@@ -426,7 +426,7 @@ export default function HomePage() {
         </div>
 
         {/* Ações Secundárias - Responsivas */}
-        <div>
+        <div className='my-5'>
           <h2 className="text-lg sm:text-xl font-semibold text-[#4C6E5D] mb-3 sm:mb-4">Mais Opções</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3">
             {secondaryActions.map((action, index) => (
