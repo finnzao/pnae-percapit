@@ -11,19 +11,25 @@ interface DistribuicaoPorEtapa {
   quantidade: number;
 }
 
+interface DistribuicaoDiaria {
+  data: string;
+  guias: GuiaAbastecimento[];
+  alimentos: CalculoDistribuicao[];
+}
+
 export default function RelatorioDistribuicaoPage() {
   const router = useRouter();
   const [guias, setGuias] = useState<GuiaAbastecimento[]>([]);
   const [instituicoes, setInstituicoes] = useState<Instituicao[]>([]);
   const [carregando, setCarregando] = useState(true);
 
-  // Filtros
+  //filtros
   const [dataInicio, setDataInicio] = useState('');
   const [dataFim, setDataFim] = useState('');
   const [etapaSelecionada, setEtapaSelecionada] = useState<Etapa | ''>('');
   const [instituicaoSelecionada, setInstituicaoSelecionada] = useState('');
 
-  // Dados processados
+  //dados
   const [distribuicaoTotal, setDistribuicaoTotal] = useState<CalculoDistribuicao[]>([]);
   const [distribuicaoPorEtapa, setDistribuicaoPorEtapa] = useState<DistribuicaoPorEtapa[]>([]);
 
@@ -39,7 +45,7 @@ export default function RelatorioDistribuicaoPage() {
   }, []);
 
   useEffect(() => {
-    processarDados();
+    processarDadosPorPeriodo();
   }, [guias, dataInicio, dataFim, etapaSelecionada, instituicaoSelecionada]);
 
   const carregarDados = async () => {
@@ -61,25 +67,16 @@ export default function RelatorioDistribuicaoPage() {
     }
   };
 
-  const processarDados = () => {
-    function normalizarData(data: Date) {
-      const nova = new Date(data);
-      nova.setHours(0, 0, 0, 0);
-      return nova;
-    }
+  const processarDadosPorPeriodo = () => {
+    if (!dataInicio || !dataFim) return;
 
-    const inicio = dataInicio ? normalizarData(new Date(dataInicio)) : null;
-    const fim = dataFim ? normalizarData(new Date(dataFim)) : null;
+    const inicio = new Date(dataInicio);
+    const fim = new Date(dataFim);
+    
+    inicio.setHours(0, 0, 0, 0);
+    fim.setHours(23, 59, 59, 999);
 
-    const guiasFiltradas = guias.filter(guia => {
-      if (guia.status !== 'Distribuído') return false;
-      const dataGeracao = new Date(guia.dataGeracao);
-      if (inicio && dataGeracao < inicio) return false;
-      if (fim && dataGeracao > fim) return false;
-      if (instituicaoSelecionada && guia.instituicaoId !== instituicaoSelecionada) return false;
-      return true;
-    });
-
+    const distribuicoesDiarias: DistribuicaoDiaria[] = [];
     const alimentosAgregados: Record<string, CalculoDistribuicao> = {};
     const etapasAgregadas: Record<Etapa, number> = {
       creche: 0,
@@ -88,29 +85,95 @@ export default function RelatorioDistribuicaoPage() {
       medio: 0
     };
 
-    guiasFiltradas.forEach(guia => {
-      const instituicao = instituicoes.find(i => i.id === guia.instituicaoId);
-      let etapaInstituicao: Etapa = 'fundamental';
-      if (instituicao) {
-        if (instituicao.tipo === 'Creche') etapaInstituicao = 'creche';
-        else if (instituicao.tipo === 'Centro de Educação Infantil') etapaInstituicao = 'pre';
-      }
+    // Gera todos os dias no período
+    const dataAtual = new Date(inicio);
+    while (dataAtual <= fim) {
+      const dataString = dataAtual.toISOString().split('T')[0];
+      
+      // Encontra guias ativas neste dia específico
+      const guiasAtivas = guias.filter(guia => {
+        if (guia.status !== 'Distribuído') return false;
+        
+        const inicioGuia = new Date(guia.dataInicio);
+        const fimGuia = new Date(guia.dataFim);
+        
+        inicioGuia.setHours(0, 0, 0, 0);
+        fimGuia.setHours(23, 59, 59, 999);
+        
+        // Verifica se a data atual está dentro do período da guia
+        return dataAtual >= inicioGuia && dataAtual <= fimGuia;
+      });
 
-      guia.calculosDistribuicao.forEach(calculo => {
-        if (etapaSelecionada && etapaInstituicao !== etapaSelecionada) return;
+      // Filtra por instituição se selecionada
+      const guiasFiltradas = instituicaoSelecionada 
+        ? guiasAtivas.filter(g => g.instituicaoId === instituicaoSelecionada)
+        : guiasAtivas;
 
-        if (!alimentosAgregados[calculo.alimentoId]) {
-          alimentosAgregados[calculo.alimentoId] = {
-            ...calculo,
-            quantidadeTotal: 0,
-            detalhamentoRefeicoes: []
-          };
+      // Processa distribuição para este dia
+      const alimentosDoDia: CalculoDistribuicao[] = [];
+      
+      guiasFiltradas.forEach(guia => {
+        const instituicao = instituicoes.find(i => i.id === guia.instituicaoId);
+        let etapaInstituicao: Etapa = 'fundamental';
+        
+        if (instituicao) {
+          if (instituicao.tipo === 'Creche') etapaInstituicao = 'creche';
+          else if (instituicao.tipo === 'Centro de Educação Infantil') etapaInstituicao = 'pre';
         }
 
-        alimentosAgregados[calculo.alimentoId].quantidadeTotal += calculo.quantidadeTotal;
-        etapasAgregadas[etapaInstituicao] += calculo.quantidadeTotal;
+        // Filtra por etapa se selecionada
+        if (etapaSelecionada && etapaInstituicao !== etapaSelecionada) return;
+
+        // Verifica se tem cardápio para este dia específico
+        const cardapioDoDia = guia.cardapiosDiarios.find(cd => {
+          const dataCardapio = new Date(cd.data);
+          dataCardapio.setHours(0, 0, 0, 0);
+          return dataCardapio.getTime() === dataAtual.getTime();
+        });
+
+        if (cardapioDoDia) {
+          // Processa distribuição proporcional para este dia
+          const diasTotais = guia.cardapiosDiarios.length;
+          
+          guia.calculosDistribuicao.forEach(calculo => {
+            const quantidadeDiaria = calculo.quantidadeTotal / diasTotais;
+            
+            // Agrega no total
+            if (!alimentosAgregados[calculo.alimentoId]) {
+              alimentosAgregados[calculo.alimentoId] = {
+                ...calculo,
+                quantidadeTotal: 0,
+                detalhamentoRefeicoes: []
+              };
+            }
+            
+            alimentosAgregados[calculo.alimentoId].quantidadeTotal += quantidadeDiaria;
+            etapasAgregadas[etapaInstituicao] += quantidadeDiaria;
+
+            // Adiciona ao dia
+            const alimentoExistente = alimentosDoDia.find(a => a.alimentoId === calculo.alimentoId);
+            if (alimentoExistente) {
+              alimentoExistente.quantidadeTotal += quantidadeDiaria;
+            } else {
+              alimentosDoDia.push({
+                ...calculo,
+                quantidadeTotal: quantidadeDiaria
+              });
+            }
+          });
+        }
       });
-    });
+
+      if (alimentosDoDia.length > 0) {
+        distribuicoesDiarias.push({
+          data: dataString,
+          guias: guiasFiltradas,
+          alimentos: alimentosDoDia
+        });
+      }
+
+      dataAtual.setDate(dataAtual.getDate() + 1);
+    }
 
     setDistribuicaoTotal(Object.values(alimentosAgregados));
 
@@ -127,7 +190,7 @@ export default function RelatorioDistribuicaoPage() {
   const exportarRelatorio = () => {
     let conteudo = 'RELATÓRIO DE DISTRIBUIÇÃO DE ALIMENTOS\n';
     conteudo += '=====================================\n\n';
-    conteudo += `Período: ${dataInicio ? new Date(dataInicio).toLocaleDateString('pt-BR') : 'Início'} a ${dataFim ? new Date(dataFim).toLocaleDateString('pt-BR') : 'Fim'}\n`;
+    conteudo += `Período EXATO: ${dataInicio ? new Date(dataInicio).toLocaleDateString('pt-BR') : 'Início'} a ${dataFim ? new Date(dataFim).toLocaleDateString('pt-BR') : 'Fim'}\n`;
 
     if (instituicaoSelecionada) {
       const inst = instituicoes.find(i => i.id === instituicaoSelecionada);
@@ -138,14 +201,16 @@ export default function RelatorioDistribuicaoPage() {
       conteudo += `Etapa: ${etapaSelecionada}\n`;
     }
 
-    conteudo += '\nRESUMO POR ETAPA\n';
+    conteudo += `Gerado em: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}\n\n`;
+
+    conteudo += 'RESUMO POR ETAPA\n';
     conteudo += '----------------\n';
     distribuicaoPorEtapa.forEach(etapa => {
       conteudo += `${etapa.etapa}: ${etapa.quantidade.toFixed(2)} kg\n`;
     });
 
-    conteudo += '\nALIMENTOS DISTRIBUÍDOS\n';
-    conteudo += '---------------------\n';
+    conteudo += '\nALIMENTOS DISTRIBUÍDOS NO PERÍODO\n';
+    conteudo += '--------------------------------\n';
     distribuicaoTotal
       .sort((a, b) => b.quantidadeTotal - a.quantidadeTotal)
       .forEach(alimento => {
@@ -156,7 +221,7 @@ export default function RelatorioDistribuicaoPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `relatorio-distribuicao-${new Date().toISOString().split('T')[0]}.txt`;
+    a.download = `relatorio-distribuicao-periodo-${dataInicio}-${dataFim}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -194,7 +259,7 @@ export default function RelatorioDistribuicaoPage() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-[#4C6E5D]">Relatório de Distribuição</h1>
-            <p className="text-gray-600 mt-1">Análise detalhada dos alimentos distribuídos</p>
+            <p className="text-gray-600 mt-1">Análise por período exato selecionado</p>
           </div>
           <button
             onClick={exportarRelatorio}
@@ -267,6 +332,15 @@ export default function RelatorioDistribuicaoPage() {
               </select>
             </div>
           </div>
+
+          {dataInicio && dataFim && (
+            <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>Período selecionado:</strong> {new Date(dataInicio).toLocaleDateString('pt-BR')} até {new Date(dataFim).toLocaleDateString('pt-BR')} 
+                ({Math.ceil((new Date(dataFim).getTime() - new Date(dataInicio).getTime()) / (1000 * 60 * 60 * 24)) + 1} dias)
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Cards de Resumo */}
@@ -277,6 +351,7 @@ export default function RelatorioDistribuicaoPage() {
               <span className="text-sm text-gray-600">Total Distribuído</span>
             </div>
             <p className="text-2xl font-bold text-[#4C6E5D]">{totalGeral.toFixed(2)} kg</p>
+            <p className="text-xs text-gray-500 mt-1">No período selecionado</p>
           </div>
 
           {distribuicaoPorEtapa.map((etapa, index) => (
@@ -286,6 +361,9 @@ export default function RelatorioDistribuicaoPage() {
                 <span className="text-sm text-gray-600 capitalize">{etapa.etapa}</span>
               </div>
               <p className="text-2xl font-bold text-[#6B7F66]">{etapa.quantidade.toFixed(2)} kg</p>
+              <p className="text-xs text-gray-500 mt-1">
+                {totalGeral > 0 ? ((etapa.quantidade / totalGeral) * 100).toFixed(1) : '0'}% do total
+              </p>
             </div>
           ))}
         </div>
@@ -293,13 +371,19 @@ export default function RelatorioDistribuicaoPage() {
         {/* Tabela de Alimentos */}
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="p-6 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-[#4C6E5D]">Alimentos Distribuídos</h2>
+            <h2 className="text-lg font-semibold text-[#4C6E5D]">Alimentos Distribuídos no Período</h2>
+            <p className="text-sm text-gray-600 mt-1">
+              Baseado nas datas exatas do período selecionado
+            </p>
           </div>
 
           {distribuicaoTotal.length === 0 ? (
             <div className="p-8 text-center">
               <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500">Nenhuma distribuição encontrada com os filtros selecionados</p>
+              <p className="text-gray-500">Nenhuma distribuição encontrada no período selecionado</p>
+              <p className="text-sm text-gray-400 mt-1">
+                Verifique se existem guias ativas nas datas especificadas
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -310,6 +394,7 @@ export default function RelatorioDistribuicaoPage() {
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Unidade</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">% do Total</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Média Diária</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -317,6 +402,10 @@ export default function RelatorioDistribuicaoPage() {
                     .sort((a, b) => b.quantidadeTotal - a.quantidadeTotal)
                     .map((alimento, index) => {
                       const percentual = (alimento.quantidadeTotal / totalGeral) * 100;
+                      const diasPeriodo = dataInicio && dataFim ? 
+                        Math.ceil((new Date(dataFim).getTime() - new Date(dataInicio).getTime()) / (1000 * 60 * 60 * 24)) + 1 : 1;
+                      const mediaDiaria = alimento.quantidadeTotal / diasPeriodo;
+                      
                       return (
                         <tr key={`${alimento.alimentoId}-${index}`} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -340,6 +429,9 @@ export default function RelatorioDistribuicaoPage() {
                                 />
                               </div>
                             </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                            {mediaDiaria.toFixed(2)} {alimento.unidadeMedida}/dia
                           </td>
                         </tr>
                       );
