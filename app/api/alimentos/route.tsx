@@ -22,6 +22,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id: _, ...dadosAlimento } = body;
 
     // Validação

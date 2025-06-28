@@ -1,4 +1,3 @@
-
 import { Alimento } from '@/types/zodSchemas';
 import alimentosJson from '../alimentos.json';
 import { converterUnidade } from './conversaoUnidade';
@@ -11,6 +10,8 @@ type RawStatusDisponibilidade = {
   valor?: unknown;
 };
 
+// Tipo para alimento sem as propriedades geradas automaticamente
+type AlimentoSemMetadados = Omit<Alimento, 'id' | '_createdAt'>;
 
 /**
  * Remove acentos e transforma em minúsculas para facilitar comparações de texto.
@@ -19,8 +20,6 @@ export function normalizarTexto(texto: string): string {
   return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 }
 
-
-
 /**
  * Transformar unidade de peso Grama em Kg.
  */
@@ -28,7 +27,6 @@ export function formatarPesoKg(gramas: number) {
   const kg = gramas / 1000;
   return `${gramas.toFixed(2)}g / ${kg.toFixed(2)}kg`;
 };
-
 
 function converterStatusDisponibilidade(input: RawStatusDisponibilidade): StatusDisponibilidade {
   try {
@@ -57,13 +55,11 @@ function converterStatusDisponibilidade(input: RawStatusDisponibilidade): Status
   }
 }
 
-
-
-
 /**
  * Converte a lista de alimentos (array) em um mapa indexado pelo nome normalizado do alimento.
+ * Retorna alimentos sem as propriedades id e _createdAt que são geradas automaticamente.
  */
-export function converterListaParaMapaDeAlimentos(): Record<string, Alimento> {
+export function converterListaParaMapaDeAlimentos(): Record<string, AlimentoSemMetadados> {
   return Object.fromEntries(
     alimentosJson.map((a) => [
       normalizarTexto(a.nome),
@@ -79,14 +75,12 @@ export function converterListaParaMapaDeAlimentos(): Record<string, Alimento> {
         },
         limitada_menor3: a.limitada_menor3,
         limitada_todas: a.limitada_todas,
-        unidade_medida: a.unidade_medida
+        unidade_medida: a.unidade_medida,
+        restricoesAlimentares: a.restricoesAlimentares || [],
       },
     ])
   );
 }
-
-
-
 
 interface ResultadoCalculo {
   totalBruto: number;

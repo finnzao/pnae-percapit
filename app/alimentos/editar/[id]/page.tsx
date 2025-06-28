@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Alimento, Etapa, RestricaoAlimentar, RestricaoAlimentarDescricao } from '@/types';
 import Header from '@/components/Header';
@@ -9,9 +9,12 @@ import { usePreventDoubleClick } from '@/hooks/usePreventDoubleClick';
 
 const etapas: Etapa[] = ['creche', 'pre', 'fundamental', 'medio'];
 
-type FormState = Omit<Alimento, 'fc' | 'fcc' | 'perCapita' | 'unidade_medida' | 'id'> & {
+type FormState = {
+    nome: string;
     fc: string;
     fcc: string;
+    limitada_menor3: boolean;
+    limitada_todas: boolean;
     perCapita: Record<Etapa, string>;
     restricoesAlimentares: RestricaoAlimentar[];
 };
@@ -49,31 +52,7 @@ export default function EditarAlimentoPage() {
 
     const regexNumero = /^\d*([.,]?\d*)?$/;
 
-    // Hook para prevenir duplo clique
-    const { handleClick: handleSubmitClick, isLoading, cleanup } = usePreventDoubleClick(
-        async () => {
-            await salvarAlimento();
-        },
-        {
-            delay: 2000,
-            onError: (error) => setErro(error.message),
-            onSuccess: () => {
-                setSucesso(true);
-                setTimeout(() => {
-                    router.push('/alimentos');
-                }, 2000);
-            }
-        }
-    );
-
-    useEffect(() => {
-        carregarAlimento();
-        return () => {
-            cleanup();
-        };
-    }, [id, cleanup]);
-
-    const carregarAlimento = async () => {
+    const carregarAlimento = useCallback(async () => {
         try {
             const response = await fetch('/api/alimentos');
             const data = await response.json();
@@ -113,7 +92,31 @@ export default function EditarAlimentoPage() {
         } finally {
             setCarregando(false);
         }
-    };
+    }, [id]);
+
+    // Hook para prevenir duplo clique
+    const { handleClick: handleSubmitClick, isLoading, cleanup } = usePreventDoubleClick(
+        async () => {
+            await salvarAlimento();
+        },
+        {
+            delay: 2000,
+            onError: (error) => setErro(error.message),
+            onSuccess: () => {
+                setSucesso(true);
+                setTimeout(() => {
+                    router.push('/alimentos');
+                }, 2000);
+            }
+        }
+    );
+
+    useEffect(() => {
+        carregarAlimento();
+        return () => {
+            cleanup();
+        };
+    }, [id, cleanup, carregarAlimento]);
 
     function atualizarCampo<K extends keyof FormState>(campo: K, valor: FormState[K]) {
         setForm((prev) => ({ ...prev, [campo]: valor }));

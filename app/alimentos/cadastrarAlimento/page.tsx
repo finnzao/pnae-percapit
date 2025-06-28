@@ -8,9 +8,12 @@ import { usePreventDoubleClick } from '@/hooks/usePreventDoubleClick';
 
 const etapas: Etapa[] = ['creche', 'pre', 'fundamental', 'medio'];
 
-type FormState = Omit<Alimento, 'fc' | 'fcc' | 'perCapita' | 'unidade_medida'> & {
+type FormState = {
+  nome: string;
   fc: string;
   fcc: string;
+  limitada_menor3: boolean;
+  limitada_todas: boolean;
   perCapita: Record<Etapa, string>;
   restricoesAlimentares: RestricaoAlimentar[];
 };
@@ -178,7 +181,8 @@ export default function CadastrarAlimento() {
       throw new Error('Corrija os campos de per capita antes de continuar.');
     }
 
-    const payload: Alimento = {
+    // Criar payload sem id e _createdAt (serão gerados no backend)
+    const payload = {
       nome: form.nome.trim(),
       fc: Number(form.fc.replace(',', '.')),
       fcc: Number(form.fcc.replace(',', '.')),
@@ -201,7 +205,7 @@ export default function CadastrarAlimento() {
       ) as Alimento['perCapita'],
     };
 
-    const resposta = await fetch('/api/salvar-alimento', {
+    const resposta = await fetch('/api/alimentos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -227,7 +231,6 @@ export default function CadastrarAlimento() {
       <Header />
 
       <main className="page-container">
-        {/* Navegação */}
         <button
           onClick={() => router.push('/')}
           className="flex items-center gap-2 text-[#4C6E5D] hover:text-[#6B7F66] mb-6 transition-colors"
