@@ -121,7 +121,7 @@ export default function CalcularPage() {
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
       <Header />
-      
+
       <main className="page-container py-8">
         {/* Navegação */}
         <button
@@ -248,11 +248,10 @@ export default function CalcularPage() {
               type="button"
               onClick={calcular}
               disabled={!info || restricoes.some(r => r.tipo === 'erro')}
-              className={`w-full py-3 rounded-lg font-medium transition-all ${
-                !info || restricoes.some(r => r.tipo === 'erro')
+              className={`w-full py-3 rounded-lg font-medium transition-all ${!info || restricoes.some(r => r.tipo === 'erro')
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   : 'btn-primary'
-              }`}
+                }`}
             >
               Calcular Quantidade
             </button>

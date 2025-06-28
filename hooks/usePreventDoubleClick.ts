@@ -18,7 +18,7 @@ export function usePreventDoubleClick(
 
   const handleClick = useCallback(async (...args: any[]) => {
     const now = Date.now();
-    
+
     // Verifica se passou tempo suficiente desde o último clique
     if (now - lastClickTime.current < delay) {
       console.warn('Clique ignorado: muito rápido');

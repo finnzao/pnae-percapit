@@ -23,5 +23,24 @@
     "dataCadastro": "2025-06-17T23:54:20.684Z",
     "dataAtualizacao": "2025-06-17T23:54:20.684Z",
     "ativo": true
+  },
+  {
+    "id": "04d8c436-3428-4efa-a953-a20410cc1d0a",
+    "nome": "Escola Municipal Renato Silva",
+    "tipo": "Centro de Educação Infantil",
+    "endereco": {
+      "logradouro": "Rua das Flores",
+      "numero": "1",
+      "complemento": "Centro",
+      "bairro": "Centro",
+      "cidade": "Salvador",
+      "estado": "BA",
+      "cep": "12233-666"
+    },
+    "totalAlunos": 100,
+    "alunosAtipicos": [],
+    "dataCadastro": "2025-06-27T17:29:41.439Z",
+    "dataAtualizacao": "2025-06-27T17:29:41.439Z",
+    "ativo": true
   }
 ]

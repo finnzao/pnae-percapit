@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
-import { ArrowLeft, Filter, Download, Calendar, TrendingUp, Package } from 'lucide-react';
+import { ArrowLeft, Filter, Download, TrendingUp, Package } from 'lucide-react';
 import { GuiaAbastecimento, CalculoDistribuicao, Etapa, Instituicao } from '@/types';
 
 interface DistribuicaoPorEtapa {
@@ -16,26 +16,25 @@ export default function RelatorioDistribuicaoPage() {
   const [guias, setGuias] = useState<GuiaAbastecimento[]>([]);
   const [instituicoes, setInstituicoes] = useState<Instituicao[]>([]);
   const [carregando, setCarregando] = useState(true);
-  
+
   // Filtros
   const [dataInicio, setDataInicio] = useState('');
   const [dataFim, setDataFim] = useState('');
   const [etapaSelecionada, setEtapaSelecionada] = useState<Etapa | ''>('');
   const [instituicaoSelecionada, setInstituicaoSelecionada] = useState('');
-  
+
   // Dados processados
   const [distribuicaoTotal, setDistribuicaoTotal] = useState<CalculoDistribuicao[]>([]);
   const [distribuicaoPorEtapa, setDistribuicaoPorEtapa] = useState<DistribuicaoPorEtapa[]>([]);
 
   useEffect(() => {
-    // Define últimos 7 dias como padrão
     const hoje = new Date();
     const seteDiasAtras = new Date(hoje);
     seteDiasAtras.setDate(hoje.getDate() - 7);
-    
+
     setDataFim(hoje.toISOString().split('T')[0]);
     setDataInicio(seteDiasAtras.toISOString().split('T')[0]);
-    
+
     carregarDados();
   }, []);
 
@@ -63,23 +62,24 @@ export default function RelatorioDistribuicaoPage() {
   };
 
   const processarDados = () => {
-    const inicio = dataInicio ? new Date(dataInicio) : null;
-    const fim = dataFim ? new Date(dataFim) : null;
+    function normalizarData(data: Date) {
+      const nova = new Date(data);
+      nova.setHours(0, 0, 0, 0);
+      return nova;
+    }
 
-    // Filtra guias distribuídas no período
+    const inicio = dataInicio ? normalizarData(new Date(dataInicio)) : null;
+    const fim = dataFim ? normalizarData(new Date(dataFim)) : null;
+
     const guiasFiltradas = guias.filter(guia => {
       if (guia.status !== 'Distribuído') return false;
-      
       const dataGeracao = new Date(guia.dataGeracao);
-      
       if (inicio && dataGeracao < inicio) return false;
       if (fim && dataGeracao > fim) return false;
       if (instituicaoSelecionada && guia.instituicaoId !== instituicaoSelecionada) return false;
-      
       return true;
     });
 
-    // Agrupa alimentos distribuídos
     const alimentosAgregados: Record<string, CalculoDistribuicao> = {};
     const etapasAgregadas: Record<Etapa, number> = {
       creche: 0,
@@ -89,19 +89,14 @@ export default function RelatorioDistribuicaoPage() {
     };
 
     guiasFiltradas.forEach(guia => {
-      // Para calcular por etapa, precisamos saber qual etapa a instituição atende
       const instituicao = instituicoes.find(i => i.id === guia.instituicaoId);
-      let etapaInstituicao: Etapa = 'fundamental'; // default
-      
+      let etapaInstituicao: Etapa = 'fundamental';
       if (instituicao) {
-        // Determina a etapa baseado no tipo da instituição
         if (instituicao.tipo === 'Creche') etapaInstituicao = 'creche';
         else if (instituicao.tipo === 'Centro de Educação Infantil') etapaInstituicao = 'pre';
-        // Você pode adicionar mais lógica aqui
       }
 
       guia.calculosDistribuicao.forEach(calculo => {
-        // Filtra por etapa se selecionada
         if (etapaSelecionada && etapaInstituicao !== etapaSelecionada) return;
 
         if (!alimentosAgregados[calculo.alimentoId]) {
@@ -111,23 +106,21 @@ export default function RelatorioDistribuicaoPage() {
             detalhamentoRefeicoes: []
           };
         }
+
         alimentosAgregados[calculo.alimentoId].quantidadeTotal += calculo.quantidadeTotal;
-        
-        // Soma para a etapa
         etapasAgregadas[etapaInstituicao] += calculo.quantidadeTotal;
       });
     });
 
     setDistribuicaoTotal(Object.values(alimentosAgregados));
-    
-    // Converte etapas agregadas para array
+
     const etapasArray: DistribuicaoPorEtapa[] = Object.entries(etapasAgregadas)
       .map(([etapa, quantidade]) => ({
         etapa: etapa as Etapa,
         quantidade
       }))
       .filter(e => e.quantidade > 0);
-    
+
     setDistribuicaoPorEtapa(etapasArray);
   };
 
@@ -135,22 +128,22 @@ export default function RelatorioDistribuicaoPage() {
     let conteudo = 'RELATÓRIO DE DISTRIBUIÇÃO DE ALIMENTOS\n';
     conteudo += '=====================================\n\n';
     conteudo += `Período: ${dataInicio ? new Date(dataInicio).toLocaleDateString('pt-BR') : 'Início'} a ${dataFim ? new Date(dataFim).toLocaleDateString('pt-BR') : 'Fim'}\n`;
-    
+
     if (instituicaoSelecionada) {
       const inst = instituicoes.find(i => i.id === instituicaoSelecionada);
       conteudo += `Instituição: ${inst?.nome || 'Todas'}\n`;
     }
-    
+
     if (etapaSelecionada) {
       conteudo += `Etapa: ${etapaSelecionada}\n`;
     }
-    
+
     conteudo += '\nRESUMO POR ETAPA\n';
     conteudo += '----------------\n';
     distribuicaoPorEtapa.forEach(etapa => {
       conteudo += `${etapa.etapa}: ${etapa.quantidade.toFixed(2)} kg\n`;
     });
-    
+
     conteudo += '\nALIMENTOS DISTRIBUÍDOS\n';
     conteudo += '---------------------\n';
     distribuicaoTotal
@@ -188,7 +181,7 @@ export default function RelatorioDistribuicaoPage() {
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
       <Header />
-      
+
       <main className="page-container">
         <button
           onClick={() => router.push('/')}
@@ -218,7 +211,7 @@ export default function RelatorioDistribuicaoPage() {
             <Filter className="w-5 h-5 text-[#4C6E5D]" />
             <h2 className="text-lg font-semibold text-[#4C6E5D]">Filtros</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -231,7 +224,6 @@ export default function RelatorioDistribuicaoPage() {
                 className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6E5D]"
               />
             </div>
-            
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Data Final
@@ -243,7 +235,6 @@ export default function RelatorioDistribuicaoPage() {
                 className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6E5D]"
               />
             </div>
-            
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Etapa
@@ -260,7 +251,6 @@ export default function RelatorioDistribuicaoPage() {
                 <option value="medio">Ensino Médio</option>
               </select>
             </div>
-            
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Instituição
@@ -288,9 +278,9 @@ export default function RelatorioDistribuicaoPage() {
             </div>
             <p className="text-2xl font-bold text-[#4C6E5D]">{totalGeral.toFixed(2)} kg</p>
           </div>
-          
-          {distribuicaoPorEtapa.map(etapa => (
-            <div key={etapa.etapa} className="bg-white p-6 rounded-xl shadow-sm">
+
+          {distribuicaoPorEtapa.map((etapa, index) => (
+            <div key={`${etapa.etapa}-${index}`} className="bg-white p-6 rounded-xl shadow-sm">
               <div className="flex items-center justify-between mb-2">
                 <TrendingUp className="w-8 h-8 text-[#6B7F66]" />
                 <span className="text-sm text-gray-600 capitalize">{etapa.etapa}</span>
@@ -305,7 +295,7 @@ export default function RelatorioDistribuicaoPage() {
           <div className="p-6 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-[#4C6E5D]">Alimentos Distribuídos</h2>
           </div>
-          
+
           {distribuicaoTotal.length === 0 ? (
             <div className="p-8 text-center">
               <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
@@ -316,27 +306,19 @@ export default function RelatorioDistribuicaoPage() {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Alimento
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Quantidade
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Unidade
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      % do Total
-                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alimento</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Unidade</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">% do Total</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {distribuicaoTotal
                     .sort((a, b) => b.quantidadeTotal - a.quantidadeTotal)
-                    .map((alimento) => {
+                    .map((alimento, index) => {
                       const percentual = (alimento.quantidadeTotal / totalGeral) * 100;
                       return (
-                        <tr key={alimento.alimentoId} className="hover:bg-gray-50">
+                        <tr key={`${alimento.alimentoId}-${index}`} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm font-medium text-gray-900">
                               {alimento.alimentoNome}

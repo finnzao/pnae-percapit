@@ -21,7 +21,7 @@ export default function CriarCardapioPage() {
 
   const [modalAberto, setModalAberto] = useState<{ index: number | null; alimentoIndex?: number }>({ index: null });
   const [alimentoBusca, setAlimentoBusca] = useState('');
-  const [alimentoSelecionado, setAlimentoSelecionado] = useState<string | null>(null);
+  const [alimentoSelecionado, setAlimentoSelecionado] = useState<AlimentoSelecionado | null>(null);
   const [pesoPorPacote, setPesoPorPacote] = useState<string>('');
   const [sugestoes, setSugestoes] = useState<string[]>([]);
   const [salvando, setSalvando] = useState(false);
@@ -72,7 +72,11 @@ export default function CriarCardapioPage() {
     if (alimentoIndex !== undefined) {
       const item = refeicoes[index].alimentos[alimentoIndex];
       setAlimentoBusca(item.nome);
-      setAlimentoSelecionado(item.nome);
+      setAlimentoSelecionado({
+        id: item.id,
+        nome: item.nome,
+        pesoPacote: item.pesoPacote ?? null
+      });
       setPesoPorPacote(item.pesoPacote?.toString() || '');
     } else {
       setAlimentoBusca('');
@@ -99,8 +103,11 @@ export default function CriarCardapioPage() {
     if (modalAberto.index !== null && alimentoSelecionado) {
       const novas = [...refeicoes];
       const pesoNumerico = parseFloat(pesoPorPacote.replace(',', '.'));
-      const novoAlimento: AlimentoSelecionado = {
-        nome: alimentoSelecionado,
+      const chave = normalizarTexto(alimentoSelecionado.nome);
+      const alimentoBase = alimentosMapeados[chave];
+
+      const novoAlimento = {
+        ...alimentoBase,
         pesoPacote: pesoPorPacote === '' || isNaN(pesoNumerico) ? null : pesoNumerico
       };
 
@@ -115,31 +122,46 @@ export default function CriarCardapioPage() {
     }
   };
 
-  const removerAlimento = (refeicaoIndex: number, alimentoIndex: number) => {
-    const novas = [...refeicoes];
-    novas[refeicaoIndex].alimentos.splice(alimentoIndex, 1);
-    setRefeicoes(novas);
-  };
+  const salvarCardapio = async () => {
+    setErro(null);
+    setSucesso(false);
 
-  const removerRefeicao = (index: number) => {
-    const novas = refeicoes.filter((_, i) => i !== index);
-    setRefeicoes(novas);
-  };
+    if (!validarCardapio()) return;
 
-  const renderPerCapitaEtapa = (etapa: 'creche' | 'pre' | 'fundamental' | 'medio') => {
-    if (!alimentoSelecionado) return 'N/A';
-    const chave = normalizarTexto(alimentoSelecionado);
-    const perCapitaInfo = alimentosMapeados[chave]?.perCapita?.[etapa];
-    const unidade = alimentosMapeados[chave]?.unidade_medida || 'g';
+    setSalvando(true);
 
-    if (perCapitaInfo?.status === 'disponivel') {
-      return `${perCapitaInfo.valor} ${unidade}`;
-    }
-    if (perCapitaInfo?.status === 'Depende da preparação da receita') {
-      return `${perCapitaInfo.status}`;
-    }
-    else {
-      return 'N/A';
+    try {
+      const cardapio = {
+        nome: nomeCardapio.trim(),
+        descricao: descricaoCardapio.trim(),
+        refeicoes: refeicoes.map((r, index) => ({
+          id: `ref-${index}`,
+          nome: r.nome,
+          horario: r.horario,
+          alimentos: r.alimentos.map(alimento => ({
+            ...alimento,
+            quantidade: alimento.pesoPacote || 0
+          })),
+          ordem: index
+        }))
+      };
+
+      const response = await fetch('/api/salvar-cardapio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cardapio)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.error || 'Erro ao salvar cardápio');
+
+      setSucesso(true);
+      setTimeout(() => router.push('/'), 2000);
+    } catch (error) {
+      setErro(error instanceof Error ? error.message : 'Erro ao salvar cardápio');
+    } finally {
+      setSalvando(false);
     }
   };
 
@@ -163,75 +185,53 @@ export default function CriarCardapioPage() {
     return true;
   };
 
-  const salvarCardapio = async () => {
-    setErro(null);
-    setSucesso(false);
+  const removerAlimento = (refeicaoIndex: number, alimentoIndex: number) => {
+    const novas = [...refeicoes];
+    novas[refeicaoIndex].alimentos.splice(alimentoIndex, 1);
+    setRefeicoes(novas);
+  };
 
-    if (!validarCardapio()) {
-      return;
+  const removerRefeicao = (index: number) => {
+    const novas = refeicoes.filter((_, i) => i !== index);
+    setRefeicoes(novas);
+  };
+
+  const renderPerCapitaEtapa = (etapa: 'creche' | 'pre' | 'fundamental' | 'medio') => {
+    if (!alimentoSelecionado) return 'N/A';
+    const chave = normalizarTexto(alimentoSelecionado.nome);
+    const perCapitaInfo = alimentosMapeados[chave]?.perCapita?.[etapa];
+    const unidade = alimentosMapeados[chave]?.unidade_medida || 'g';
+
+    if (perCapitaInfo?.status === 'disponivel') {
+      return `${perCapitaInfo.valor} ${unidade}`;
     }
-
-    setSalvando(true);
-
-    try {
-      const cardapio = {
-        nome: nomeCardapio.trim(),
-        descricao: descricaoCardapio.trim(),
-        refeicoes: refeicoes.map((r, index) => ({
-          id: `ref-${index}`,
-          nome: r.nome,
-          horario: r.horario,
-          alimentos: r.alimentos.map(a => ({
-            nome: a.nome,
-            alimentoId: normalizarTexto(a.nome),
-            quantidade: a.pesoPacote || 0
-          })),
-          ordem: index
-        }))
-      };
-
-      const response = await fetch('/api/salvar-cardapio', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(cardapio)
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao salvar cardápio');
-      }
-
-      setSucesso(true);
-      setTimeout(() => {
-        router.push('/');
-      }, 2000);
-    } catch (error) {
-      setErro(error instanceof Error ? error.message : 'Erro ao salvar cardápio');
-    } finally {
-      setSalvando(false);
+    if (perCapitaInfo?.status === 'Depende da preparação da receita') {
+      return `${perCapitaInfo.status}`;
+    }
+    else {
+      return 'N/A';
     }
   };
 
   const adicionarRefeicao = () => {
-    const horarioBase = refeicoes.length > 0 
-      ? refeicoes[refeicoes.length - 1].horario 
+    const horarioBase = refeicoes.length > 0
+      ? refeicoes[refeicoes.length - 1].horario
       : '12:00';
-    
+
     const nomesRefeicoes = ['Lanche da Manhã', 'Almoço', 'Lanche da Tarde', 'Jantar'];
     const nomeRefeicao = nomesRefeicoes[refeicoes.length % nomesRefeicoes.length] || `Refeição ${refeicoes.length + 1}`;
-    
-    setRefeicoes([...refeicoes, { 
-      nome: nomeRefeicao, 
-      horario: horarioBase, 
-      alimentos: [] 
+
+    setRefeicoes([...refeicoes, {
+      nome: nomeRefeicao,
+      horario: horarioBase,
+      alimentos: []
     }]);
   };
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
       <Header />
-      
+
       <main className="page-container">
         {/* Navegação */}
         <button
@@ -241,7 +241,7 @@ export default function CriarCardapioPage() {
           <ArrowLeft className="w-4 h-4" />
           <span>Voltar ao início</span>
         </button>
-        
+
         <div className="card-container">
           <h1 className="text-3xl font-bold mb-8 text-center text-[#4C6E5D]">Criar Cardápio</h1>
 
@@ -259,7 +259,7 @@ export default function CriarCardapioPage() {
                 className="w-full border border-gray-200 p-3 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#4C6E5D] focus:border-transparent"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-[#4C4C4C] mb-2">
                 Descrição (opcional)
@@ -292,7 +292,7 @@ export default function CriarCardapioPage() {
                       className="text-xl font-semibold bg-transparent border-b-2 border-transparent hover:border-gray-200 focus:border-[#4C6E5D] focus:outline-none px-1 py-1 transition-colors"
                     />
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2 text-gray-600">
                       <Clock className="w-4 h-4" />
@@ -307,7 +307,7 @@ export default function CriarCardapioPage() {
                         className="border border-gray-200 px-2 py-1 rounded bg-white text-sm"
                       />
                     </div>
-                    
+
                     {refeicoes.length > 1 && (
                       <button
                         onClick={() => removerRefeicao(index)}
@@ -381,7 +381,7 @@ export default function CriarCardapioPage() {
               <Plus className="w-5 h-5" />
               <span>Adicionar nova refeição</span>
             </button>
-            
+
             <div className="flex gap-3">
               <button
                 onClick={() => router.push('/')}
@@ -389,15 +389,14 @@ export default function CriarCardapioPage() {
               >
                 Cancelar
               </button>
-              
+
               <button
                 onClick={salvarCardapio}
                 disabled={salvando}
-                className={`px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
-                  salvando 
-                    ? 'bg-gray-400 cursor-not-allowed text-white' 
-                    : 'bg-[#4C6E5D] hover:bg-[#6B7F66] text-white'
-                }`}
+                className={`px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${salvando
+                  ? 'bg-gray-400 cursor-not-allowed text-white'
+                  : 'bg-[#4C6E5D] hover:bg-[#6B7F66] text-white'
+                  }`}
               >
                 <Save className="w-4 h-4" />
                 {salvando ? 'Salvando...' : 'Salvar Cardápio'}
@@ -412,7 +411,7 @@ export default function CriarCardapioPage() {
               <p className="text-red-700">{erro}</p>
             </div>
           )}
-          
+
           {sucesso && (
             <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
               <Check className="w-5 h-5 text-green-600" />
@@ -457,10 +456,20 @@ export default function CriarCardapioPage() {
                       <li
                         key={sugestao}
                         onClick={() => {
-                          setAlimentoBusca(sugestao);
-                          setAlimentoSelecionado(sugestao);
-                          setSugestoes([]);
+                          const chave = normalizarTexto(sugestao);
+                          const alimento = alimentosMapeados[chave];
+
+                          if (alimento) {
+                            setAlimentoBusca(alimento.nome);
+                            setAlimentoSelecionado({
+                              id: alimento.id,
+                              nome: alimento.nome,
+                              pesoPacote: null // valor inicial
+                            });
+                            setSugestoes([]);
+                          }
                         }}
+
                         className="p-3 cursor-pointer hover:bg-gray-50 transition-colors"
                       >
                         {sugestao}
@@ -472,16 +481,16 @@ export default function CriarCardapioPage() {
 
               {alimentoSelecionado && (
                 <div className="bg-[#F5F5F3] border border-gray-200 rounded-lg p-6 space-y-4">
-                  <h3 className="font-bold text-lg text-[#4C6E5D] mb-3">{alimentoSelecionado}</h3>
-                  
+                  <h3 className="font-bold text-lg text-[#4C6E5D] mb-3">{alimentoSelecionado.nome}</h3>
+
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="font-medium text-gray-600">Fator de Correção (FC):</span>
-                      <span className="ml-2">{alimentosMapeados[normalizarTexto(alimentoSelecionado)]?.fc}</span>
+                      <span className="ml-2">{alimentosMapeados[normalizarTexto(alimentoSelecionado.nome)]?.fc}</span>
                     </div>
                     <div>
                       <span className="font-medium text-gray-600">Fator de Cocção (FCC):</span>
-                      <span className="ml-2">{alimentosMapeados[normalizarTexto(alimentoSelecionado)]?.fcc}</span>
+                      <span className="ml-2">{alimentosMapeados[normalizarTexto(alimentoSelecionado.nome)]?.fcc}</span>
                     </div>
                   </div>
 
@@ -536,11 +545,10 @@ export default function CriarCardapioPage() {
                 <button
                   onClick={confirmarAlimento}
                   disabled={!alimentoSelecionado}
-                  className={`px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 ${
-                    alimentoSelecionado
-                      ? 'bg-[#4C6E5D] hover:bg-[#6B7F66] text-white'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
+                  className={`px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 ${alimentoSelecionado
+                    ? 'bg-[#4C6E5D] hover:bg-[#6B7F66] text-white'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
                 >
                   <Check className="w-4 h-4" />
                   Confirmar

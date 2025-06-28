@@ -1,3 +1,532 @@
 [
-
+  {
+    "id": "14bdab04-fe4b-4ef7-af28-29c76d8acaaa",
+    "nome": "Cardápio teste",
+    "descricao": "Cardapio apenas para teste",
+    "refeicoes": [
+      {
+        "id": "ref-0",
+        "nome": "Café da Manhã",
+        "horario": "07:00",
+        "alimentos": [
+          {
+            "nome": "Víscera bovina",
+            "quantidade": 0.5
+          }
+        ],
+        "ordem": 0
+      },
+      {
+        "id": "ref-1",
+        "nome": "Almoço",
+        "horario": "07:00",
+        "alimentos": [
+          {
+            "nome": "Frango, sobrecoxa, sem pele, crua",
+            "quantidade": 0.6
+          }
+        ],
+        "ordem": 1
+      }
+    ],
+    "dataCadastro": "2025-06-25T20:35:45.092Z",
+    "dataAtualizacao": "2025-06-25T20:35:45.092Z",
+    "ativo": true
+  },
+  {
+    "id": "b6990b9d-d350-4f02-a282-668f21484213",
+    "nome": "Cardapio teste",
+    "descricao": "teste",
+    "refeicoes": [
+      {
+        "id": "ref-0",
+        "nome": "Café da Manhã",
+        "horario": "07:00",
+        "alimentos": [
+          {
+            "nome": "TESTE ALIMENTO 1",
+            "quantidade": 0
+          }
+        ],
+        "ordem": 0
+      }
+    ],
+    "dataCadastro": "2025-06-25T21:01:02.742Z",
+    "dataAtualizacao": "2025-06-25T21:01:02.742Z",
+    "ativo": true
+  },
+  {
+    "id": "c2064faf-63ca-48f9-b747-8f583368402b",
+    "nome": "TESTE",
+    "descricao": "11111",
+    "refeicoes": [
+      {
+        "id": "ref-0",
+        "nome": "Café da Manhã",
+        "horario": "07:00",
+        "alimentos": [
+          {
+            "nome": "Tucunaré, filé, congelado, cru",
+            "quantidade": 1
+          },
+          {
+            "nome": "Víscera bovina",
+            "quantidade": 0
+          },
+          {
+            "nome": "Tomate, extrato",
+            "quantidade": 0
+          }
+        ],
+        "ordem": 0
+      },
+      {
+        "id": "ref-1",
+        "nome": "Almoço",
+        "horario": "07:00",
+        "alimentos": [
+          {
+            "nome": "Uva, Rubi, crua",
+            "quantidade": 1
+          }
+        ],
+        "ordem": 1
+      }
+    ],
+    "dataCadastro": "2025-06-25T21:16:04.338Z",
+    "dataAtualizacao": "2025-06-25T21:16:04.338Z",
+    "ativo": true
+  },
+  {
+    "id": "dc8a4483-d517-4a94-9a28-afbd8e57fedd",
+    "nome": "TESTE 111",
+    "descricao": "11111",
+    "refeicoes": [
+      {
+        "id": "ref-0",
+        "nome": "Café da Manhã",
+        "horario": "07:00",
+        "alimentos": [
+          {
+            "nome": "Víscera bovina",
+            "fc": 1.07,
+            "fcc": 0.74,
+            "perCapita": {
+              "creche": {
+                "status": "disponivel",
+                "valor": 50
+              },
+              "pre": {
+                "status": "disponivel",
+                "valor": 50
+              },
+              "fundamental": {
+                "status": "disponivel",
+                "valor": 80
+              },
+              "medio": {
+                "status": "disponivel",
+                "valor": 100
+              }
+            },
+            "limitada_menor3": false,
+            "limitada_todas": false,
+            "unidade_medida": "g",
+            "pesoPacote": null,
+            "quantidade": 0
+          },
+          {
+            "nome": "Tortas salgadas de qualquer sabor",
+            "fc": 1,
+            "fcc": 1,
+            "perCapita": {
+              "creche": {
+                "status": "disponivel",
+                "valor": 45
+              },
+              "pre": {
+                "status": "disponivel",
+                "valor": 50
+              },
+              "fundamental": {
+                "status": "disponivel",
+                "valor": 100
+              },
+              "medio": {
+                "status": "disponivel",
+                "valor": 150
+              }
+            },
+            "limitada_menor3": false,
+            "limitada_todas": false,
+            "unidade_medida": "g",
+            "pesoPacote": null,
+            "quantidade": 0
+          }
+        ],
+        "ordem": 0
+      },
+      {
+        "id": "ref-1",
+        "nome": "Almoço",
+        "horario": "07:00",
+        "alimentos": [
+          {
+            "nome": "Queijo, pasteurizado",
+            "fc": 1,
+            "fcc": 1.01,
+            "perCapita": {
+              "creche": {
+                "status": "disponivel",
+                "valor": 25
+              },
+              "pre": {
+                "status": "disponivel",
+                "valor": 30
+              },
+              "fundamental": {
+                "status": "disponivel",
+                "valor": 40
+              },
+              "medio": {
+                "status": "disponivel",
+                "valor": 50
+              }
+            },
+            "limitada_menor3": false,
+            "limitada_todas": false,
+            "unidade_medida": "g",
+            "pesoPacote": null,
+            "quantidade": 0
+          },
+          {
+            "nome": "Uva, suco concentrado, envasado",
+            "fc": 1,
+            "fcc": 1,
+            "perCapita": {
+              "creche": {
+                "status": "disponivel",
+                "valor": 15
+              },
+              "pre": {
+                "status": "disponivel",
+                "valor": 15
+              },
+              "fundamental": {
+                "status": "disponivel",
+                "valor": 60
+              },
+              "medio": {
+                "status": "disponivel",
+                "valor": 60
+              }
+            },
+            "limitada_menor3": false,
+            "limitada_todas": false,
+            "unidade_medida": "g",
+            "pesoPacote": null,
+            "quantidade": 0
+          }
+        ],
+        "ordem": 1
+      }
+    ],
+    "dataCadastro": "2025-06-25T21:39:58.439Z",
+    "dataAtualizacao": "2025-06-25T21:39:58.439Z",
+    "ativo": true
+  },
+  {
+    "id": "8cf73cae-4fc6-492c-8460-04da46525e05",
+    "nome": "Teste",
+    "descricao": "teste",
+    "refeicoes": [
+      {
+        "id": "ref-0",
+        "nome": "Café da Manhã",
+        "horario": "07:00",
+        "alimentos": [
+          {
+            "nome": "Víscera bovina",
+            "fc": 1.07,
+            "fcc": 0.74,
+            "perCapita": {
+              "creche": {
+                "status": "disponivel",
+                "valor": 50
+              },
+              "pre": {
+                "status": "disponivel",
+                "valor": 50
+              },
+              "fundamental": {
+                "status": "disponivel",
+                "valor": 80
+              },
+              "medio": {
+                "status": "disponivel",
+                "valor": 100
+              }
+            },
+            "limitada_menor3": false,
+            "limitada_todas": false,
+            "unidade_medida": "g",
+            "pesoPacote": null,
+            "quantidade": 0
+          },
+          {
+            "nome": "Macarrão, trigo, cru",
+            "fc": 1,
+            "fcc": 2.44,
+            "perCapita": {
+              "creche": {
+                "status": "disponivel",
+                "valor": 20
+              },
+              "pre": {
+                "status": "disponivel",
+                "valor": 40
+              },
+              "fundamental": {
+                "status": "disponivel",
+                "valor": 50
+              },
+              "medio": {
+                "status": "disponivel",
+                "valor": 50
+              }
+            },
+            "limitada_menor3": false,
+            "limitada_todas": false,
+            "unidade_medida": "g",
+            "pesoPacote": null,
+            "quantidade": 0
+          },
+          {
+            "nome": "Pão de queijo pronto para o consumo",
+            "fc": 1,
+            "fcc": 1,
+            "perCapita": {
+              "creche": {
+                "status": "disponivel",
+                "valor": 25
+              },
+              "pre": {
+                "status": "disponivel",
+                "valor": 50
+              },
+              "fundamental": {
+                "status": "disponivel",
+                "valor": 50
+              },
+              "medio": {
+                "status": "disponivel",
+                "valor": 75
+              }
+            },
+            "limitada_menor3": false,
+            "limitada_todas": false,
+            "unidade_medida": "g",
+            "pesoPacote": null,
+            "quantidade": 0
+          }
+        ],
+        "ordem": 0
+      },
+      {
+        "id": "ref-1",
+        "nome": "Almoço",
+        "horario": "12:00",
+        "alimentos": [
+          {
+            "nome": "Víscera bovina",
+            "fc": 1.07,
+            "fcc": 0.74,
+            "perCapita": {
+              "creche": {
+                "status": "disponivel",
+                "valor": 50
+              },
+              "pre": {
+                "status": "disponivel",
+                "valor": 50
+              },
+              "fundamental": {
+                "status": "disponivel",
+                "valor": 80
+              },
+              "medio": {
+                "status": "disponivel",
+                "valor": 100
+              }
+            },
+            "limitada_menor3": false,
+            "limitada_todas": false,
+            "unidade_medida": "g",
+            "pesoPacote": null,
+            "quantidade": 0
+          },
+          {
+            "nome": "Queijo, pasteurizado",
+            "fc": 1,
+            "fcc": 1.01,
+            "perCapita": {
+              "creche": {
+                "status": "disponivel",
+                "valor": 25
+              },
+              "pre": {
+                "status": "disponivel",
+                "valor": 30
+              },
+              "fundamental": {
+                "status": "disponivel",
+                "valor": 40
+              },
+              "medio": {
+                "status": "disponivel",
+                "valor": 50
+              }
+            },
+            "limitada_menor3": false,
+            "limitada_todas": false,
+            "unidade_medida": "g",
+            "pesoPacote": null,
+            "quantidade": 0
+          }
+        ],
+        "ordem": 1
+      },
+      {
+        "id": "ref-2",
+        "nome": "Lanche da Tarde",
+        "horario": "14:00",
+        "alimentos": [
+          {
+            "nome": "Pão, de soja",
+            "fc": 1,
+            "fcc": 1,
+            "perCapita": {
+              "creche": {
+                "status": "disponivel",
+                "valor": 25
+              },
+              "pre": {
+                "status": "disponivel",
+                "valor": 50
+              },
+              "fundamental": {
+                "status": "disponivel",
+                "valor": 50
+              },
+              "medio": {
+                "status": "disponivel",
+                "valor": 75
+              }
+            },
+            "limitada_menor3": false,
+            "limitada_todas": false,
+            "unidade_medida": "g",
+            "pesoPacote": null,
+            "quantidade": 0
+          }
+        ],
+        "ordem": 2
+      }
+    ],
+    "dataCadastro": "2025-06-27T16:47:07.360Z",
+    "dataAtualizacao": "2025-06-27T16:47:07.360Z",
+    "ativo": true
+  },
+  {
+    "id": "f36b1e1a-ad77-42b1-841c-727e06d6d768",
+    "nome": "11111",
+    "descricao": "1111",
+    "refeicoes": [
+      {
+        "id": "ref-0",
+        "nome": "Café da Manhã",
+        "horario": "07:00",
+        "alimentos": [
+          {
+            "nome": "Trigo para quibe, cru, Triticum spp.",
+            "fc": 1,
+            "fcc": 1,
+            "perCapita": {
+              "creche": {
+                "status": "disponivel",
+                "valor": 20
+              },
+              "pre": {
+                "status": "disponivel",
+                "valor": 20
+              },
+              "fundamental": {
+                "status": "disponivel",
+                "valor": 25
+              },
+              "medio": {
+                "status": "disponivel",
+                "valor": 30
+              }
+            },
+            "limitada_menor3": false,
+            "limitada_todas": false,
+            "unidade_medida": "g",
+            "pesoPacote": null,
+            "quantidade": 0
+          }
+        ],
+        "ordem": 0
+      }
+    ],
+    "dataCadastro": "2025-06-27T21:13:49.247Z",
+    "dataAtualizacao": "2025-06-27T21:13:49.247Z",
+    "ativo": true
+  },
+  {
+    "id": "c682a4c5-f52c-4cdb-93df-07e17449ff30",
+    "nome": "Cardápio teste",
+    "descricao": "",
+    "refeicoes": [
+      {
+        "id": "ref-0",
+        "nome": "Café da Manhã",
+        "horario": "07:00",
+        "alimentos": [
+          {
+            "nome": "Serralha, crua",
+            "fc": 1.43,
+            "fcc": 1,
+            "perCapita": {
+              "creche": {
+                "status": "disponivel",
+                "valor": 10
+              },
+              "pre": {
+                "status": "disponivel",
+                "valor": 13
+              },
+              "fundamental": {
+                "status": "disponivel",
+                "valor": 25
+              },
+              "medio": {
+                "status": "disponivel",
+                "valor": 30
+              }
+            },
+            "limitada_menor3": false,
+            "limitada_todas": false,
+            "unidade_medida": "g",
+            "pesoPacote": null,
+            "quantidade": 0
+          }
+        ],
+        "ordem": 0
+      }
+    ],
+    "dataCadastro": "2025-06-27T21:14:41.489Z",
+    "dataAtualizacao": "2025-06-27T21:14:41.489Z",
+    "ativo": true
+  }
 ]

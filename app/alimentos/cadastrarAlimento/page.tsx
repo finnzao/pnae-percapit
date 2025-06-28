@@ -54,16 +54,16 @@ export default function CadastrarAlimento() {
   // Hook para prevenir duplo clique
   const { handleClick: handleSubmitClick, isLoading, cleanup } = usePreventDoubleClick(
     async () => {
-      await salvarAlimento();
+      return await salvarAlimento();
     },
     {
       delay: 2000,
       onError: (error) => setErro(error.message),
       onSuccess: () => {
-        setSucesso(true);
         setTimeout(() => {
           router.push('/');
         }, 2000);
+        setSucesso(true);
       }
     }
   );
@@ -225,7 +225,7 @@ export default function CadastrarAlimento() {
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
       <Header />
-      
+
       <main className="page-container">
         {/* Navegação */}
         <button
@@ -235,10 +235,10 @@ export default function CadastrarAlimento() {
           <ArrowLeft className="w-4 h-4" />
           <span>Voltar ao início</span>
         </button>
-        
+
         <div className="card-container">
           <h1 className="text-2xl font-bold mb-6 text-center text-[#4C6E5D]">Cadastrar Novo Alimento</h1>
-          
+
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="flex flex-col space-y-1">
               <label htmlFor="nome" className="text-sm font-medium">Nome</label>
@@ -362,23 +362,21 @@ export default function CadastrarAlimento() {
                 type="button"
                 onClick={() => router.push('/')}
                 disabled={isLoading}
-                className={`px-6 py-2 rounded-md transition ${
-                  isLoading 
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                className={`px-6 py-2 rounded-md transition ${isLoading
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     : 'bg-gray-300 text-black hover:bg-gray-400'
-                }`}
+                  }`}
               >
                 Cancelar
               </button>
-              
+
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`px-6 py-2 rounded-md font-semibold transition ${
-                  isLoading
+                className={`px-6 py-2 rounded-md font-semibold transition ${isLoading
                     ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                     : 'bg-[#4C6E5D] text-white hover:bg-[#6B7F66]'
-                }`}
+                  }`}
               >
                 {isLoading ? 'Salvando…' : 'Salvar'}
               </button>

@@ -151,9 +151,10 @@ export default function CadastrarInstituicaoPage() {
       }
 
       setSucesso(true);
+      setSalvando(false);
       setTimeout(() => {
         router.push('/instituicoes');
-      }, 2000);
+      }, 1500);
     } catch (err: unknown) {
       setErro(err instanceof Error ? err.message : 'Erro desconhecido');
     } finally {
@@ -164,7 +165,7 @@ export default function CadastrarInstituicaoPage() {
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
       <Header />
-      
+
       <main className="page-container">
         {/* Navegação */}
         <button
@@ -174,15 +175,15 @@ export default function CadastrarInstituicaoPage() {
           <ArrowLeft className="w-4 h-4" />
           <span>Voltar para Instituições</span>
         </button>
-        
+
         <div className="card-container">
           <h1 className="text-2xl font-bold mb-6 text-center text-[#4C6E5D]">Cadastrar Nova Instituição</h1>
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Informações Básicas */}
             <div className="space-y-4">
               <h2 className="text-lg font-semibold text-[#4C6E5D]">Informações Básicas</h2>
-              
+
               <div className="flex flex-col space-y-1">
                 <label htmlFor="nome" className="text-sm font-medium">Nome da Instituição</label>
                 <input
@@ -229,7 +230,7 @@ export default function CadastrarInstituicaoPage() {
             {/* Endereço */}
             <div className="space-y-4">
               <h2 className="text-lg font-semibold text-[#4C6E5D]">Endereço</h2>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col space-y-1">
                   <label htmlFor="logradouro" className="text-sm font-medium">Logradouro</label>
@@ -400,15 +401,14 @@ export default function CadastrarInstituicaoPage() {
               >
                 Cancelar
               </button>
-              
+
               <button
                 type="submit"
                 disabled={salvando}
-                className={`px-6 py-2 rounded-md font-semibold transition ${
-                  salvando
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-[#4C6E5D] text-white hover:bg-[#6B7F66]'
-                }`}
+                className={`px-6 py-2 rounded-md font-semibold transition ${salvando
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-[#4C6E5D] text-white hover:bg-[#6B7F66]'
+                  }`}
               >
                 {salvando ? 'Salvando...' : 'Salvar Instituição'}
               </button>

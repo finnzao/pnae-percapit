@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Header from '@/components/Header';
-import { ArrowLeft, Clock, Calendar, Utensils, Download, Edit, Trash2, Share2 } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar, Utensils, Download, Edit, Share2 } from 'lucide-react';
 import { Cardapio, RefeicaoCardapio } from '@/types';
 
 export default function CardapioDetalhe() {
@@ -23,7 +23,7 @@ export default function CardapioDetalhe() {
     try {
       const response = await fetch('/api/salvar-cardapio');
       const data = await response.json();
-      
+
       if (data.ok) {
         const cardapioEncontrado = data.data.find((c: Cardapio) => c.id === id);
         if (cardapioEncontrado) {
@@ -61,11 +61,11 @@ export default function CardapioDetalhe() {
 
   const exportarCardapio = () => {
     if (!cardapio) return;
-    
+
     const conteudo = `CARDÁPIO: ${cardapio.nome}\n` +
       `${cardapio.descricao ? `Descrição: ${cardapio.descricao}\n` : ''}` +
       `Data de criação: ${formatarData(cardapio.dataCadastro)}\n\n` +
-      cardapio.refeicoes.map(refeicao => 
+      cardapio.refeicoes.map(refeicao =>
         `${refeicao.nome} - ${formatarHora(refeicao.horario || '')}\n` +
         refeicao.alimentos.map(alimento => `  • ${alimento.nome || 'Alimento'}`).join('\n')
       ).join('\n\n');
@@ -106,7 +106,7 @@ export default function CardapioDetalhe() {
             <ArrowLeft className="w-4 h-4" />
             <span>Voltar aos cardápios</span>
           </button>
-          
+
           <div className="bg-red-50 border border-red-200 text-red-700 p-8 rounded-lg text-center">
             <p className="text-lg font-medium mb-4">{erro || 'Cardápio não encontrado'}</p>
             <button
@@ -124,7 +124,7 @@ export default function CardapioDetalhe() {
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
       <Header />
-      
+
       <main className="page-container">
         {/* Navegação */}
         <button
@@ -144,7 +144,7 @@ export default function CardapioDetalhe() {
                 <p className="text-gray-600">{cardapio.descricao}</p>
               )}
             </div>
-            
+
             <div className="flex gap-2">
               <button
                 onClick={exportarCardapio}

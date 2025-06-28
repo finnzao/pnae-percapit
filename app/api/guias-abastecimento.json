@@ -1,1 +1,865 @@
-[]
+[
+  {
+    "id": "19cb1a81-d07a-4def-9bf1-e8408307063f",
+    "instituicaoId": "59e20636-c89b-484c-8b6d-90a1e8400fac",
+    "instituicaoNome": "Escola teste",
+    "dataInicio": "2025-06-01T00:00:00.000Z",
+    "dataFim": "2025-06-27T00:00:00.000Z",
+    "cardapiosDiarios": [
+      {
+        "data": "2025-06-01T00:00:00.000Z",
+        "cardapioId": "14bdab04-fe4b-4ef7-af28-29c76d8acaaa",
+        "cardapioNome": "Cardápio teste"
+      },
+      {
+        "data": "2025-06-02T00:00:00.000Z",
+        "cardapioId": "8cf73cae-4fc6-492c-8460-04da46525e05",
+        "cardapioNome": "Teste"
+      },
+      {
+        "data": "2025-06-03T00:00:00.000Z",
+        "cardapioId": "b6990b9d-d350-4f02-a282-668f21484213",
+        "cardapioNome": "Cardapio teste"
+      },
+      {
+        "data": "2025-06-04T00:00:00.000Z",
+        "cardapioId": "c2064faf-63ca-48f9-b747-8f583368402b",
+        "cardapioNome": "TESTE"
+      },
+      {
+        "data": "2025-06-05T00:00:00.000Z",
+        "cardapioId": "b6990b9d-d350-4f02-a282-668f21484213",
+        "cardapioNome": "Cardapio teste"
+      },
+      {
+        "data": "2025-06-06T00:00:00.000Z",
+        "cardapioId": "b6990b9d-d350-4f02-a282-668f21484213",
+        "cardapioNome": "Cardapio teste"
+      },
+      {
+        "data": "2025-06-07T00:00:00.000Z",
+        "cardapioId": "b6990b9d-d350-4f02-a282-668f21484213",
+        "cardapioNome": "Cardapio teste"
+      },
+      {
+        "data": "2025-06-08T00:00:00.000Z",
+        "cardapioId": "dc8a4483-d517-4a94-9a28-afbd8e57fedd",
+        "cardapioNome": "TESTE 111"
+      },
+      {
+        "data": "2025-06-09T00:00:00.000Z",
+        "cardapioId": "c2064faf-63ca-48f9-b747-8f583368402b",
+        "cardapioNome": "TESTE"
+      },
+      {
+        "data": "2025-06-10T00:00:00.000Z",
+        "cardapioId": "c2064faf-63ca-48f9-b747-8f583368402b",
+        "cardapioNome": "TESTE"
+      },
+      {
+        "data": "2025-06-11T00:00:00.000Z",
+        "cardapioId": "c2064faf-63ca-48f9-b747-8f583368402b",
+        "cardapioNome": "TESTE"
+      },
+      {
+        "data": "2025-06-12T00:00:00.000Z",
+        "cardapioId": "c2064faf-63ca-48f9-b747-8f583368402b",
+        "cardapioNome": "TESTE"
+      },
+      {
+        "data": "2025-06-13T00:00:00.000Z",
+        "cardapioId": "c2064faf-63ca-48f9-b747-8f583368402b",
+        "cardapioNome": "TESTE"
+      },
+      {
+        "data": "2025-06-14T00:00:00.000Z",
+        "cardapioId": "c2064faf-63ca-48f9-b747-8f583368402b",
+        "cardapioNome": "TESTE"
+      },
+      {
+        "data": "2025-06-15T00:00:00.000Z",
+        "cardapioId": "c2064faf-63ca-48f9-b747-8f583368402b",
+        "cardapioNome": "TESTE"
+      },
+      {
+        "data": "2025-06-16T00:00:00.000Z",
+        "cardapioId": "c2064faf-63ca-48f9-b747-8f583368402b",
+        "cardapioNome": "TESTE"
+      },
+      {
+        "data": "2025-06-17T00:00:00.000Z",
+        "cardapioId": "c2064faf-63ca-48f9-b747-8f583368402b",
+        "cardapioNome": "TESTE"
+      },
+      {
+        "data": "2025-06-18T00:00:00.000Z",
+        "cardapioId": "c2064faf-63ca-48f9-b747-8f583368402b",
+        "cardapioNome": "TESTE"
+      },
+      {
+        "data": "2025-06-19T00:00:00.000Z",
+        "cardapioId": "c2064faf-63ca-48f9-b747-8f583368402b",
+        "cardapioNome": "TESTE"
+      },
+      {
+        "data": "2025-06-20T00:00:00.000Z",
+        "cardapioId": "c2064faf-63ca-48f9-b747-8f583368402b",
+        "cardapioNome": "TESTE"
+      },
+      {
+        "data": "2025-06-21T00:00:00.000Z",
+        "cardapioId": "c2064faf-63ca-48f9-b747-8f583368402b",
+        "cardapioNome": "TESTE"
+      },
+      {
+        "data": "2025-06-22T00:00:00.000Z",
+        "cardapioId": "c2064faf-63ca-48f9-b747-8f583368402b",
+        "cardapioNome": "TESTE"
+      },
+      {
+        "data": "2025-06-23T00:00:00.000Z",
+        "cardapioId": "b6990b9d-d350-4f02-a282-668f21484213",
+        "cardapioNome": "Cardapio teste"
+      },
+      {
+        "data": "2025-06-24T00:00:00.000Z",
+        "cardapioId": "c2064faf-63ca-48f9-b747-8f583368402b",
+        "cardapioNome": "TESTE"
+      },
+      {
+        "data": "2025-06-25T00:00:00.000Z",
+        "cardapioId": "b6990b9d-d350-4f02-a282-668f21484213",
+        "cardapioNome": "Cardapio teste"
+      },
+      {
+        "data": "2025-06-26T00:00:00.000Z",
+        "cardapioId": "c2064faf-63ca-48f9-b747-8f583368402b",
+        "cardapioNome": "TESTE"
+      },
+      {
+        "data": "2025-06-27T00:00:00.000Z",
+        "cardapioId": "b6990b9d-d350-4f02-a282-668f21484213",
+        "cardapioNome": "Cardapio teste"
+      }
+    ],
+    "calculosDistribuicao": [
+      {
+        "alimentoNome": "Víscera bovina",
+        "quantidadeTotal": 1417.9125,
+        "unidadeMedida": "kg",
+        "detalhamentoRefeicoes": [
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 40.9375
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 12.5
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 12.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 10
+          },
+          {
+            "refeicaoId": "ref-2",
+            "refeicaoNome": "Lanche da Tarde",
+            "quantidade": 12.5
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 0.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 2.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 24.975
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 0.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 0.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 0.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 25
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 10
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 15
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 2.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 24.975
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 2.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 24.975
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 2.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 24.975
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 2.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 24.975
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 2.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 24.975
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 2.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 24.975
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 2.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 24.975
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 2.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 24.975
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 2.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 24.975
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 2.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 24.975
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 2.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 24.975
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 2.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 24.975
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 2.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 24.975
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 2.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 24.975
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 0.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 2.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 24.975
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 0.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.25
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 2.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 24.975
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 0.25
+          }
+        ]
+      }
+    ],
+    "observacoes": "TESTE",
+    "usuarioGeracao": "Ana Paula",
+    "status": "Distribuído",
+    "versao": 5,
+    "dataGeracao": "2025-06-28T01:46:35.273Z"
+  },
+  {
+    "id": "62b79453-2836-437f-82f7-43bb70f2b45f",
+    "instituicaoId": "59e20636-c89b-484c-8b6d-90a1e8400fac",
+    "instituicaoNome": "Escola teste",
+    "dataInicio": "2025-06-29T00:00:00.000Z",
+    "dataFim": "2025-06-30T00:00:00.000Z",
+    "cardapiosDiarios": [
+      {
+        "data": "2025-06-29T00:00:00.000Z",
+        "cardapioId": "14bdab04-fe4b-4ef7-af28-29c76d8acaaa",
+        "cardapioNome": "Cardápio teste"
+      },
+      {
+        "data": "2025-06-30T00:00:00.000Z",
+        "cardapioId": "8cf73cae-4fc6-492c-8460-04da46525e05",
+        "cardapioNome": "Teste"
+      }
+    ],
+    "calculosDistribuicao": [
+      {
+        "alimentoNome": "Víscera bovina",
+        "quantidadeTotal": 152.63750000000002,
+        "unidadeMedida": "kg",
+        "detalhamentoRefeicoes": [
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 40.9375
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 12.5
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 12.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 10
+          },
+          {
+            "refeicaoId": "ref-2",
+            "refeicaoNome": "Lanche da Tarde",
+            "quantidade": 12.5
+          }
+        ]
+      }
+    ],
+    "observacoes": "",
+    "usuarioGeracao": "Ana Paula",
+    "status": "Distribuído",
+    "versao": 5,
+    "dataGeracao": "2025-06-28T01:49:00.856Z"
+  },
+  {
+    "id": "da37c5a1-a576-4339-843a-286804b27ee7",
+    "instituicaoId": "59e20636-c89b-484c-8b6d-90a1e8400fac",
+    "instituicaoNome": "Escola teste",
+    "dataInicio": "2025-06-06T00:00:00.000Z",
+    "dataFim": "2025-06-06T00:00:00.000Z",
+    "cardapiosDiarios": [
+      {
+        "data": "2025-06-06T00:00:00.000Z",
+        "cardapioId": "8cf73cae-4fc6-492c-8460-04da46525e05",
+        "cardapioNome": "Teste"
+      }
+    ],
+    "calculosDistribuicao": [
+      {
+        "alimentoNome": "Víscera bovina",
+        "quantidadeTotal": 90.30000000000001,
+        "unidadeMedida": "kg",
+        "detalhamentoRefeicoes": [
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 12.5
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 12.5
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 10
+          },
+          {
+            "refeicaoId": "ref-2",
+            "refeicaoNome": "Lanche da Tarde",
+            "quantidade": 12.5
+          }
+        ]
+      }
+    ],
+    "observacoes": "",
+    "usuarioGeracao": "Ana Paula",
+    "status": "Distribuído",
+    "versao": 4,
+    "dataGeracao": "2025-06-28T01:48:52.783Z"
+  },
+  {
+    "id": "d15c4dab-9cdc-457e-af25-85d4259884f6",
+    "instituicaoId": "59e20636-c89b-484c-8b6d-90a1e8400fac",
+    "instituicaoNome": "Escola teste",
+    "dataInicio": "2025-06-03T00:00:00.000Z",
+    "dataFim": "2025-06-04T00:00:00.000Z",
+    "cardapiosDiarios": [
+      {
+        "data": "2025-06-03T00:00:00.000Z",
+        "cardapioId": "14bdab04-fe4b-4ef7-af28-29c76d8acaaa",
+        "cardapioNome": "Cardápio teste"
+      },
+      {
+        "data": "2025-06-04T00:00:00.000Z",
+        "cardapioId": "b6990b9d-d350-4f02-a282-668f21484213",
+        "cardapioNome": "Cardapio teste"
+      }
+    ],
+    "calculosDistribuicao": [
+      {
+        "alimentoNome": "Víscera bovina",
+        "quantidadeTotal": 62.587500000000006,
+        "unidadeMedida": "kg",
+        "detalhamentoRefeicoes": [
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 40.9375
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 0.25
+          }
+        ]
+      }
+    ],
+    "observacoes": "",
+    "usuarioGeracao": "Ana Paula",
+    "status": "Distribuído",
+    "versao": 4,
+    "dataGeracao": "2025-06-28T01:48:57.392Z"
+  },
+  {
+    "id": "d59a0fe8-fb7c-4aae-8e48-bce972c3e85f",
+    "instituicaoId": "59e20636-c89b-484c-8b6d-90a1e8400fac",
+    "instituicaoNome": "Escola teste",
+    "dataInicio": "2025-06-01T00:00:00.000Z",
+    "dataFim": "2025-06-01T00:00:00.000Z",
+    "cardapiosDiarios": [
+      {
+        "data": "2025-06-01T00:00:00.000Z",
+        "cardapioId": "14bdab04-fe4b-4ef7-af28-29c76d8acaaa",
+        "cardapioNome": "Cardápio teste"
+      }
+    ],
+    "calculosDistribuicao": [
+      {
+        "alimentoNome": "Víscera bovina",
+        "quantidadeTotal": 62.337500000000006,
+        "unidadeMedida": "kg",
+        "detalhamentoRefeicoes": [
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 21.400000000000002
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 40.9375
+          }
+        ]
+      }
+    ],
+    "observacoes": "",
+    "usuarioGeracao": "Ana Paula",
+    "status": "Distribuído",
+    "versao": 2,
+    "dataGeracao": "2025-06-28T01:48:55.409Z"
+  },
+  {
+    "id": "2ba767ca-a9b3-47c7-934c-f6efb4e55b85",
+    "instituicaoId": "04d8c436-3428-4efa-a953-a20410cc1d0a",
+    "instituicaoNome": "Escola Municipal Renato Silva",
+    "dataInicio": "2025-06-01T00:00:00.000Z",
+    "dataFim": "2025-06-02T00:00:00.000Z",
+    "cardapiosDiarios": [
+      {
+        "data": "2025-06-01T00:00:00.000Z",
+        "cardapioId": "14bdab04-fe4b-4ef7-af28-29c76d8acaaa",
+        "cardapioNome": "Cardápio teste"
+      },
+      {
+        "data": "2025-06-02T00:00:00.000Z",
+        "cardapioId": "14bdab04-fe4b-4ef7-af28-29c76d8acaaa",
+        "cardapioNome": "Cardápio teste"
+      }
+    ],
+    "calculosDistribuicao": [
+      {
+        "alimentoNome": "Víscera bovina",
+        "quantidadeTotal": 49.870000000000005,
+        "unidadeMedida": "kg",
+        "detalhamentoRefeicoes": [
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 8.56
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 16.375
+          },
+          {
+            "refeicaoId": "ref-0",
+            "refeicaoNome": "Café da Manhã",
+            "quantidade": 8.56
+          },
+          {
+            "refeicaoId": "ref-1",
+            "refeicaoNome": "Almoço",
+            "quantidade": 16.375
+          }
+        ]
+      }
+    ],
+    "observacoes": "",
+    "usuarioGeracao": "Ana Paula",
+    "status": "Rascunho",
+    "versao": 1,
+    "dataGeracao": "2025-06-28T02:02:16.384Z"
+  }
+]

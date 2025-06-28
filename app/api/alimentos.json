@@ -12754,5 +12754,149 @@
     "limitada_todas": false,
     "restricoesAlimentares": [],
     "_createdAt": "2025-06-22T14:39:22.368Z"
+  },
+  {
+    "nome": "teste 1",
+    "fc": 1,
+    "fcc": 1,
+    "limitada_menor3": false,
+    "limitada_todas": false,
+    "restricoesAlimentares": [],
+    "perCapita": {
+      "creche": {
+        "status": "indisponivel"
+      },
+      "pre": {
+        "status": "indisponivel"
+      },
+      "fundamental": {
+        "status": "disponivel",
+        "valor": 35
+      },
+      "medio": {
+        "status": "indisponivel"
+      }
+    },
+    "_createdAt": "2025-06-27T22:15:02.078Z"
+  },
+  {
+    "nome": "teste 1313213",
+    "fc": 1,
+    "fcc": 1,
+    "limitada_menor3": false,
+    "limitada_todas": false,
+    "restricoesAlimentares": [],
+    "perCapita": {
+      "creche": {
+        "status": "indisponivel"
+      },
+      "pre": {
+        "status": "indisponivel"
+      },
+      "fundamental": {
+        "status": "indisponivel"
+      },
+      "medio": {
+        "status": "disponivel",
+        "valor": 34
+      }
+    },
+    "_createdAt": "2025-06-28T00:22:56.820Z"
+  },
+  {
+    "nome": "TESTE 10",
+    "fc": 1,
+    "fcc": 1,
+    "limitada_menor3": false,
+    "limitada_todas": false,
+    "restricoesAlimentares": [],
+    "perCapita": {
+      "creche": {
+        "status": "indisponivel"
+      },
+      "pre": {
+        "status": "indisponivel"
+      },
+      "fundamental": {
+        "status": "indisponivel"
+      },
+      "medio": {
+        "status": "disponivel",
+        "valor": 1
+      }
+    },
+    "_createdAt": "2025-06-28T00:37:41.798Z"
+  },
+  {
+    "nome": "TESTE111",
+    "fc": 1,
+    "fcc": 1,
+    "limitada_menor3": false,
+    "limitada_todas": false,
+    "restricoesAlimentares": [],
+    "perCapita": {
+      "creche": {
+        "status": "indisponivel"
+      },
+      "pre": {
+        "status": "indisponivel"
+      },
+      "fundamental": {
+        "status": "indisponivel"
+      },
+      "medio": {
+        "status": "disponivel",
+        "valor": 45
+      }
+    },
+    "_createdAt": "2025-06-28T00:38:52.251Z"
+  },
+  {
+    "nome": "TESTE 403",
+    "fc": 1,
+    "fcc": 1,
+    "limitada_menor3": false,
+    "limitada_todas": false,
+    "restricoesAlimentares": [],
+    "perCapita": {
+      "creche": {
+        "status": "disponivel",
+        "valor": 31
+      },
+      "pre": {
+        "status": "indisponivel"
+      },
+      "fundamental": {
+        "status": "indisponivel"
+      },
+      "medio": {
+        "status": "indisponivel"
+      }
+    },
+    "_createdAt": "2025-06-28T02:01:01.355Z"
+  },
+  {
+    "nome": "TESTE 500",
+    "fc": 1,
+    "fcc": 1,
+    "limitada_menor3": false,
+    "limitada_todas": false,
+    "restricoesAlimentares": [],
+    "perCapita": {
+      "creche": {
+        "status": "indisponivel"
+      },
+      "pre": {
+        "status": "indisponivel"
+      },
+      "fundamental": {
+        "status": "indisponivel"
+      },
+      "medio": {
+        "status": "disponivel",
+        "valor": 31
+      }
+    },
+    "_createdAt": "2025-06-28T02:01:16.717Z"
   }
 ]

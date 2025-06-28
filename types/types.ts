@@ -28,6 +28,7 @@ export type RawStatusDisponibilidade = {
 };
 
 export interface AlimentoSelecionado {
+    id: string;
     nome: string;
     pesoPacote: number | null;
 }

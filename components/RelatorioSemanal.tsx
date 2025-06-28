@@ -13,12 +13,12 @@ export default function RelatorioSemanal({ distribuicaoSemanal, guias, carregand
 
   // Calcula totais
   const totalDistribuido = distribuicaoSemanal.reduce((acc, item) => acc + item.quantidadeTotal, 0);
-  
+
   // Conta guias distribuídas nos últimos 7 dias
   const hoje = new Date();
   const seteDiasAtras = new Date(hoje);
   seteDiasAtras.setDate(hoje.getDate() - 7);
-  
+
   const guiasDistribuidasSemana = guias.filter(guia => {
     if (guia.status !== 'Distribuído') return false;
     const dataGeracao = new Date(guia.dataGeracao);
@@ -27,6 +27,13 @@ export default function RelatorioSemanal({ distribuicaoSemanal, guias, carregand
 
   // Top 5 alimentos mais distribuídos
   const top5Alimentos = [...distribuicaoSemanal]
+    .filter((a) => !!a.alimentoId)
+    .reduce((acc, curr) => {
+      if (!acc.find((a) => a.alimentoId === curr.alimentoId)) {
+        acc.push(curr);
+      }
+      return acc;
+    }, [] as CalculoDistribuicao[])
     .sort((a, b) => b.quantidadeTotal - a.quantidadeTotal)
     .slice(0, 5);
 
@@ -98,11 +105,11 @@ export default function RelatorioSemanal({ distribuicaoSemanal, guias, carregand
               <h3 className="text-sm font-medium text-gray-700 mb-3">
                 Top 5 Alimentos Distribuídos
               </h3>
-              
+
               {/* Versão Mobile - Lista simplificada */}
               <div className="block sm:hidden space-y-2">
                 {top5Alimentos.map((alimento, index) => (
-                  <div key={alimento.alimentoId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div key={`${alimento.alimentoId}-${index}`} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-2">
                       <span className="w-6 h-6 bg-[#4C6E5D] text-white rounded-full flex items-center justify-center text-xs font-medium">
                         {index + 1}
@@ -114,12 +121,13 @@ export default function RelatorioSemanal({ distribuicaoSemanal, guias, carregand
                     </span>
                   </div>
                 ))}
+
               </div>
 
               {/* Versão Tablet/Desktop - Com barra de progresso */}
               <div className="hidden sm:block space-y-3">
                 {top5Alimentos.map((alimento, index) => (
-                  <div key={alimento.alimentoId} className="flex items-center gap-3">
+                  <div key={`${alimento.alimentoId}-${index}`} className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-[#4C6E5D] text-white rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0">
                       {index + 1}
                     </div>
@@ -141,6 +149,7 @@ export default function RelatorioSemanal({ distribuicaoSemanal, guias, carregand
                     </div>
                   </div>
                 ))}
+
               </div>
 
               {distribuicaoSemanal.length > 5 && (

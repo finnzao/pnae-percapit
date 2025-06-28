@@ -241,7 +241,7 @@ export default function EditarAlimentoPage() {
                         <ArrowLeft className="w-4 h-4" />
                         <span>Voltar para alimentos</span>
                     </button>
-                    
+
                     <div className="bg-red-50 border border-red-200 text-red-700 p-8 rounded-lg text-center">
                         <p className="text-lg font-medium mb-4">{erro}</p>
                         <button
@@ -388,11 +388,10 @@ export default function EditarAlimentoPage() {
                                 type="button"
                                 onClick={() => router.push('/alimentos')}
                                 disabled={isLoading}
-                                className={`px-6 py-2 rounded-md transition ${
-                                    isLoading
+                                className={`px-6 py-2 rounded-md transition ${isLoading
                                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                         : 'bg-gray-300 text-black hover:bg-gray-400'
-                                }`}
+                                    }`}
                             >
                                 Cancelar
                             </button>
@@ -400,11 +399,10 @@ export default function EditarAlimentoPage() {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className={`px-6 py-2 rounded-md font-semibold transition ${
-                                    isLoading
+                                className={`px-6 py-2 rounded-md font-semibold transition ${isLoading
                                         ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                                         : 'bg-[#4C6E5D] text-white hover:bg-[#6B7F66]'
-                                }`}
+                                    }`}
                             >
                                 {isLoading ? 'Salvando…' : 'Salvar Alterações'}
                             </button>

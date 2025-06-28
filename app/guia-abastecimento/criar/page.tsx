@@ -34,16 +34,15 @@ export default function CriarGuiaPage() {
 
     const alimentosMapeados = converterListaParaMapaDeAlimentos();
 
-    // Hook para prevenir duplo clique
     const { handleClick: handleSubmitClick, isLoading, cleanup } = usePreventDoubleClick(
         async () => {
-            await salvarGuia();
+            await await salvarGuia();
         },
         {
             delay: 3000, // 3 segundos para guias (processo mais complexo)
             onError: (error) => setErro(error.message),
             onSuccess: (guiaId: string) => {
-                router.push(`/guia-abastecimento/${guiaId}`);
+                router.push(`/guia-abastecimento`);
             }
         }
     );
@@ -221,7 +220,7 @@ export default function CriarGuiaPage() {
         e.preventDefault();
         const guiaId = await handleSubmitClick();
         if (guiaId) {
-            // O redirect será feito pelo callback onSuccess
+            router.push(`/guia-abastecimento/${guiaId}`);
         }
     };
 
@@ -369,8 +368,8 @@ export default function CriarGuiaPage() {
                                 onClick={() => router.push('/guia-abastecimento')}
                                 disabled={isLoading}
                                 className={`px-6 py-2 rounded-md transition ${isLoading
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
                                     }`}
                             >
                                 Cancelar
@@ -380,8 +379,8 @@ export default function CriarGuiaPage() {
                                 type="submit"
                                 disabled={isLoading || form.cardapiosDiarios.length === 0 || !form.instituicaoId}
                                 className={`px-6 py-2 rounded-md font-semibold transition flex items-center gap-2 ${isLoading || form.cardapiosDiarios.length === 0 || !form.instituicaoId
-                                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                                        : 'bg-[#4C6E5D] text-white hover:bg-[#6B7F66]'
+                                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                                    : 'bg-[#4C6E5D] text-white hover:bg-[#6B7F66]'
                                     }`}
                             >
                                 <Save className="w-4 h-4" />

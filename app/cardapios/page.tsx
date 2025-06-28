@@ -19,7 +19,7 @@ export default function CardapiosPage() {
     try {
       const response = await fetch('/api/salvar-cardapio');
       const data = await response.json();
-      
+
       if (data.ok) {
         setCardapios(data.data);
       }
@@ -55,7 +55,7 @@ export default function CardapiosPage() {
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
       <Header />
-      
+
       <main className="page-container">
         {/* Navegação */}
         <button
@@ -65,7 +65,7 @@ export default function CardapiosPage() {
           <ArrowLeft className="w-4 h-4" />
           <span>Voltar ao início</span>
         </button>
-        
+
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-[#4C6E5D]">Cardápios</h1>
           <button
@@ -102,7 +102,7 @@ export default function CardapiosPage() {
                 {cardapio.descricao && (
                   <p className="text-sm text-gray-600 mb-4">{cardapio.descricao}</p>
                 )}
-                
+
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2 text-gray-600">
                     <Utensils className="w-4 h-4" />
