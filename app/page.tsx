@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import DashboardCalendar from '@/components/DashboardCalendar';
@@ -8,10 +8,10 @@ import ResumoMensal from '@/components/ResumoMensal';
 import RelatorioSemanal from '@/components/RelatorioSemanal';
 import DashboardActions from '@/components/DashboardActions';
 import { GuiaAbastecimento, CalculoDistribuicao } from '@/types';
-import { 
-  calcularDistribuicaoSemanal, 
-  gerarCalendarioMes, 
-  filtrarGuiasDoMes 
+import {
+  calcularDistribuicaoSemanal,
+  gerarCalendarioMes,
+  filtrarGuiasDoMes
 } from '@/app/utils/dashboardUtils';
 
 interface DiaCalendario {
@@ -22,35 +22,28 @@ interface DiaCalendario {
 
 export default function HomePage() {
   const router = useRouter();
-  
+
   // Estados principais
   const [mesAtual, setMesAtual] = useState(new Date());
   const [guias, setGuias] = useState<GuiaAbastecimento[]>([]);
   const [carregandoGuias, setCarregandoGuias] = useState(true);
-  
+
   // Estados derivados
   const [diasCalendario, setDiasCalendario] = useState<DiaCalendario[]>([]);
   const [diaSelecionado, setDiaSelecionado] = useState<number | null>(null);
   const [distribuicaoSemanal, setDistribuicaoSemanal] = useState<CalculoDistribuicao[]>([]);
   const [guiasDoMes, setGuiasDoMes] = useState<GuiaAbastecimento[]>([]);
 
-  // Carregamento inicial dos dados
   useEffect(() => {
     carregarGuias();
   }, []);
 
-  // Atualização dos dados derivados quando mês ou guias mudam
-  useEffect(() => {
-    if (guias.length > 0) {
-      atualizarDadosDeriados();
-    }
-  }, [mesAtual, guias]);
 
   const carregarGuias = async () => {
     try {
       const response = await fetch('/api/guia-abastecimento');
       const data = await response.json();
-      
+
       if (data.ok) {
         setGuias(data.data);
       }
@@ -61,20 +54,26 @@ export default function HomePage() {
     }
   };
 
-  const atualizarDadosDeriados = () => {
+  const atualizarDadosDeriados = useCallback(() => {
     // Gera calendário do mês
     const calendario = gerarCalendarioMes(mesAtual, guias);
     setDiasCalendario(calendario);
-    
+
     // Filtra guias do mês atual
     const guiasMes = filtrarGuiasDoMes(guias, mesAtual);
     setGuiasDoMes(guiasMes);
-    
+
     // Calcula distribuição semanal
     const distribuicao = calcularDistribuicaoSemanal(guias);
     setDistribuicaoSemanal(distribuicao);
-  };
+  }, [mesAtual, guias]);
 
+  // Atualização dos dados derivados quando mês ou guias mudam
+  useEffect(() => {
+    if (guias.length > 0) {
+      atualizarDadosDeriados();
+    }
+  }, [mesAtual, guias, atualizarDadosDeriados]);
   const navegarMes = (direcao: 'anterior' | 'proximo') => {
     setMesAtual(prev => {
       const novaData = new Date(prev);
@@ -106,7 +105,7 @@ export default function HomePage() {
           <h1 className="text-xl sm:text-2xl font-bold text-[#4C6E5D] mb-4 sm:mb-6">
             Dashboard
           </h1>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Calendário */}
             <DashboardCalendar
@@ -119,7 +118,7 @@ export default function HomePage() {
             />
 
             {/* Resumo do Mês */}
-            <ResumoMensal 
+            <ResumoMensal
               guias={guiasDoMes}
               carregando={carregandoGuias}
             />

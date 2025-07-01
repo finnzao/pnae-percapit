@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Clock, CheckCircle, Package } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { GuiaAbastecimento } from '@/types';
 import { formatarMesBr, getStatusColor } from '@/app/utils/dashboardUtils';
 
@@ -17,18 +17,18 @@ interface DashboardCalendarProps {
   onGuiaClick: (guiaId: string) => void;
 }
 
-const StatusIcon = ({ status }: { status: string }) => {
-  switch (status) {
-    case 'Rascunho':
-      return <Clock className="w-3 h-3" />;
-    case 'Finalizado':
-      return <CheckCircle className="w-3 h-3" />;
-    case 'Distribuído':
-      return <Package className="w-3 h-3" />;
-    default:
-      return null;
-  }
-};
+// const StatusIcon = ({ status }: { status: string }) => {
+//   switch (status) {
+//     case 'Rascunho':
+//       return <Clock className="w-3 h-3" />;
+//     case 'Finalizado':
+//       return <CheckCircle className="w-3 h-3" />;
+//     case 'Distribuído':
+//       return <Package className="w-3 h-3" />;
+//     default:
+//       return null;
+//   }
+// };
 
 export default function DashboardCalendar({
   mesAtual,

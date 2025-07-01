@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { ArrowLeft, Filter, Download, TrendingUp, Package } from 'lucide-react';
@@ -44,9 +44,6 @@ export default function RelatorioDistribuicaoPage() {
     carregarDados();
   }, []);
 
-  useEffect(() => {
-    processarDadosPorPeriodo();
-  }, [guias, dataInicio, dataFim, etapaSelecionada, instituicaoSelecionada]);
 
   const carregarDados = async () => {
     try {
@@ -67,12 +64,12 @@ export default function RelatorioDistribuicaoPage() {
     }
   };
 
-  const processarDadosPorPeriodo = () => {
+  const processarDadosPorPeriodo = useCallback(() => {
     if (!dataInicio || !dataFim) return;
 
     const inicio = new Date(dataInicio);
     const fim = new Date(dataFim);
-    
+
     inicio.setHours(0, 0, 0, 0);
     fim.setHours(23, 59, 59, 999);
 
@@ -89,33 +86,33 @@ export default function RelatorioDistribuicaoPage() {
     const dataAtual = new Date(inicio);
     while (dataAtual <= fim) {
       const dataString = dataAtual.toISOString().split('T')[0];
-      
+
       // Encontra guias ativas neste dia específico
       const guiasAtivas = guias.filter(guia => {
         if (guia.status !== 'Distribuído') return false;
-        
+
         const inicioGuia = new Date(guia.dataInicio);
         const fimGuia = new Date(guia.dataFim);
-        
+
         inicioGuia.setHours(0, 0, 0, 0);
         fimGuia.setHours(23, 59, 59, 999);
-        
+
         // Verifica se a data atual está dentro do período da guia
         return dataAtual >= inicioGuia && dataAtual <= fimGuia;
       });
 
       // Filtra por instituição se selecionada
-      const guiasFiltradas = instituicaoSelecionada 
+      const guiasFiltradas = instituicaoSelecionada
         ? guiasAtivas.filter(g => g.instituicaoId === instituicaoSelecionada)
         : guiasAtivas;
 
       // Processa distribuição para este dia
       const alimentosDoDia: CalculoDistribuicao[] = [];
-      
+
       guiasFiltradas.forEach(guia => {
         const instituicao = instituicoes.find(i => i.id === guia.instituicaoId);
         let etapaInstituicao: Etapa = 'fundamental';
-        
+
         if (instituicao) {
           if (instituicao.tipo === 'Creche') etapaInstituicao = 'creche';
           else if (instituicao.tipo === 'Centro de Educação Infantil') etapaInstituicao = 'pre';
@@ -134,10 +131,10 @@ export default function RelatorioDistribuicaoPage() {
         if (cardapioDoDia) {
           // Processa distribuição proporcional para este dia
           const diasTotais = guia.cardapiosDiarios.length;
-          
+
           guia.calculosDistribuicao.forEach(calculo => {
             const quantidadeDiaria = calculo.quantidadeTotal / diasTotais;
-            
+
             // Agrega no total
             if (!alimentosAgregados[calculo.alimentoId]) {
               alimentosAgregados[calculo.alimentoId] = {
@@ -146,7 +143,7 @@ export default function RelatorioDistribuicaoPage() {
                 detalhamentoRefeicoes: []
               };
             }
-            
+
             alimentosAgregados[calculo.alimentoId].quantidadeTotal += quantidadeDiaria;
             etapasAgregadas[etapaInstituicao] += quantidadeDiaria;
 
@@ -185,7 +182,10 @@ export default function RelatorioDistribuicaoPage() {
       .filter(e => e.quantidade > 0);
 
     setDistribuicaoPorEtapa(etapasArray);
-  };
+  }, [dataInicio, dataFim, etapaSelecionada, instituicaoSelecionada, guias, instituicoes]);
+  useEffect(() => {
+    processarDadosPorPeriodo();
+  }, [processarDadosPorPeriodo]);
 
   const exportarRelatorio = () => {
     let conteudo = 'RELATÓRIO DE DISTRIBUIÇÃO DE ALIMENTOS\n';
@@ -336,7 +336,7 @@ export default function RelatorioDistribuicaoPage() {
           {dataInicio && dataFim && (
             <div className="mt-3 p-3 bg-blue-50 rounded-lg">
               <p className="text-sm text-blue-800">
-                <strong>Período selecionado:</strong> {new Date(dataInicio).toLocaleDateString('pt-BR')} até {new Date(dataFim).toLocaleDateString('pt-BR')} 
+                <strong>Período selecionado:</strong> {new Date(dataInicio).toLocaleDateString('pt-BR')} até {new Date(dataFim).toLocaleDateString('pt-BR')}
                 ({Math.ceil((new Date(dataFim).getTime() - new Date(dataInicio).getTime()) / (1000 * 60 * 60 * 24)) + 1} dias)
               </p>
             </div>
@@ -402,10 +402,10 @@ export default function RelatorioDistribuicaoPage() {
                     .sort((a, b) => b.quantidadeTotal - a.quantidadeTotal)
                     .map((alimento, index) => {
                       const percentual = (alimento.quantidadeTotal / totalGeral) * 100;
-                      const diasPeriodo = dataInicio && dataFim ? 
+                      const diasPeriodo = dataInicio && dataFim ?
                         Math.ceil((new Date(dataFim).getTime() - new Date(dataInicio).getTime()) / (1000 * 60 * 60 * 24)) + 1 : 1;
                       const mediaDiaria = alimento.quantidadeTotal / diasPeriodo;
-                      
+
                       return (
                         <tr key={`${alimento.alimentoId}-${index}`} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
