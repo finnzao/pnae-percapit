@@ -77,6 +77,7 @@ export function converterListaParaMapaDeAlimentos(): Record<string, AlimentoSemM
         limitada_todas: a.limitada_todas,
         unidade_medida: a.unidade_medida,
         restricoesAlimentares: a.restricoesAlimentares || [],
+        
       },
     ])
   );

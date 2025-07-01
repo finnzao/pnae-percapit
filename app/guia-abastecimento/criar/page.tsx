@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { ArrowLeft, Calendar, Building2, AlertCircle, Save } from 'lucide-react';
@@ -15,6 +15,18 @@ interface FormState {
     dataFim: string;
     cardapiosDiarios: CardapioDiario[];
     observacoes: string;
+}
+
+interface AlimentoAgregado {
+    alimentoId: string;
+    alimentoNome: string;
+    quantidadeTotal: number;
+    unidadeMedida: string;
+    detalhamentoRefeicoes: Array<{
+        refeicaoId: string;
+        refeicaoNome: string;
+        quantidade: number;
+    }>;
 }
 
 export default function CriarGuiaPage() {
@@ -32,55 +44,22 @@ export default function CriarGuiaPage() {
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState<string | null>(null);
 
-    const alimentosMapeados = converterListaParaMapaDeAlimentos();
+    const alimentosMapeados = useMemo(() => converterListaParaMapaDeAlimentos(), []);
 
     const { handleClick: handleSubmitClick, isLoading, cleanup } = usePreventDoubleClick(
         async () => {
-            await await salvarGuia();
+            await salvarGuia();
         },
         {
-            delay: 3000, // 3 segundos para guias (processo mais complexo)
+            delay: 3000,
             onError: (error) => setErro(error.message),
-            onSuccess: (guiaId: string) => {
+            onSuccess: () => {
                 router.push(`/guia-abastecimento`);
             }
         }
     );
 
-    useEffect(() => {
-        carregarDados();
-        return () => {
-            cleanup();
-        };
-    }, [cleanup]);
-
-    useEffect(() => {
-        if (form.dataInicio && form.dataFim) {
-            gerarDiasNoIntervalo();
-        }
-    }, [form.dataInicio, form.dataFim]);
-
-    const carregarDados = async () => {
-        try {
-            const [resInstituicoes, resCardapios] = await Promise.all([
-                fetch('/api/salvar-instituicao'),
-                fetch('/api/salvar-cardapio')
-            ]);
-
-            const dataInstituicoes = await resInstituicoes.json();
-            const dataCardapios = await resCardapios.json();
-
-            if (dataInstituicoes.ok) setInstituicoes(dataInstituicoes.data);
-            if (dataCardapios.ok) setCardapios(dataCardapios.data);
-        } catch (error) {
-            console.error('Erro ao carregar dados:', error);
-            setErro('Erro ao carregar dados necessários');
-        } finally {
-            setCarregando(false);
-        }
-    };
-
-    const gerarDiasNoIntervalo = () => {
+    const gerarDiasNoIntervalo = useCallback(() => {
         const inicio = new Date(form.dataInicio);
         const fim = new Date(form.dataFim);
 
@@ -102,6 +81,39 @@ export default function CriarGuiaPage() {
 
         setForm(prev => ({ ...prev, cardapiosDiarios: dias }));
         setErro(null);
+    }, [form.dataInicio, form.dataFim]);
+
+    useEffect(() => {
+        carregarDados();
+        return () => {
+            cleanup();
+        };
+    }, [cleanup]);
+
+    useEffect(() => {
+        if (form.dataInicio && form.dataFim) {
+            gerarDiasNoIntervalo();
+        }
+    }, [form.dataInicio, form.dataFim, gerarDiasNoIntervalo]);
+
+    const carregarDados = async () => {
+        try {
+            const [resInstituicoes, resCardapios] = await Promise.all([
+                fetch('/api/salvar-instituicao'),
+                fetch('/api/salvar-cardapio')
+            ]);
+
+            const dataInstituicoes = await resInstituicoes.json();
+            const dataCardapios = await resCardapios.json();
+
+            if (dataInstituicoes.ok) setInstituicoes(dataInstituicoes.data);
+            if (dataCardapios.ok) setCardapios(dataCardapios.data);
+        } catch (error) {
+            console.error('Erro ao carregar dados:', error);
+            setErro('Erro ao carregar dados necessários');
+        } finally {
+            setCarregando(false);
+        }
     };
 
     const atualizarCardapioDia = (index: number, cardapioId: string) => {
@@ -115,11 +127,11 @@ export default function CriarGuiaPage() {
         return dias[new Date(data).getDay()];
     };
 
-    const calcularDistribuicao = () => {
+    const calcularDistribuicao = (): AlimentoAgregado[] => {
         const instituicao = instituicoes.find(i => i.id === form.instituicaoId);
         if (!instituicao) return [];
 
-        const alimentosAgregados: Record<string, any> = {};
+        const alimentosAgregados: Record<string, AlimentoAgregado> = {};
 
         form.cardapiosDiarios.forEach(dia => {
             if (!dia.cardapioId) return;
@@ -132,14 +144,31 @@ export default function CriarGuiaPage() {
                     const chaveAlimento = normalizarTexto(alimento.nome || '');
 
                     try {
-                        // Aqui você precisa definir qual etapa usar baseado na instituição
-                        // Por simplicidade, vou usar 'fundamental'
                         const etapa: Etapa = 'fundamental';
+
+                        const alimentosCompativel = Object.keys(alimentosMapeados).reduce((acc, chave) => {
+                            const alimentoOriginal = alimentosMapeados[chave];
+                            acc[chave] = {
+                                ...alimentoOriginal,
+                                id: chave,
+                                _createdAt: new Date().toISOString()
+                            };
+                            return acc;
+                        }, {} as Record<string, {
+                            id: string;
+                            nome: string;
+                            fc: number;
+                            fcc: number;
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            perCapita: any;
+                            _createdAt: string;
+                        }>);
+
                         const resultado = calcularPerCapita(
                             chaveAlimento,
                             etapa,
                             instituicao.totalAlunos,
-                            alimentosMapeados
+                            alimentosCompativel
                         );
 
                         if (!alimentosAgregados[alimento.alimentoId]) {
@@ -152,7 +181,7 @@ export default function CriarGuiaPage() {
                             };
                         }
 
-                        alimentosAgregados[alimento.alimentoId].quantidadeTotal += resultado.totalBruto / 1000; // Converter para kg
+                        alimentosAgregados[alimento.alimentoId].quantidadeTotal += resultado.totalBruto / 1000;
                         alimentosAgregados[alimento.alimentoId].detalhamentoRefeicoes.push({
                             refeicaoId: refeicao.id,
                             refeicaoNome: refeicao.nome,
@@ -194,7 +223,7 @@ export default function CriarGuiaPage() {
             })),
             calculosDistribuicao,
             observacoes: form.observacoes,
-            usuarioGeracao: 'Ana Paula', // Aqui você pegaria o usuário logado
+            usuarioGeracao: 'Ana Paula',
             status: 'Rascunho'
         };
 
@@ -213,7 +242,7 @@ export default function CriarGuiaPage() {
             throw new Error(data.error || 'Erro ao salvar guia');
         }
 
-        return data.data.id; // Retorna o ID para o callback de sucesso
+        return data.data.id;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -256,7 +285,6 @@ export default function CriarGuiaPage() {
                     </h1>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Seleção de Instituição */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 <Building2 className="w-4 h-4 inline mr-2" />
@@ -277,7 +305,6 @@ export default function CriarGuiaPage() {
                             </select>
                         </div>
 
-                        {/* Período */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -308,7 +335,6 @@ export default function CriarGuiaPage() {
                             </div>
                         </div>
 
-                        {/* Cardápios por Dia */}
                         {form.cardapiosDiarios.length > 0 && (
                             <div>
                                 <h3 className="text-lg font-semibold text-[#4C6E5D] mb-4">
@@ -341,7 +367,6 @@ export default function CriarGuiaPage() {
                             </div>
                         )}
 
-                        {/* Observações */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Observações (opcional)
