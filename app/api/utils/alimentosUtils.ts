@@ -3,7 +3,6 @@ import alimentosJson from '../alimentos.json';
 import { converterUnidade } from './conversaoUnidade';
 import { StatusDisponibilidade, UnidadeMedida } from '@/types/types';
 
-
 // Tipagem para os arquivos que iram vim do json
 type RawStatusDisponibilidade = {
   status: string;
@@ -11,7 +10,7 @@ type RawStatusDisponibilidade = {
 };
 
 // Tipo para alimento sem as propriedades geradas automaticamente
-type AlimentoSemMetadados = Omit<Alimento, 'id' | '_createdAt'>;
+//type AlimentoSemMetadados = Omit<Alimento, '_createdAt'>;
 
 /**
  * Remove acentos e transforma em minúsculas para facilitar comparações de texto.
@@ -59,11 +58,12 @@ function converterStatusDisponibilidade(input: RawStatusDisponibilidade): Status
  * Converte a lista de alimentos (array) em um mapa indexado pelo nome normalizado do alimento.
  * Retorna alimentos sem as propriedades id e _createdAt que são geradas automaticamente.
  */
-export function converterListaParaMapaDeAlimentos(): Record<string, AlimentoSemMetadados> {
+export function converterListaParaMapaDeAlimentos(): Record<string, Alimento> {
   return Object.fromEntries(
     alimentosJson.map((a) => [
       normalizarTexto(a.nome),
       {
+        id: a.id || '',
         nome: a.nome,
         fc: Number(a.fc),
         fcc: Number(a.fcc),
@@ -77,7 +77,7 @@ export function converterListaParaMapaDeAlimentos(): Record<string, AlimentoSemM
         limitada_todas: a.limitada_todas,
         unidade_medida: a.unidade_medida,
         restricoesAlimentares: a.restricoesAlimentares || [],
-        
+        _createdAt: a._createdAt || '', // Ensure _createdAt is included
       },
     ])
   );

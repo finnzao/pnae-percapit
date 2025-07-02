@@ -1,4 +1,5 @@
 import { Etapa } from "./zodSchemas";
+import { RestricaoAlimentar } from "./zodSchemas";
 
 export type StatusDisponibilidade =
     | { status: 'disponivel'; valor: number }
@@ -7,7 +8,8 @@ export type StatusDisponibilidade =
 
 // Tipo que representa como o dado vem cru do JSON
 export interface RawAlimento {
-    id: string,
+    id?: string; // Permitir undefined no raw
+    _createdAt?: string; // Permitir undefined no raw
     nome: string;
     fc: number | string;
     fcc: number | string;
@@ -20,6 +22,7 @@ export interface RawAlimento {
     limitada_menor3?: boolean;
     limitada_todas?: boolean;
     unidade_medida?: string;
+    restricoesAlimentares?: RestricaoAlimentar[];
 }
 
 export type RawStatusDisponibilidade = {
@@ -97,7 +100,7 @@ export interface Instituicao {
 
 export type TipoInstituicao = 'Escola Municipal' | 'Creche' | 'Escola Estadual' | 'Centro de Educação Infantil';
 
-export enum RestricaoAlimentar {
+export enum RestricaoAlimentarEnum {
     ALERGICO_GLUTEN = "ALERGICO_GLUTEN",
     ALERGICO_LACTOSE = "ALERGICO_LACTOSE",
     ALERGICO_FRUTOS_MAR = "ALERGICO_FRUTOS_MAR",
@@ -112,19 +115,19 @@ export enum RestricaoAlimentar {
     RESTRICAO_CUSTOM = "RESTRICAO_CUSTOM"
 }
 
-export const RestricaoAlimentarDescricao: Record<RestricaoAlimentar, string> = {
-    [RestricaoAlimentar.ALERGICO_GLUTEN]: "Alérgico a Glúten",
-    [RestricaoAlimentar.ALERGICO_LACTOSE]: "Alérgico a Lactose",
-    [RestricaoAlimentar.ALERGICO_FRUTOS_MAR]: "Alérgico a Frutos do Mar",
-    [RestricaoAlimentar.ALERGICO_AMENDOIM]: "Alérgico a Amendoim",
-    [RestricaoAlimentar.ALERGICO_SOJA]: "Alérgico a Soja",
-    [RestricaoAlimentar.ALERGICO_OVOS]: "Alérgico a Ovos",
-    [RestricaoAlimentar.INTOLERANTE_LACTOSE]: "Intolerante a Lactose",
-    [RestricaoAlimentar.INTOLERANTE_FRUTOSE]: "Intolerante a Frutose",
-    [RestricaoAlimentar.CELIACO]: "Celíaco",
-    [RestricaoAlimentar.DIABETES]: "Diabetes",
-    [RestricaoAlimentar.FENILCETONURIA]: "Fenilcetonúria",
-    [RestricaoAlimentar.RESTRICAO_CUSTOM]: "Restrição Personalizada"
+export const RestricaoAlimentarDescricao: Record<RestricaoAlimentarEnum, string> = {
+    [RestricaoAlimentarEnum.ALERGICO_GLUTEN]: "Alérgico a Glúten",
+    [RestricaoAlimentarEnum.ALERGICO_LACTOSE]: "Alérgico a Lactose",
+    [RestricaoAlimentarEnum.ALERGICO_FRUTOS_MAR]: "Alérgico a Frutos do Mar",
+    [RestricaoAlimentarEnum.ALERGICO_AMENDOIM]: "Alérgico a Amendoim",
+    [RestricaoAlimentarEnum.ALERGICO_SOJA]: "Alérgico a Soja",
+    [RestricaoAlimentarEnum.ALERGICO_OVOS]: "Alérgico a Ovos",
+    [RestricaoAlimentarEnum.INTOLERANTE_LACTOSE]: "Intolerante a Lactose",
+    [RestricaoAlimentarEnum.INTOLERANTE_FRUTOSE]: "Intolerante a Frutose",
+    [RestricaoAlimentarEnum.CELIACO]: "Celíaco",
+    [RestricaoAlimentarEnum.DIABETES]: "Diabetes",
+    [RestricaoAlimentarEnum.FENILCETONURIA]: "Fenilcetonúria",
+    [RestricaoAlimentarEnum.RESTRICAO_CUSTOM]: "Restrição Personalizada"
 };
 
 // Tipo para Cardápio completo

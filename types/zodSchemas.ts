@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { RestricaoAlimentar } from './types';
 
 export const etapaEnum = z.enum(['creche', 'pre', 'fundamental', 'medio']);
 export type Etapa = z.infer<typeof etapaEnum>;
@@ -10,6 +9,22 @@ export const statusDisponibilidadeSchema = z.discriminatedUnion('status', [
   z.object({ status: z.literal('Depende da preparação da receita') }),
 ]);
 export type ZodStatusDisponibilidade = z.infer<typeof statusDisponibilidadeSchema>;
+
+// Enum para Restrições Alimentares
+export enum RestricaoAlimentar {
+    ALERGICO_GLUTEN = "ALERGICO_GLUTEN",
+    ALERGICO_LACTOSE = "ALERGICO_LACTOSE",
+    ALERGICO_FRUTOS_MAR = "ALERGICO_FRUTOS_MAR",
+    ALERGICO_AMENDOIM = "ALERGICO_AMENDOIM",
+    ALERGICO_SOJA = "ALERGICO_SOJA",
+    ALERGICO_OVOS = "ALERGICO_OVOS",
+    INTOLERANTE_LACTOSE = "INTOLERANTE_LACTOSE",
+    INTOLERANTE_FRUTOSE = "INTOLERANTE_FRUTOSE",
+    CELIACO = "CELIACO",
+    DIABETES = "DIABETES",
+    FENILCETONURIA = "FENILCETONURIA",
+    RESTRICAO_CUSTOM = "RESTRICAO_CUSTOM"
+}
 
 export const alimentoSchema = z.object({
   id: z.string(),
@@ -26,7 +41,7 @@ export const alimentoSchema = z.object({
   limitada_todas: z.boolean().optional(),
   unidade_medida: z.string().optional(),
   restricoesAlimentares: z.array(z.nativeEnum(RestricaoAlimentar)).optional(),
-  _createdAt:z.string()
+  _createdAt: z.string() // Obrigatório como string
 });
 export type Alimento = z.infer<typeof alimentoSchema>;
 

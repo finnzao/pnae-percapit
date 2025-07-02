@@ -2,16 +2,28 @@
 
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { converterListaParaMapaDeAlimentos, normalizarTexto } from '../api/utils/alimentosUtils';
-import { AlimentoSelecionado, Refeicao } from '@/types/types';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { ArrowLeft, Plus, Clock, Trash2, Edit2, Check, X, Save, AlertCircle } from 'lucide-react';
+
+// Tipos específicos para o cardápio
+interface AlimentoCardapio {
+  id: string;
+  nome: string;
+  pesoPacote: number | null;
+}
+
+interface RefeicaoCardapio {
+  nome: string;
+  horario: string;
+  alimentos: AlimentoCardapio[];
+}
 
 export default function CriarCardapioPage() {
   const router = useRouter();
   const [nomeCardapio, setNomeCardapio] = useState('');
   const [descricaoCardapio, setDescricaoCardapio] = useState('');
-  const [refeicoes, setRefeicoes] = useState<Refeicao[]>([
+  const [refeicoes, setRefeicoes] = useState<RefeicaoCardapio[]>([
     {
       nome: 'Café da Manhã',
       horario: '07:00',
@@ -21,7 +33,7 @@ export default function CriarCardapioPage() {
 
   const [modalAberto, setModalAberto] = useState<{ index: number | null; alimentoIndex?: number }>({ index: null });
   const [alimentoBusca, setAlimentoBusca] = useState('');
-  const [alimentoSelecionado, setAlimentoSelecionado] = useState<AlimentoSelecionado | null>(null);
+  const [alimentoSelecionado, setAlimentoSelecionado] = useState<AlimentoCardapio | null>(null);
   const [pesoPorPacote, setPesoPorPacote] = useState<string>('');
   const [sugestoes, setSugestoes] = useState<string[]>([]);
   const [salvando, setSalvando] = useState(false);
@@ -106,8 +118,10 @@ export default function CriarCardapioPage() {
       const chave = normalizarTexto(alimentoSelecionado.nome);
       const alimentoBase = alimentosMapeados[chave];
 
-      const novoAlimento = {
-        ...alimentoBase,
+      // Criar AlimentoCardapio com todas as propriedades necessárias
+      const novoAlimento: AlimentoCardapio = {
+        id: alimentoBase.id,
+        nome: alimentoBase.nome,
         pesoPacote: pesoPorPacote === '' || isNaN(pesoNumerico) ? null : pesoNumerico
       };
 
@@ -139,7 +153,8 @@ export default function CriarCardapioPage() {
           nome: r.nome,
           horario: r.horario,
           alimentos: r.alimentos.map(alimento => ({
-            ...alimento,
+            alimentoId: alimento.id,
+            nome: alimento.nome,
             quantidade: alimento.pesoPacote || 0
           })),
           ordem: index
@@ -329,7 +344,7 @@ export default function CriarCardapioPage() {
                   ) : (
                     refeicao.alimentos.map((alimento, i) => (
                       <div
-                        key={i}
+                        key={`${alimento.id}-${i}`}
                         className="flex items-center justify-between bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors group"
                       >
                         <div className="flex items-center gap-3 flex-1">
@@ -464,12 +479,11 @@ export default function CriarCardapioPage() {
                             setAlimentoSelecionado({
                               id: alimento.id,
                               nome: alimento.nome,
-                              pesoPacote: null // valor inicial
+                              pesoPacote: null
                             });
                             setSugestoes([]);
                           }
                         }}
-
                         className="p-3 cursor-pointer hover:bg-gray-50 transition-colors"
                       >
                         {sugestao}
