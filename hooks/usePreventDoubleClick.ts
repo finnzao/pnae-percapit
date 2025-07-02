@@ -14,7 +14,7 @@ export function usePreventDoubleClick(
   const { delay = 1000, onError, onSuccess } = options;
   const [isLoading, setIsLoading] = useState(false);
   const lastClickTime = useRef<number>(0);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null); // Provide an initial value of null
 
   const handleClick = useCallback(async (...args: any[]) => {
     const now = Date.now();
