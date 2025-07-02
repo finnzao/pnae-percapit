@@ -43,6 +43,7 @@ export default function HomePage() {
     try {
       const response = await fetch('/api/guia-abastecimento');
       const data = await response.json();
+      console.log(data)
 
       if (data.ok) {
         setGuias(data.data);

@@ -250,7 +250,7 @@ export default function RelatorioInstituicao() {
     carregarDadosIniciais();
   }, [carregarDadosIniciais]);
 
-  // ✅ Função de exportação
+  // Função de exportação
   const exportarRelatorio = useCallback(() => {
     if (consumoPorInstituicao.length === 0) {
       setErro('Nenhum dado para exportar. Execute uma pesquisa primeiro.');
@@ -286,7 +286,7 @@ export default function RelatorioInstituicao() {
     URL.revokeObjectURL(url);
   }, [consumoPorInstituicao, dataInicio, dataFim, ordenacao]);
 
-  // ✅ Estatísticas calculadas
+  //  Estatísticas calculadas
   const estatisticas = useMemo(() => {
     const totalDistribuido = consumoPorInstituicao.reduce((acc, item) => acc + item.quantidadeTotalDistribuida, 0);
     const totalAlunos = consumoPorInstituicao.reduce((acc, item) => acc + item.totalAlunos, 0);
@@ -305,7 +305,7 @@ export default function RelatorioInstituicao() {
     };
   }, [consumoPorInstituicao, dataInicio, dataFim]);
 
-  // ✅ Validação de formulário
+  // Validação de formulário
   const formularioValido = dataInicio && dataFim && new Date(dataInicio) <= new Date(dataFim);
 
   // Loading inicial - tela completa

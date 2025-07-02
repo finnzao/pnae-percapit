@@ -14,6 +14,11 @@ export default function Header() {
     setUserName('Ana Paula');
   }, []);
 
+  const navegarParaPerfil = () => {
+    router.push('/perfil');
+    setMenuAberto(false);
+  };
+
   return (
     <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
       <div className="container-custom px-4 sm:px-6 lg:px-8">
@@ -38,7 +43,10 @@ export default function Header() {
               <span className="hidden lg:inline">Início</span>
             </button>
 
-            <div className="flex items-center gap-3">
+            <button
+              onClick={navegarParaPerfil}
+              className="flex items-center gap-3 hover:bg-gray-50 rounded-lg p-2 transition-colors cursor-pointer"
+            >
               <div className="w-8 h-8 bg-[#E7E5DF] rounded-full flex items-center justify-center">
                 <User className="w-4 h-4 text-[#4C6E5D]" />
               </div>
@@ -46,7 +54,7 @@ export default function Header() {
                 <p className="text-sm font-semibold text-black">{userName}</p>
                 <p className="text-xs text-gray-600 hidden lg:block">Nutricionista</p>
               </div>
-            </div>
+            </button>
           </div>
 
           {/* Menu Mobile/Tablet */}
@@ -75,7 +83,10 @@ export default function Header() {
                 <span>Início</span>
               </button>
 
-              <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+              <button
+                onClick={navegarParaPerfil}
+                className="flex items-center gap-3 pt-4 border-t border-gray-100 hover:bg-gray-50 rounded-lg p-2 transition-colors w-full cursor-pointer"
+              >
                 <div className="w-10 h-10 bg-[#E7E5DF] rounded-full flex items-center justify-center">
                   <User className="w-5 h-5 text-[#4C6E5D]" />
                 </div>
@@ -83,7 +94,7 @@ export default function Header() {
                   <p className="text-sm font-semibold text-black">{userName}</p>
                   <p className="text-xs text-gray-600">Nutricionista</p>
                 </div>
-              </div>
+              </button>
             </div>
           </div>
         )}

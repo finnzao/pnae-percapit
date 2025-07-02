@@ -528,5 +528,74 @@
     "dataCadastro": "2025-06-27T21:14:41.489Z",
     "dataAtualizacao": "2025-06-27T21:14:41.489Z",
     "ativo": true
+  },
+  {
+    "id": "70c7929a-6e2f-4d4a-b9be-35fc03df9a39",
+    "nome": "Basica",
+    "descricao": "",
+    "refeicoes": [
+      {
+        "id": "ref-0",
+        "nome": "Café da Manhã",
+        "horario": "07:00",
+        "alimentos": [
+          {
+            "alimentoId": "05fb88e8-6f47-492c-ae7f-8484945f0124",
+            "nome": "Torrada, pão francês",
+            "quantidade": 0.1
+          },
+          {
+            "alimentoId": "9102e4f6-dc6a-4a78-92ab-b71aa94a4886",
+            "nome": "Queijo, ricota",
+            "quantidade": 0
+          },
+          {
+            "alimentoId": "bf099550-90d0-4ef3-943b-bb7485fd1ff3",
+            "nome": "Leite, de vaca, integral, pó",
+            "quantidade": 0
+          }
+        ],
+        "ordem": 0
+      },
+      {
+        "id": "ref-1",
+        "nome": "Almoço",
+        "horario": "12:00",
+        "alimentos": [
+          {
+            "alimentoId": "1a0d6b2a-1158-448a-9763-2f4ca95e8358",
+            "nome": "Frango, sobrecoxa, sem pele, crua",
+            "quantidade": 0
+          },
+          {
+            "alimentoId": "800830cb-9159-446d-9b56-18128de9eaa3",
+            "nome": "Arroz, integral, cru",
+            "quantidade": 0
+          }
+        ],
+        "ordem": 1
+      },
+      {
+        "id": "ref-2",
+        "nome": "Janta",
+        "horario": "18:00",
+        "alimentos": [
+          {
+            "alimentoId": "070d60a6-074e-4462-bc9d-ee5ba89e1be1",
+            "nome": "Cereais, milho, flocos, com sal",
+            "quantidade": 0.3
+          },
+          {
+            "alimentoId": "da0ec229-906d-4ab1-a866-d8619bac9902",
+            "nome": "Café, pó, torrado",
+            "quantidade": 0
+          }
+        ],
+        "ordem": 2
+      }
+    ],
+    "dataCadastro": "2025-07-02T15:55:09.042Z",
+    "dataAtualizacao": "2025-07-02T15:55:09.042Z",
+    "ativo": true
   }
 ]
