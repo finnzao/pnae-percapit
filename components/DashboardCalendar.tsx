@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { GuiaAbastecimento } from '@/types';
-import { formatarMesBr, getStatusColor } from '@/app/utils/dashboardUtils';
+import { formatarMesBr, getStatusColor } from '@/utils/dashboardUtils';
 
 interface DiaCalendario {
   dia: number;

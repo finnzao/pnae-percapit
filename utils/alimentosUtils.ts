@@ -1,5 +1,5 @@
 import { Alimento } from '@/types/zodSchemas';
-import alimentosJson from '../alimentos.json';
+import alimentosJson from '../app/api/alimentos.json';
 import { converterUnidade } from './conversaoUnidade';
 import { StatusDisponibilidade, UnidadeMedida } from '@/types/types';
 

@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 import { ArrowLeft, Calendar, Building2, AlertCircle, Save } from 'lucide-react';
 import { Instituicao, Cardapio, CardapioDiario, Etapa } from '@/types';
 import { calcularPerCapita } from '@/app/api/calcularPerCapita';
-import { converterListaParaMapaDeAlimentos, normalizarTexto } from '@/app/api/utils/alimentosUtils';
+import { converterListaParaMapaDeAlimentos, normalizarTexto } from '@/utils/alimentosUtils';
 import { usePreventDoubleClick } from '@/hooks/usePreventDoubleClick';
 
 interface FormState {

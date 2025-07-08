@@ -6,13 +6,122 @@ export type StatusDisponibilidade =
     | { status: 'indisponivel' }
     | { status: 'Depende da preparação da receita' };
 
-// Tipo que representa como o dado vem cru do JSON
+// NOVO: Enum para Categorias de Alimentos
+export enum CategoriaAlimento {
+    ABASTECIMENTO = 'Abastecimento',
+    HORTIFRUTI = 'Hortifrútis',
+    PROTEINAS = 'Proteínas',
+    GRAOS_CEREAIS = 'Grãos e Cereais',
+    LATICINIOS = 'Laticínios',
+    BEBIDAS = 'Bebidas',
+    CONDIMENTOS = 'Condimentos e Temperos',
+    DOCES_SOBREMESAS = 'Doces e Sobremesas',
+    PANIFICACAO = 'Panificação',
+    CONSERVAS = 'Conservas e Enlatados',
+    CONGELADOS = 'Congelados',
+    OUTROS = 'Outros'
+}
+
+// NOVO: Descrições das categorias para facilitar a escolha
+export const CategoriaAlimentoDescricao: Record<CategoriaAlimento, string> = {
+    [CategoriaAlimento.ABASTECIMENTO]: 'Alimentos básicos não perecíveis (arroz, feijão, açúcar, etc.)',
+    [CategoriaAlimento.HORTIFRUTI]: 'Frutas, verduras e legumes frescos',
+    [CategoriaAlimento.PROTEINAS]: 'Carnes, peixes, ovos e proteínas em geral',
+    [CategoriaAlimento.GRAOS_CEREAIS]: 'Grãos, cereais, farinhas e derivados',
+    [CategoriaAlimento.LATICINIOS]: 'Leite, queijos, iogurtes e derivados',
+    [CategoriaAlimento.BEBIDAS]: 'Sucos, refrigerantes, água e bebidas em geral',
+    [CategoriaAlimento.CONDIMENTOS]: 'Temperos, especiarias e condimentos',
+    [CategoriaAlimento.DOCES_SOBREMESAS]: 'Doces, sobremesas e guloseimas',
+    [CategoriaAlimento.PANIFICACAO]: 'Pães, bolos, biscoitos e produtos de padaria',
+    [CategoriaAlimento.CONSERVAS]: 'Alimentos em conserva e enlatados',
+    [CategoriaAlimento.CONGELADOS]: 'Alimentos congelados e ultracongelados',
+    [CategoriaAlimento.OUTROS]: 'Outros alimentos não classificados acima'
+};
+
+// NOVO: Mapeamento automático de nomes para categorias (para migração)
+export const MAPEAMENTO_CATEGORIA_AUTOMATICO: Record<string, CategoriaAlimento> = {
+    // Abastecimento
+    'COLORAU': CategoriaAlimento.ABASTECIMENTO,
+    'AÇÚCAR': CategoriaAlimento.ABASTECIMENTO,
+    'MACARRÃO': CategoriaAlimento.ABASTECIMENTO,
+    'MACARRÃO ESPAGUETE': CategoriaAlimento.ABASTECIMENTO,
+    'FEIJÃO': CategoriaAlimento.ABASTECIMENTO,
+    'FEIJÃO CARIOCA': CategoriaAlimento.ABASTECIMENTO,
+    'ARROZ': CategoriaAlimento.ABASTECIMENTO,
+    'BISCOITO SALGADO': CategoriaAlimento.ABASTECIMENTO,
+    'FLOCOS DE MILHO': CategoriaAlimento.ABASTECIMENTO,
+    'FARINHA DE MANDIOCA': CategoriaAlimento.ABASTECIMENTO,
+    'CAFÉ': CategoriaAlimento.ABASTECIMENTO,
+    'TAPIOCA SECA': CategoriaAlimento.ABASTECIMENTO,
+    'LEITE EM PÓ': CategoriaAlimento.ABASTECIMENTO,
+    'SARDINHA': CategoriaAlimento.ABASTECIMENTO,
+    'PROTEÍNA DE SOJA': CategoriaAlimento.ABASTECIMENTO,
+    'ÓLEO': CategoriaAlimento.ABASTECIMENTO,
+    'SAL': CategoriaAlimento.ABASTECIMENTO,
+    'VINAGRE': CategoriaAlimento.ABASTECIMENTO,
+    
+    // Proteínas
+    'CARNE BOVINA': CategoriaAlimento.PROTEINAS,
+    'CARNE BOVINA (MUSCULO)': CategoriaAlimento.PROTEINAS,
+    'MÚSCULO': CategoriaAlimento.PROTEINAS,
+    'LINGUIÇA': CategoriaAlimento.PROTEINAS,
+    'LINGUIÇA CALABRESA': CategoriaAlimento.PROTEINAS,
+    'FRANGO': CategoriaAlimento.PROTEINAS,
+    'FRANGO INTEIRO': CategoriaAlimento.PROTEINAS,
+    'PEIXE': CategoriaAlimento.PROTEINAS,
+    'OVO': CategoriaAlimento.PROTEINAS,
+    'OVOS': CategoriaAlimento.PROTEINAS,
+    
+    // Hortifrútis
+    'ALHO': CategoriaAlimento.HORTIFRUTI,
+    'CEBOLA': CategoriaAlimento.HORTIFRUTI,
+    'TOMATE': CategoriaAlimento.HORTIFRUTI,
+    'PIMENTÃO': CategoriaAlimento.HORTIFRUTI,
+    'BATATA': CategoriaAlimento.HORTIFRUTI,
+    'BATATA INGLESA': CategoriaAlimento.HORTIFRUTI,
+    'CENOURA': CategoriaAlimento.HORTIFRUTI,
+    'ABOBRINHA': CategoriaAlimento.HORTIFRUTI,
+    'ABÓBORA': CategoriaAlimento.HORTIFRUTI,
+    'COUVE': CategoriaAlimento.HORTIFRUTI,
+    'ALFACE': CategoriaAlimento.HORTIFRUTI,
+    'LIMÃO': CategoriaAlimento.HORTIFRUTI,
+    'BANANA': CategoriaAlimento.HORTIFRUTI,
+    'MAÇÃ': CategoriaAlimento.HORTIFRUTI,
+    'LARANJA': CategoriaAlimento.HORTIFRUTI,
+    
+    // Grãos e cereais
+    'MILHO': CategoriaAlimento.GRAOS_CEREAIS,
+    'AVEIA': CategoriaAlimento.GRAOS_CEREAIS,
+    'QUINOA': CategoriaAlimento.GRAOS_CEREAIS,
+    'LENTILHA': CategoriaAlimento.GRAOS_CEREAIS,
+    'GRÃO DE BICO': CategoriaAlimento.GRAOS_CEREAIS,
+    
+    // Laticínios
+    'LEITE': CategoriaAlimento.LATICINIOS,
+    'QUEIJO': CategoriaAlimento.LATICINIOS,
+    'IOGURTE': CategoriaAlimento.LATICINIOS,
+    'MANTEIGA': CategoriaAlimento.LATICINIOS,
+    'MARGARINA': CategoriaAlimento.LATICINIOS,
+    
+    // Panificação
+    'BISCOITO': CategoriaAlimento.PANIFICACAO,
+    'PÃO': CategoriaAlimento.PANIFICACAO,
+    'BOLO': CategoriaAlimento.PANIFICACAO,
+    
+    // Condimentos
+    'TEMPERO': CategoriaAlimento.CONDIMENTOS,
+    'PIMENTA': CategoriaAlimento.CONDIMENTOS,
+    'COMINHO': CategoriaAlimento.CONDIMENTOS,
+    'ORÉGANO': CategoriaAlimento.CONDIMENTOS
+};
+
 export interface RawAlimento {
-    id?: string; // Permitir undefined no raw
-    _createdAt?: string; // Permitir undefined no raw
+    id?: string; 
+    _createdAt?: string; 
     nome: string;
     fc: number | string;
     fcc: number | string;
+    categoria?: CategoriaAlimento | string; // NOVO CAMPO
     perCapita: {
         creche: RawStatusDisponibilidade;
         pre: RawStatusDisponibilidade;
@@ -59,7 +168,6 @@ export type UnidadeMedida = UnidadePeso | UnidadeVolume;
 
 export type CategoriaUnidade = 'peso' | 'volume';
 
-// Tipo de retorno do cálculo per capita
 export interface ResultadoCalculo {
     alimento: string;
     etapa: Etapa;
@@ -130,7 +238,6 @@ export const RestricaoAlimentarDescricao: Record<RestricaoAlimentarEnum, string>
     [RestricaoAlimentarEnum.RESTRICAO_CUSTOM]: "Restrição Personalizada"
 };
 
-// Tipo para Cardápio completo
 export interface Cardapio {
     id: string;
     nome: string;
@@ -155,7 +262,6 @@ export interface AlimentoCardapio {
     quantidade: number;
 }
 
-// Tipos para Guia de Abastecimento
 export interface GuiaAbastecimento {
     id: string;
     instituicaoId: string;

@@ -12,7 +12,7 @@ import {
   calcularDistribuicaoSemanal,
   gerarCalendarioMes,
   filtrarGuiasDoMes
-} from '@/app/utils/dashboardUtils';
+} from '@/utils/dashboardUtils';
 
 interface DiaCalendario {
   dia: number;

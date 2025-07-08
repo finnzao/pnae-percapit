@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 import { ArrowLeft, Plus, Edit2, Trash2, Search, Package, ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
 import { Alimento, Etapa } from '@/types';
 //import { usePreventDoubleClick } from '@/hooks/usePreventDoubleClick';
-import { normalizarTexto } from '@/app/api/utils/alimentosUtils';
+import { normalizarTexto } from '@/utils/alimentosUtils';
 
 export default function AlimentosPage() {
   const router = useRouter();

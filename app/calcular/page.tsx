@@ -8,7 +8,7 @@ import {
   converterListaParaMapaDeAlimentos,
   formatarPesoKg,
   calcularUnidadesNecessarias
-} from '../api/utils/alimentosUtils';
+} from '../../utils/alimentosUtils';
 import AlertaRestricao, { Restricao } from '@/components/AlertaRestricao';
 import Header from '@/components/Header';
 import { Etapa, ResultadoCalculo, Alimento, UnidadePeso } from '@/types';

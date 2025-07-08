@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { converterListaParaMapaDeAlimentos, normalizarTexto } from '../api/utils/alimentosUtils';
+import { converterListaParaMapaDeAlimentos, normalizarTexto } from '../../utils/alimentosUtils';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { ArrowLeft, Plus, Clock, Trash2, Edit2, Check, X, Save, AlertCircle } from 'lucide-react';
