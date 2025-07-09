@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// Tipos para o sistema de perfil do usuário
 
 export interface Usuario {
     id: string;
@@ -19,29 +18,27 @@ export interface Usuario {
   }
   
   export interface ConfiguracoesUsuario {
-    // Notificações
+
     notificacoesEmail: boolean;
     notificacoesPush: boolean;
     notificacoesDesktop: boolean;
     
-    // Aparência
     temaEscuro: boolean;
     idiomaPreferido: string;
     fusoHorario: string;
     formatoData: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD';
     formatoHora: '12h' | '24h';
     
-    // Comportamento
+
     autoSave: boolean;
     autoLogout: number; // em minutos
     confirmacaoAcoes: boolean;
     
-    // Privacidade
+
     perfilPublico: boolean;
     compartilharAtividade: boolean;
     analytics: boolean;
     
-    // Segurança
     autenticacaoDoisFatores: boolean;
     sessaoUnica: boolean;
     tentativasLoginMax: number;

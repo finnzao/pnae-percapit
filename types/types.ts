@@ -6,7 +6,6 @@ export type StatusDisponibilidade =
     | { status: 'indisponivel' }
     | { status: 'Depende da preparação da receita' };
 
-// NOVO: Enum para Categorias de Alimentos
 export enum CategoriaAlimento {
     ABASTECIMENTO = 'Abastecimento',
     HORTIFRUTI = 'Hortifrútis',
@@ -22,7 +21,6 @@ export enum CategoriaAlimento {
     OUTROS = 'Outros'
 }
 
-// NOVO: Descrições das categorias para facilitar a escolha
 export const CategoriaAlimentoDescricao: Record<CategoriaAlimento, string> = {
     [CategoriaAlimento.ABASTECIMENTO]: 'Alimentos básicos não perecíveis (arroz, feijão, açúcar, etc.)',
     [CategoriaAlimento.HORTIFRUTI]: 'Frutas, verduras e legumes frescos',
@@ -121,7 +119,7 @@ export interface RawAlimento {
     nome: string;
     fc: number | string;
     fcc: number | string;
-    categoria?: CategoriaAlimento | string; // NOVO CAMPO
+    categoria?: CategoriaAlimento | string;
     perCapita: {
         creche: RawStatusDisponibilidade;
         pre: RawStatusDisponibilidade;

@@ -133,12 +133,7 @@ export const TEMPLATE_ABASTECIMENTO = {
 };
 
 export const CATEGORIA_ORDEM: CategoriaAlimento[] = [
-    'Abastecimento',
-    'Hortifrútis',
-    'Proteínas',
-    'Grãos e Cereais',
-    'Laticínios',
-    'Outros'
+
 ];
 
 export const USUARIO_PADRAO = {

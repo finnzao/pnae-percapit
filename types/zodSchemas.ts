@@ -1,4 +1,6 @@
 import { z } from 'zod';
+// Importa o enum do arquivo principal para evitar duplicação
+import { CategoriaAlimento } from './types';
 
 export const etapaEnum = z.enum(['creche', 'pre', 'fundamental', 'medio']);
 export type Etapa = z.infer<typeof etapaEnum>;
@@ -25,21 +27,7 @@ export enum RestricaoAlimentar {
     RESTRICAO_CUSTOM = "RESTRICAO_CUSTOM"
 }
 
-export enum CategoriaAlimento {
-    ABASTECIMENTO = 'Abastecimento',
-    HORTIFRUTI = 'Hortifrútis',
-    PROTEINAS = 'Proteínas',
-    GRAOS_CEREAIS = 'Grãos e Cereais',
-    LATICINIOS = 'Laticínios',
-    BEBIDAS = 'Bebidas',
-    CONDIMENTOS = 'Condimentos e Temperos',
-    DOCES_SOBREMESAS = 'Doces e Sobremesas',
-    PANIFICACAO = 'Panificação',
-    CONSERVAS = 'Conservas e Enlatados',
-    CONGELADOS = 'Congelados',
-    OUTROS = 'Outros'
-}
-
+// Usa o enum importado em vez de redefinir
 export const categoriaAlimentoSchema = z.nativeEnum(CategoriaAlimento);
 
 export const alimentoSchema = z.object({

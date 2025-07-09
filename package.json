@@ -9,12 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@types/xlsx": "^0.0.35",
     "lucide-react": "^0.515.0",
     "next": "15.3.3",
     "postcss": "^8.5.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "uuid": "^9.0.1",
+    "xlsx": "^0.18.5",
     "zod": "^3.25.48"
   },
   "devDependencies": {
