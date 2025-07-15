@@ -4,14 +4,10 @@ import {
   ExportResult, 
   ExportProgress,
   ExportProgressCallback,
-  FormatoExport,
-  ItemExport,
-  CategoriaAlimento,
-  DocumentTemplate
+  FormatoExport
 } from '@/types/export';
 import { GuiaAbastecimento } from '@/types';
-import { USUARIO_PADRAO, EXPORT_CONFIG } from '@/constants/exportConfig';
-import * as XLSX from 'xlsx';
+import { ExportService } from '@/utils/exportService';
 
 interface UseExportReturn {
   isExporting: boolean;
@@ -37,84 +33,6 @@ export function useExport(): UseExportReturn {
   const updateProgress = useCallback((newProgress: ExportProgress, onProgress?: ExportProgressCallback) => {
     setProgress(newProgress);
     onProgress?.(newProgress);
-  }, []);
-
-  // Função para processar itens da guia para exportação
-  const processarItensExport = useCallback((
-    calculosDistribuicao: GuiaAbastecimento['calculosDistribuicao'],
-    options: ExportOptions
-  ): ItemExport[] => {
-    return calculosDistribuicao.map(calculo => {
-      const unidadeNormalizada = options.normalizarUnidades 
-        ? normalizarUnidade(calculo.unidadeMedida)
-        : calculo.unidadeMedida;
-
-      const categoria = determinarCategoria(calculo.alimentoNome);
-
-      return {
-        nome: calculo.alimentoNome,
-        quantidade: calculo.quantidadeTotal,
-        unidadeOriginal: calculo.unidadeMedida,
-        unidadeNormalizada,
-        categoria
-      };
-    });
-  }, []);
-
-  // Função para agrupar itens por categoria
-  const agruparPorCategoria = useCallback((itens: ItemExport[]) => {
-    const agrupados: Record<CategoriaAlimento, ItemExport[]> = {
-      [CategoriaAlimento.ABASTECIMENTO]: [],
-      [CategoriaAlimento.HORTIFRUTI]: [],
-      [CategoriaAlimento.PROTEINAS]: [],
-      [CategoriaAlimento.GRAOS_CEREAIS]: [],
-      [CategoriaAlimento.LATICINIOS]: [],
-      [CategoriaAlimento.BEBIDAS]: [],
-      [CategoriaAlimento.CONDIMENTOS]: [],
-      [CategoriaAlimento.DOCES_SOBREMESAS]: [],
-      [CategoriaAlimento.PANIFICACAO]: [],
-      [CategoriaAlimento.CONSERVAS]: [],
-      [CategoriaAlimento.CONGELADOS]: [],
-      [CategoriaAlimento.OUTROS]: []
-    };
-
-    itens.forEach(item => {
-      agrupados[item.categoria].push(item);
-    });
-
-    return agrupados;
-  }, []);
-
-  // Função para criar template do documento
-  const criarTemplateDocumento = useCallback((
-    guia: GuiaAbastecimento,
-    itensAgrupados: Record<CategoriaAlimento, ItemExport[]>,
-    options: ExportOptions
-  ): DocumentTemplate => {
-    const dataInicio = new Date(guia.dataInicio);
-    const dataFim = new Date(guia.dataFim);
-    
-    return {
-      cabecalho: {
-        titulo: `GUIA ESCOLA ${guia.instituicaoNome || 'NÃO INFORMADA'}`,
-        instituicao: guia.instituicaoNome,
-        periodo: `${dataInicio.toLocaleDateString('pt-BR')} a ${dataFim.toLocaleDateString('pt-BR')}`,
-        usuario: options.usuario?.nome,
-        data: new Date().toLocaleDateString('pt-BR')
-      },
-      secoes: itensAgrupados,
-      rodape: {
-        assinatura: options.incluirAssinatura,
-        observacoes: options.incluirObservacoes ? guia.observacoes : undefined,
-        totalItens: Object.values(itensAgrupados).flat().length,
-        dataGeracao: new Date().toLocaleDateString('pt-BR')
-      },
-      configuracao: {
-        mostrarIndices: false,
-        mostrarTotaisPorCategoria: true,
-        mostrarResumoFinal: true
-      }
-    };
   }, []);
 
   const exportGuia = useCallback(async (
@@ -151,7 +69,9 @@ export function useExport(): UseExportReturn {
           formatoUnidade: 'depois'
         },
         usuario: {
-          ...USUARIO_PADRAO,
+          nome: 'Ana Paula Silva',
+          cargo: 'Nutricionista',
+          email: 'ana.paula@nutrigestao.com',
           dataExport: new Date()
         }
       };
@@ -167,61 +87,42 @@ export function useExport(): UseExportReturn {
 
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      // Etapa 2: Normalização de unidades
+      // Etapa 2: Validação
       updateProgress({
-        etapa: 'Normalizando unidades',
-        progresso: 30,
-        mensagem: 'Padronizando unidades de medida...'
+        etapa: 'Validando dados',
+        progresso: 25,
+        mensagem: 'Verificando integridade dos dados...'
       }, onProgress);
 
-      const itensProcessados = processarItensExport(guia.calculosDistribuicao, finalOptions);
-
-      // Etapa 3: Agrupamento por categoria
-      updateProgress({
-        etapa: 'Organizando por categoria',
-        progresso: 50,
-        mensagem: 'Classificando alimentos por categoria...'
-      }, onProgress);
-
-      const itensAgrupados = agruparPorCategoria(itensProcessados);
-
-      // Etapa 4: Criação do template
-      updateProgress({
-        etapa: 'Gerando documento',
-        progresso: 70,
-        mensagem: 'Montando estrutura do documento...'
-      }, onProgress);
-
-      const template = criarTemplateDocumento(guia, itensAgrupados, finalOptions);
-
-      // Etapa 5: Exportação no formato desejado
-      updateProgress({
-        etapa: 'Convertendo para formato',
-        progresso: 90,
-        mensagem: `Gerando arquivo ${finalOptions.formato}...`
-      }, onProgress);
-
-      let resultado: ExportResult;
-
-      switch (finalOptions.formato) {
-        case 'TXT':
-          resultado = await exportarTXT(template, guia, finalOptions);
-          break;
-        case 'XLSX':
-          resultado = await exportarXLSX(template, guia, finalOptions);
-          break;
-        case 'DOCX':
-          resultado = await exportarDOCX(template, guia, finalOptions);
-          break;
-        default:
-          throw new Error(`Formato ${finalOptions.formato} não suportado`);
+      if (!guia.calculosDistribuicao || guia.calculosDistribuicao.length === 0) {
+        throw new Error('Guia não possui alimentos para exportar');
       }
 
-      // Etapa 6: Finalização
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      // Etapa 3: Processamento por formato
+      updateProgress({
+        etapa: 'Processando formato',
+        progresso: 50,
+        mensagem: `Preparando exportação ${finalOptions.formato}...`
+      }, onProgress);
+
+      await new Promise(resolve => setTimeout(resolve, 400));
+
+      // Etapa 4: Geração do arquivo
+      updateProgress({
+        etapa: 'Gerando arquivo',
+        progresso: 75,
+        mensagem: 'Criando documento final...'
+      }, onProgress);
+
+      const resultado = await ExportService.exportar(guia, finalOptions.formato, finalOptions);
+
+      // Etapa 5: Finalização
       updateProgress({
         etapa: 'Concluído',
         progresso: 100,
-        mensagem: 'Export realizado com sucesso!'
+        mensagem: 'Exportação realizada com sucesso!'
       }, onProgress);
 
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -247,7 +148,7 @@ export function useExport(): UseExportReturn {
       setIsExporting(false);
       setTimeout(() => setProgress(null), 3000);
     }
-  }, [processarItensExport, agruparPorCategoria, criarTemplateDocumento, updateProgress]);
+  }, [updateProgress]);
 
   return {
     isExporting,
@@ -276,6 +177,12 @@ export function useExportValidation() {
       }
     }
 
+    if (options.formatoNumeros) {
+      if (options.formatoNumeros.decimais < 0 || options.formatoNumeros.decimais > 10) {
+        errors.push('Número de decimais deve estar entre 0 e 10');
+      }
+    }
+
     return errors;
   }, []);
 
@@ -283,271 +190,37 @@ export function useExportValidation() {
     return ['TXT', 'XLSX', 'DOCX'].includes(formato);
   }, []);
 
+  const getFormatInfo = useCallback((formato: FormatoExport) => {
+    const formatInfo = {
+      'TXT': {
+        nome: 'Texto',
+        extensao: '.txt',
+        descricao: 'Formato simples, compatível com qualquer sistema',
+        vantagens: ['Compatibilidade universal', 'Tamanho pequeno', 'Edição fácil'],
+        limitacoes: ['Sem formatação avançada', 'Sem gráficos ou cores']
+      },
+      'XLSX': {
+        nome: 'Excel',
+        extensao: '.xlsx',
+        descricao: 'Planilha do Excel com formatação e cálculos',
+        vantagens: ['Formatação avançada', 'Cálculos automáticos', 'Filtros e ordenação'],
+        limitacoes: ['Requer software compatível', 'Arquivo maior']
+      },
+      'DOCX': {
+        nome: 'Word',
+        extensao: '.docx',
+        descricao: 'Documento do Word com layout profissional',
+        vantagens: ['Layout profissional', 'Formatação rica', 'Fácil impressão'],
+        limitacoes: ['Requer software compatível', 'Menos flexível para dados']
+      }
+    };
+
+    return formatInfo[formato] || null;
+  }, []);
+
   return {
     validateOptions,
-    isFormatSupported
+    isFormatSupported,
+    getFormatInfo
   };
-}
-
-// Funções auxiliares
-function normalizarUnidade(unidade: string): string {
-  const unidades = EXPORT_CONFIG.unidades;
-  
-  // Busca em todas as categorias de unidades
-  for (const categoria of Object.values(unidades)) {
-    const unidadeEncontrada = categoria.find(u => u.original === unidade);
-    if (unidadeEncontrada) {
-      return unidadeEncontrada.normalizada;
-    }
-  }
-  
-  return unidade; // Retorna original se não encontrar
-}
-
-function determinarCategoria(nomeAlimento: string): CategoriaAlimento {
-  const nomeUpper = nomeAlimento.toUpperCase();
-  
-  // Busca no mapeamento de categorias
-  if (EXPORT_CONFIG.categorias[nomeUpper]) {
-    return EXPORT_CONFIG.categorias[nomeUpper];
-  }
-  
-  // Busca por palavras-chave
-  for (const [palavra, categoria] of Object.entries(EXPORT_CONFIG.categorias)) {
-    if (nomeUpper.includes(palavra)) {
-      return categoria;
-    }
-  }
-  
-  return CategoriaAlimento.OUTROS;
-}
-
-// Funções de exportação que devem ser implementadas
-async function exportarTXT(
-  template: DocumentTemplate,
-  guia: GuiaAbastecimento,
-  options: ExportOptions
-): Promise<ExportResult> {
-  try {
-    let conteudo = '';
-    
-    // Cabeçalho
-    if (options.incluirCabecalho) {
-      conteudo += `${template.cabecalho.titulo}\n`;
-      conteudo += `===============================\n\n`;
-      if (template.cabecalho.instituicao) {
-        conteudo += `Instituição: ${template.cabecalho.instituicao}\n`;
-      }
-      if (template.cabecalho.periodo) {
-        conteudo += `Período: ${template.cabecalho.periodo}\n`;
-      }
-      conteudo += `\n`;
-    }
-    
-    // Seções por categoria
-    for (const [categoria, itens] of Object.entries(template.secoes)) {
-      if (itens.length > 0) {
-        conteudo += `${categoria.toUpperCase()}\n`;
-        conteudo += `${'-'.repeat(categoria.length)}\n`;
-        
-        itens.forEach(item => {
-          conteudo += `${item.nome}: ${item.quantidade.toFixed(2)} ${item.unidadeNormalizada}\n`;
-        });
-        
-        conteudo += `\n`;
-      }
-    }
-    
-    // Rodapé
-    if (options.incluirRodape) {
-      conteudo += `\nEntregue em ___/___/${new Date().getFullYear()} Horário As___:___Min\n`;
-      conteudo += `Recebido por: _________________________________\n`;
-      conteudo += `Entregador: __________________________________\n`;
-    }
-    
-    // Criar blob e URL para download
-    const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    
-    // Criar elemento de download
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `guia-abastecimento-${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
-    return {
-      sucesso: true,
-      nomeArquivo: link.download,
-      tamanhoArquivo: blob.size
-    };
-  } catch (error) {
-    return {
-      sucesso: false,
-      erro: error instanceof Error ? error.message : 'Erro na exportação TXT'
-    };
-  }
-}
-
-async function exportarXLSX(
-  template: DocumentTemplate,
-  guia: GuiaAbastecimento,
-  options: ExportOptions
-): Promise<ExportResult> {
-  try {
-    const workbook = XLSX.utils.book_new();
-    
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sheetData: any[][] = [];
-    
-    if (options.incluirCabecalho) {
-      sheetData.push([template.cabecalho.titulo]);
-      sheetData.push([]);
-      if (template.cabecalho.instituicao) {
-        sheetData.push([`Instituição: ${template.cabecalho.instituicao}`]);
-      }
-      if (template.cabecalho.periodo) {
-        sheetData.push([`Período: ${template.cabecalho.periodo}`]);
-      }
-      sheetData.push([]);
-    }
-    
-    sheetData.push(['Item', 'Quantidade', 'Unidade', 'Categoria']);
-    
-    for (const [categoria, itens] of Object.entries(template.secoes)) {
-      itens.forEach(item => {
-        sheetData.push([
-          item.nome,
-          item.quantidade,
-          item.unidadeNormalizada,
-          categoria
-        ]);
-      });
-    }
-    
-    const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-    
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Guia de Abastecimento');
-    
-    const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([buffer], { 
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
-    });
-    
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `guia-abastecimento-${new Date().toISOString().split('T')[0]}.xlsx`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
-    return {
-      sucesso: true,
-      nomeArquivo: link.download,
-      tamanhoArquivo: blob.size
-    };
-  } catch (error) {
-    return {
-      sucesso: false,
-      erro: error instanceof Error ? error.message : 'Erro na exportação XLSX'
-    };
-  }
-}
-
-async function exportarDOCX(
-  template: DocumentTemplate,
-  guia: GuiaAbastecimento,
-  options: ExportOptions
-): Promise<ExportResult> {
-  try {
-    // HTML -> DOCX
-    let htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <style>
-          body { font-family: Arial, sans-serif; margin: 20px; }
-          .header { text-align: center; margin-bottom: 20px; }
-          .title { font-size: 18px; font-weight: bold; }
-          .section { margin: 15px 0; }
-          .section-title { font-weight: bold; margin-bottom: 10px; }
-          .item { margin: 5px 0; }
-          .footer { margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px; }
-        </style>
-      </head>
-      <body>
-    `;
-    
-    // Cabeçalho
-    if (options.incluirCabecalho) {
-      htmlContent += `
-        <div class="header">
-          <div class="title">${template.cabecalho.titulo}</div>
-          ${template.cabecalho.instituicao ? `<p>Instituição: ${template.cabecalho.instituicao}</p>` : ''}
-          ${template.cabecalho.periodo ? `<p>Período: ${template.cabecalho.periodo}</p>` : ''}
-        </div>
-      `;
-    }
-    
-    // Seções
-    for (const [categoria, itens] of Object.entries(template.secoes)) {
-      if (itens.length > 0) {
-        htmlContent += `
-          <div class="section">
-            <div class="section-title">${categoria.toUpperCase()}</div>
-        `;
-        
-        itens.forEach(item => {
-          htmlContent += `
-            <div class="item">${item.nome}: ${item.quantidade.toFixed(2)} ${item.unidadeNormalizada}</div>
-          `;
-        });
-        
-        htmlContent += `</div>`;
-      }
-    }
-    
-    // Rodapé
-    if (options.incluirRodape) {
-      htmlContent += `
-        <div class="footer">
-          <p>Entregue em ___/___/${new Date().getFullYear()} Horário As___:___Min</p>
-          <p>Recebido por: _________________________________</p>
-          <p>Entregador: __________________________________</p>
-        </div>
-      `;
-    }
-    
-    htmlContent += `</body></html>`;
-    
-    // Criar blob
-    const blob = new Blob([htmlContent], { 
-      type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
-    });
-    
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `guia-abastecimento-${new Date().toISOString().split('T')[0]}.docx`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
-    return {
-      sucesso: true,
-      nomeArquivo: link.download,
-      tamanhoArquivo: blob.size
-    };
-  } catch (error) {
-    return {
-      sucesso: false,
-      erro: error instanceof Error ? error.message : 'Erro na exportação DOCX'
-    };
-  }
 }

@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { GuiaAbastecimento } from '@/types';
 import { ExportOptions, ExportResult, FormatoExport, CategoriaAlimento } from '@/types/export';
 import * as XLSX from 'xlsx';
+import { PDFService } from './pdfService';
 
 // Interface para dados processados para exportação
 interface ProcessedExportData {
@@ -409,6 +412,20 @@ export class ExportService {
   }
 
   /**
+   * Exporta para formato PDF
+   */
+  static async exportarPDF(guia: GuiaAbastecimento, options: ExportOptions): Promise<ExportResult> {
+    try {
+      return await PDFService.exportarPDF(guia, options);
+    } catch (error) {
+      return {
+        sucesso: false,
+        erro: error instanceof Error ? error.message : 'Erro na exportação PDF'
+      };
+    }
+  }
+
+  /**
    * Cria HTML estruturado para conversão DOCX
    */
   private static criarHTMLParaDOCX(dados: ProcessedExportData, options: ExportOptions): string {
@@ -623,6 +640,8 @@ export class ExportService {
         return this.exportarXLSX(guia, options);
       case 'DOCX':
         return this.exportarDOCX(guia, options);
+      case 'PDF':
+        return this.exportarPDF(guia, options);
       default:
         return {
           sucesso: false,
