@@ -12,6 +12,7 @@ import {
 import { GuiaAbastecimento } from '@/types';
 import { USUARIO_PADRAO, EXPORT_CONFIG } from '@/constants/exportConfig';
 import * as XLSX from 'xlsx';
+
 interface UseExportReturn {
   isExporting: boolean;
   progress: ExportProgress | null;
@@ -63,12 +64,18 @@ export function useExport(): UseExportReturn {
   // Função para agrupar itens por categoria
   const agruparPorCategoria = useCallback((itens: ItemExport[]) => {
     const agrupados: Record<CategoriaAlimento, ItemExport[]> = {
-      'Abastecimento': [],
-      'Hortifrútis': [],
-      'Proteínas': [],
-      'Grãos e Cereais': [],
-      'Laticínios': [],
-      'Outros': []
+      [CategoriaAlimento.ABASTECIMENTO]: [],
+      [CategoriaAlimento.HORTIFRUTI]: [],
+      [CategoriaAlimento.PROTEINAS]: [],
+      [CategoriaAlimento.GRAOS_CEREAIS]: [],
+      [CategoriaAlimento.LATICINIOS]: [],
+      [CategoriaAlimento.BEBIDAS]: [],
+      [CategoriaAlimento.CONDIMENTOS]: [],
+      [CategoriaAlimento.DOCES_SOBREMESAS]: [],
+      [CategoriaAlimento.PANIFICACAO]: [],
+      [CategoriaAlimento.CONSERVAS]: [],
+      [CategoriaAlimento.CONGELADOS]: [],
+      [CategoriaAlimento.OUTROS]: []
     };
 
     itens.forEach(item => {
@@ -101,6 +108,11 @@ export function useExport(): UseExportReturn {
         observacoes: options.incluirObservacoes ? guia.observacoes : undefined,
         totalItens: Object.values(itensAgrupados).flat().length,
         dataGeracao: new Date().toLocaleDateString('pt-BR')
+      },
+      configuracao: {
+        mostrarIndices: false,
+        mostrarTotaisPorCategoria: true,
+        mostrarResumoFinal: true
       }
     };
   }, []);
@@ -124,6 +136,20 @@ export function useExport(): UseExportReturn {
         agruparPorCategoria: true,
         normalizarUnidades: true,
         mostrarDetalhamento: false,
+        categoriasIncluidas: {
+          incluirTodas: true
+        },
+        ordenacaoItens: {
+          tipo: 'categoria',
+          criterioSecundario: 'alfabetica'
+        },
+        formatoNumeros: {
+          decimais: 2,
+          separadorMilhar: '.',
+          separadorDecimal: ',',
+          mostrarZerosDecimais: false,
+          formatoUnidade: 'depois'
+        },
         usuario: {
           ...USUARIO_PADRAO,
           dataExport: new Date()
@@ -293,7 +319,7 @@ function determinarCategoria(nomeAlimento: string): CategoriaAlimento {
     }
   }
   
-  return 'Outros';
+  return CategoriaAlimento.OUTROS;
 }
 
 // Funções de exportação que devem ser implementadas
@@ -371,7 +397,6 @@ async function exportarXLSX(
   options: ExportOptions
 ): Promise<ExportResult> {
   try {
-
     const workbook = XLSX.utils.book_new();
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,10 +1,7 @@
-// types/export.ts - Versão consolidada e melhorada
+import { CategoriaAlimento } from './types';
 
-import { CategoriaAlimentoType } from '.';
-
-// Re-exporta o enum principal de types.ts para evitar duplicação
 export { CategoriaAlimento } from './types';
-export type { CategoriaAlimento as CategoriaAlimentoType } from './types';
+export type CategoriaAlimentoType = CategoriaAlimento;
 
 export interface ExportOptions {
   formato: FormatoExport;
@@ -23,7 +20,6 @@ export interface ExportOptions {
 
 export type FormatoExport = 'TXT' | 'XLSX' | 'DOCX' | 'PDF' | 'CSV';
 
-// Nova interface para configurar quais categorias incluir no export
 export interface CategoriaExportConfig {
   incluirTodas: boolean;
   categoriasEspecificas?: {
@@ -40,17 +36,15 @@ export interface CategoriaExportConfig {
     congelados: boolean;
     outros: boolean;
   };
-  ordenacaoCustomizada?: string[]; // Array com ordem específica das categorias
+  ordenacaoCustomizada?: string[];
 }
 
-// Configuração de ordenação dos itens
 export interface OrdenacaoExport {
   tipo: 'alfabetica' | 'quantidade_desc' | 'quantidade_asc' | 'categoria' | 'custom';
   criterioSecundario?: 'alfabetica' | 'quantidade';
-  ordenacaoCustomizada?: string[]; // Para ordenação manual de itens
+  ordenacaoCustomizada?: string[];
 }
 
-// Configuração de formatação de números
 export interface FormatoNumerosConfig {
   decimais: number;
   separadorMilhar: '.' | ',' | ' ' | '';
@@ -78,7 +72,6 @@ export interface ExportMetadata {
   observacoes?: string;
 }
 
-// Filtros adicionais para o export
 export interface ExportFiltros {
   quantidadeMinima?: number;
   quantidadeMaxima?: number;
@@ -99,10 +92,10 @@ export interface ItemExport {
   quantidade: number;
   unidadeOriginal: string;
   unidadeNormalizada: string;
-  categoria: CategoriaAlimentoType;
+  categoria: CategoriaAlimento; 
   observacoes?: string;
-  prioridade?: number; // Para ordenação custom
-  subItens?: ItemExport[]; // Para itens com detalhamento
+  prioridade?: number; 
+  subItens?: ItemExport[];
 }
 
 export interface ExportResult {
@@ -110,18 +103,17 @@ export interface ExportResult {
   nomeArquivo?: string;
   urlDownload?: string;
   tamanhoArquivo?: number;
-  tempoProcessamento?: number; // em millisegundos
+  tempoProcessamento?: number; 
   erro?: string;
   metadata?: ExportMetadata;
   estatisticas?: ExportEstatisticas;
 }
 
-// Estatísticas do export gerado
 export interface ExportEstatisticas {
   totalItens: number;
-  itensPorCategoria: Record<CategoriaAlimentoType, number>;
+  itensPorCategoria: Record<CategoriaAlimento, number>;
   quantidadeTotalPorUnidade: Record<string, number>;
-  categoriaComMaisItens: CategoriaAlimentoType;
+  categoriaComMaisItens: CategoriaAlimento;
   itemComMaiorQuantidade: {
     nome: string;
     quantidade: number;
@@ -135,7 +127,7 @@ export interface ExportConfig {
       extensao: string;
       mimeType: string;
       suportado: boolean;
-      tamanhoMaximo?: number; // em bytes
+      tamanhoMaximo?: number; 
       observacoes?: string;
     };
   };
@@ -145,14 +137,13 @@ export interface ExportConfig {
     unidade: UnidadeNormalizada[];
   };
   categorias: {
-    [key: string]: CategoriaAlimentoType;
+    [key: string]: CategoriaAlimento;
   };
   templates: {
     [formato in FormatoExport]?: ExportTemplate;
   };
 }
 
-// Templates específicos por formato
 export interface ExportTemplate {
   cabecalho: TemplateSecao;
   corpo: TemplateSecao;
@@ -162,11 +153,10 @@ export interface ExportTemplate {
 
 export interface TemplateSecao {
   incluir: boolean;
-  template: string; // Template string com placeholders
+  template: string;
   customizavel: boolean;
 }
 
-// Estilos para exports visuais (XLSX, DOCX)
 export interface ExportEstilos {
   fontes: {
     titulo: FonteConfig;
@@ -207,7 +197,7 @@ export interface DocumentTemplate {
     periodo?: string;
     usuario?: string;
     data?: string;
-    logoPath?: string; // Para incluir logo da instituição
+    logoPath?: string; 
   };
   secoes: {
     [categoria: string]: ItemExport[];
@@ -223,7 +213,7 @@ export interface DocumentTemplate {
     mostrarIndices: boolean;
     mostrarTotaisPorCategoria: boolean;
     mostrarResumoFinal: boolean;
-    incluirGraficos?: boolean; // Para XLSX
+    incluirGraficos?: boolean; 
   };
 }
 
@@ -231,7 +221,7 @@ export interface ExportProgress {
   etapa: string;
   progresso: number; // 0-100
   mensagem: string;
-  tempoEstimado?: number; // em segundos
+  tempoEstimado?: number; 
   itensProcessados?: number;
   totalItens?: number;
   erro?: string;
@@ -239,7 +229,6 @@ export interface ExportProgress {
 
 export type ExportProgressCallback = (progress: ExportProgress) => void;
 
-// Preset de configurações para exports comuns
 export interface ExportPreset {
   id: string;
   nome: string;
@@ -249,16 +238,14 @@ export interface ExportPreset {
   isFavorito?: boolean;
 }
 
-// Configurações específicas por tipo de instituição
 export interface ConfiguracaoInstituicional {
   tipoInstituicao: 'creche' | 'escola_municipal' | 'escola_estadual' | 'cei';
   configuracoesPadrao: ExportOptions;
   templatePersonalizado?: Partial<DocumentTemplate>;
-  categoriasObrigatorias: CategoriaAlimentoType[];
-  categoriasOpcionais: CategoriaAlimentoType[];
+  categoriasObrigatorias: CategoriaAlimento[];
+  categoriasOpcionais: CategoriaAlimento[];
 }
 
-// Validação de export
 export interface ExportValidationResult {
   valido: boolean;
   avisos: ExportValidationMessage[];
@@ -273,7 +260,6 @@ export interface ExportValidationMessage {
   codigoErro?: string;
 }
 
-// Histórico de exports
 export interface ExportHistorico {
   id: string;
   dataExport: Date;
@@ -284,7 +270,6 @@ export interface ExportHistorico {
   instituicaoNome: string;
 }
 
-// Configurações de sistema para exports
 export interface ExportSystemConfig {
   limiteTamanhoArquivo: number;
   limiteConcorrencia: number;
@@ -294,45 +279,44 @@ export interface ExportSystemConfig {
   validacaoObrigatoria: boolean;
 }
 
-// Utilitários para trabalhar com categorias
-export namespace CategoriaUtils {
-  export const TODAS_CATEGORIAS: CategoriaAlimentoType[] = [
-    'Abastecimento',
-    'Hortifrútis', 
-    'Proteínas',
-    'Grãos e Cereais',
-    'Laticínios',
-    'Bebidas',
-    'Condimentos e Temperos',
-    'Doces e Sobremesas',
-    'Panificação',
-    'Conservas e Enlatados',
-    'Congelados',
-    'Outros'
-  ];
+export const CategoriaUtils = {
+  TODAS_CATEGORIAS: [
+    CategoriaAlimento.ABASTECIMENTO,
+    CategoriaAlimento.HORTIFRUTI, 
+    CategoriaAlimento.PROTEINAS,
+    CategoriaAlimento.GRAOS_CEREAIS,
+    CategoriaAlimento.LATICINIOS,
+    CategoriaAlimento.BEBIDAS,
+    CategoriaAlimento.CONDIMENTOS,
+    CategoriaAlimento.DOCES_SOBREMESAS,
+    CategoriaAlimento.PANIFICACAO,
+    CategoriaAlimento.CONSERVAS,
+    CategoriaAlimento.CONGELADOS,
+    CategoriaAlimento.OUTROS
+  ] as CategoriaAlimento[],
 
-  export const CATEGORIAS_ESSENCIAIS: CategoriaAlimentoType[] = [
-    'Abastecimento',
-    'Hortifrútis',
-    'Proteínas',
-    'Laticínios'
-  ];
+  CATEGORIAS_ESSENCIAIS: [
+    CategoriaAlimento.ABASTECIMENTO,
+    CategoriaAlimento.HORTIFRUTI,
+    CategoriaAlimento.PROTEINAS,
+    CategoriaAlimento.LATICINIOS
+  ] as CategoriaAlimento[],
 
-  export const ORDEM_PADRAO: CategoriaAlimentoType[] = [
-    'Abastecimento',
-    'Proteínas',
-    'Grãos e Cereais',
-    'Laticínios',
-    'Hortifrútis',
-    'Panificação',
-    'Bebidas',
-    'Condimentos e Temperos',
-    'Conservas e Enlatados',
-    'Congelados',
-    'Doces e Sobremesas',
-    'Outros'
-  ];
-}
+  ORDEM_PADRAO: [
+    CategoriaAlimento.ABASTECIMENTO,
+    CategoriaAlimento.PROTEINAS,
+    CategoriaAlimento.GRAOS_CEREAIS,
+    CategoriaAlimento.LATICINIOS,
+    CategoriaAlimento.HORTIFRUTI,
+    CategoriaAlimento.PANIFICACAO,
+    CategoriaAlimento.BEBIDAS,
+    CategoriaAlimento.CONDIMENTOS,
+    CategoriaAlimento.CONSERVAS,
+    CategoriaAlimento.CONGELADOS,
+    CategoriaAlimento.DOCES_SOBREMESAS,
+    CategoriaAlimento.OUTROS
+  ] as CategoriaAlimento[]
+} as const;
 
 // Configurações padrão para facilitar o uso
 export const EXPORT_DEFAULTS: ExportOptions = {

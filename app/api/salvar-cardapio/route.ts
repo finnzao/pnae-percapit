@@ -19,8 +19,7 @@ function cleanOldRequests() {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface CardapioInput extends Omit<Cardapio, 'id' | 'dataCadastro' | 'dataAtualizacao' | 'ativo'> {}
+type CardapioInput = Omit<Cardapio, 'id' | 'dataCadastro' | 'dataAtualizacao' | 'ativo'>
 
 export async function POST(request: Request) {
   try {

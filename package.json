@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "migrate:categorias": "node scripts/migrate-categorias.js migrar",
+    "migrate:verificar": "node scripts/migrate-categorias.js verificar",
+    "db:categorias:check": "node scripts/migrate-categorias.js verificar",
+    "db:categorias:migrate": "node scripts/migrate-categorias.js migrar"
   },
   "dependencies": {
     "@types/xlsx": "^0.0.35",

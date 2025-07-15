@@ -1,4 +1,3 @@
-// constants/exportConfig.ts
 import { ExportConfig, CategoriaAlimento } from "@/types/export";
 
 export const EXPORT_CONFIG: ExportConfig = {
@@ -21,7 +20,12 @@ export const EXPORT_CONFIG: ExportConfig = {
         PDF: {
             extensao: '.pdf',
             mimeType: 'application/pdf',
-            suportado: false // Implementar futuramente
+            suportado: false
+        },
+        CSV: {
+            extensao: '.csv',
+            mimeType: 'text/csv',
+            suportado: true
         }
     },
 
@@ -56,68 +60,122 @@ export const EXPORT_CONFIG: ExportConfig = {
 
     categorias: {
         // Alimentos básicos e não perecíveis
-        'COLORAU': 'Abastecimento',
-        'AÇÚCAR': 'Abastecimento',
-        'MACARRÃO': 'Abastecimento',
-        'MACARRÃO ESPAGUETE': 'Abastecimento',
-        'FEIJÃO': 'Abastecimento',
-        'FEIJÃO CARIOCA': 'Abastecimento',
-        'ARROZ': 'Abastecimento',
-        'BISCOITO': 'Abastecimento',
-        'BISCOITO SALGADO': 'Abastecimento',
-        'FLOCOS DE MILHO': 'Abastecimento',
-        'FARINHA DE MANDIOCA': 'Abastecimento',
-        'CAFÉ': 'Abastecimento',
-        'TAPIOCA SECA': 'Abastecimento',
-        'LEITE EM PÓ': 'Abastecimento',
-        'SARDINHA': 'Abastecimento',
-        'PROTEÍNA DE SOJA': 'Abastecimento',
-        'ÓLEO': 'Abastecimento',
-        'SAL': 'Abastecimento',
-        'VINAGRE': 'Abastecimento',
+        'COLORAU': CategoriaAlimento.ABASTECIMENTO,
+        'AÇÚCAR': CategoriaAlimento.ABASTECIMENTO,
+        'MACARRÃO': CategoriaAlimento.ABASTECIMENTO,
+        'MACARRÃO ESPAGUETE': CategoriaAlimento.ABASTECIMENTO,
+        'FEIJÃO': CategoriaAlimento.ABASTECIMENTO,
+        'FEIJÃO CARIOCA': CategoriaAlimento.ABASTECIMENTO,
+        'ARROZ': CategoriaAlimento.ABASTECIMENTO,
+        'BISCOITO': CategoriaAlimento.ABASTECIMENTO,
+        'BISCOITO SALGADO': CategoriaAlimento.ABASTECIMENTO,
+        'FLOCOS DE MILHO': CategoriaAlimento.ABASTECIMENTO,
+        'FARINHA DE MANDIOCA': CategoriaAlimento.ABASTECIMENTO,
+        'CAFÉ': CategoriaAlimento.ABASTECIMENTO,
+        'TAPIOCA SECA': CategoriaAlimento.ABASTECIMENTO,
+        'LEITE EM PÓ': CategoriaAlimento.ABASTECIMENTO,
+        'SARDINHA': CategoriaAlimento.ABASTECIMENTO,
+        'PROTEÍNA DE SOJA': CategoriaAlimento.ABASTECIMENTO,
+        'ÓLEO': CategoriaAlimento.ABASTECIMENTO,
+        'SAL': CategoriaAlimento.ABASTECIMENTO,
+        'VINAGRE': CategoriaAlimento.ABASTECIMENTO,
 
         // Carnes e proteínas
-        'CARNE BOVINA': 'Proteínas',
-        'CARNE BOVINA (MUSCULO)': 'Proteínas',
-        'MÚSCULO': 'Proteínas',
-        'LINGUIÇA': 'Proteínas',
-        'LINGUIÇA CALABRESA': 'Proteínas',
-        'FRANGO': 'Proteínas',
-        'FRANGO INTEIRO': 'Proteínas',
-        'PEIXE': 'Proteínas',
-        'OVO': 'Proteínas',
-        'OVOS': 'Proteínas',
+        'CARNE BOVINA': CategoriaAlimento.PROTEINAS,
+        'CARNE BOVINA (MUSCULO)': CategoriaAlimento.PROTEINAS,
+        'MÚSCULO': CategoriaAlimento.PROTEINAS,
+        'LINGUIÇA': CategoriaAlimento.PROTEINAS,
+        'LINGUIÇA CALABRESA': CategoriaAlimento.PROTEINAS,
+        'FRANGO': CategoriaAlimento.PROTEINAS,
+        'FRANGO INTEIRO': CategoriaAlimento.PROTEINAS,
+        'PEIXE': CategoriaAlimento.PROTEINAS,
+        'OVO': CategoriaAlimento.PROTEINAS,
+        'OVOS': CategoriaAlimento.PROTEINAS,
 
         // Hortifrútis e verduras
-        'ALHO': 'Hortifrútis',
-        'CEBOLA': 'Hortifrútis',
-        'TOMATE': 'Hortifrútis',
-        'PIMENTÃO': 'Hortifrútis',
-        'BATATA': 'Hortifrútis',
-        'BATATA INGLESA': 'Hortifrútis',
-        'CENOURA': 'Hortifrútis',
-        'ABOBRINHA': 'Hortifrútis',
-        'ABÓBORA': 'Hortifrútis',
-        'COUVE': 'Hortifrútis',
-        'ALFACE': 'Hortifrútis',
-        'LIMÃO': 'Hortifrútis',
-        'BANANA': 'Hortifrútis',
-        'MAÇÃ': 'Hortifrútis',
-        'LARANJA': 'Hortifrútis',
+        'ALHO': CategoriaAlimento.HORTIFRUTI,
+        'CEBOLA': CategoriaAlimento.HORTIFRUTI,
+        'TOMATE': CategoriaAlimento.HORTIFRUTI,
+        'PIMENTÃO': CategoriaAlimento.HORTIFRUTI,
+        'BATATA': CategoriaAlimento.HORTIFRUTI,
+        'BATATA INGLESA': CategoriaAlimento.HORTIFRUTI,
+        'CENOURA': CategoriaAlimento.HORTIFRUTI,
+        'ABOBRINHA': CategoriaAlimento.HORTIFRUTI,
+        'ABÓBORA': CategoriaAlimento.HORTIFRUTI,
+        'COUVE': CategoriaAlimento.HORTIFRUTI,
+        'ALFACE': CategoriaAlimento.HORTIFRUTI,
+        'LIMÃO': CategoriaAlimento.HORTIFRUTI,
+        'BANANA': CategoriaAlimento.HORTIFRUTI,
+        'MAÇÃ': CategoriaAlimento.HORTIFRUTI,
+        'LARANJA': CategoriaAlimento.HORTIFRUTI,
 
         // Grãos e cereais específicos
-        'MILHO': 'Grãos e Cereais',
-        'AVEIA': 'Grãos e Cereais',
-        'QUINOA': 'Grãos e Cereais',
-        'LENTILHA': 'Grãos e Cereais',
-        'GRÃO DE BICO': 'Grãos e Cereais',
+        'MILHO': CategoriaAlimento.GRAOS_CEREAIS,
+        'AVEIA': CategoriaAlimento.GRAOS_CEREAIS,
+        'QUINOA': CategoriaAlimento.GRAOS_CEREAIS,
+        'LENTILHA': CategoriaAlimento.GRAOS_CEREAIS,
+        'GRÃO DE BICO': CategoriaAlimento.GRAOS_CEREAIS,
 
         // Laticínios
-        'LEITE': 'Laticínios',
-        'QUEIJO': 'Laticínios',
-        'IOGURTE': 'Laticínios',
-        'MANTEIGA': 'Laticínios',
-        'MARGARINA': 'Laticínios'
+        'LEITE': CategoriaAlimento.LATICINIOS,
+        'QUEIJO': CategoriaAlimento.LATICINIOS,
+        'IOGURTE': CategoriaAlimento.LATICINIOS,
+        'MANTEIGA': CategoriaAlimento.LATICINIOS,
+        'MARGARINA': CategoriaAlimento.LATICINIOS
+    },
+
+    templates: {
+        TXT: {
+            cabecalho: {
+                incluir: true,
+                template: '{TITULO}\n===============================\n\nInstituição: {INSTITUICAO}\nPeríodo: {PERIODO}\n\n',
+                customizavel: true
+            },
+            corpo: {
+                incluir: true,
+                template: '{CATEGORIA}\n{SEPARADOR}\n{ITENS}\n\n',
+                customizavel: true
+            },
+            rodape: {
+                incluir: true,
+                template: '\nEntregue em ___/___/{ANO} Horário As___:___Min\nRecebido por: _________________________________\nEntregador: __________________________________\n',
+                customizavel: true
+            }
+        },
+        XLSX: {
+            cabecalho: {
+                incluir: true,
+                template: 'default_xlsx_header',
+                customizavel: false
+            },
+            corpo: {
+                incluir: true,
+                template: 'default_xlsx_body',
+                customizavel: false
+            },
+            rodape: {
+                incluir: true,
+                template: 'default_xlsx_footer',
+                customizavel: false
+            }
+        },
+        DOCX: {
+            cabecalho: {
+                incluir: true,
+                template: 'default_docx_header',
+                customizavel: false
+            },
+            corpo: {
+                incluir: true,
+                template: 'default_docx_body',
+                customizavel: false
+            },
+            rodape: {
+                incluir: true,
+                template: 'default_docx_footer',
+                customizavel: false
+            }
+        }
     }
 };
 
@@ -133,7 +191,18 @@ export const TEMPLATE_ABASTECIMENTO = {
 };
 
 export const CATEGORIA_ORDEM: CategoriaAlimento[] = [
-
+    CategoriaAlimento.ABASTECIMENTO,
+    CategoriaAlimento.PROTEINAS,
+    CategoriaAlimento.GRAOS_CEREAIS,
+    CategoriaAlimento.LATICINIOS,
+    CategoriaAlimento.HORTIFRUTI,
+    CategoriaAlimento.PANIFICACAO,
+    CategoriaAlimento.BEBIDAS,
+    CategoriaAlimento.CONDIMENTOS,
+    CategoriaAlimento.CONSERVAS,
+    CategoriaAlimento.CONGELADOS,
+    CategoriaAlimento.DOCES_SOBREMESAS,
+    CategoriaAlimento.OUTROS
 ];
 
 export const USUARIO_PADRAO = {

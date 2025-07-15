@@ -175,7 +175,6 @@ export interface ResultadoCalculo {
     totalFinal: number;
 }
 
-// Novos tipos para Instituições
 export interface Endereco {
     logradouro: string;
     numero: string;
