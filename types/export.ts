@@ -18,7 +18,8 @@ export interface ExportOptions {
   usuario?: UsuarioExport;
 }
 
-export type FormatoExport = 'TXT' | 'XLSX' | 'DOCX' | 'PDF' | 'CSV';
+// Remover CSV do tipo
+export type FormatoExport = 'TXT' | 'XLSX' | 'DOCX' | 'PDF';
 
 export interface CategoriaExportConfig {
   incluirTodas: boolean;
@@ -141,7 +142,7 @@ export const EXPORT_DEFAULTS: ExportOptions = {
   }
 };
 
-// Mapeamento de formatos suportados
+// Mapeamento de formatos suportados (sem CSV)
 export const FORMATOS_SUPORTADOS: Record<FormatoExport, {
   nome: string;
   extensao: string;
@@ -176,13 +177,6 @@ export const FORMATOS_SUPORTADOS: Record<FormatoExport, {
     mimeType: 'application/pdf',
     icone: 'File',
     descricao: 'Documento PDF pronto para impressão'
-  },
-  CSV: {
-    nome: 'CSV',
-    extensao: '.csv',
-    mimeType: 'text/csv',
-    icone: 'Table',
-    descricao: 'Valores separados por vírgula'
   }
 };
 

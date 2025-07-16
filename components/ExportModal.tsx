@@ -33,8 +33,7 @@ const FormatIcon = ({ formato }: { formato: FormatoExport }) => {
     TXT: FileText,
     XLSX: Table,
     DOCX: FileText,
-    PDF: File,
-    CSV: Table
+    PDF: File
   };
   
   const IconComponent = iconMap[formato] || FileText;

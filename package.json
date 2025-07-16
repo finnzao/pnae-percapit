@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@types/xlsx": "^0.0.35",
+    "jspdf": "^2.5.2",
     "lucide-react": "^0.515.0",
     "next": "15.3.3",
     "postcss": "^8.5.4",
@@ -26,7 +27,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4.1.8",
-    "@types/node": "^20",
+    "@types/node": "^20.19.8",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/uuid": "^9.0.8",

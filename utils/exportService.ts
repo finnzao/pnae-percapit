@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { GuiaAbastecimento } from '@/types';
 import { ExportOptions, ExportResult, FormatoExport, CategoriaAlimento } from '@/types/export';
-import * as XLSX from 'xlsx';
 
 // Interface para dados processados para exportação
 interface ProcessedExportData {
@@ -47,7 +46,7 @@ export class ExportService {
     'FARINHA': CategoriaAlimento.ABASTECIMENTO,
     'CAFÉ': CategoriaAlimento.ABASTECIMENTO,
     'VINAGRE': CategoriaAlimento.ABASTECIMENTO,
-    
+
     // Proteínas
     'CARNE': CategoriaAlimento.PROTEINAS,
     'FRANGO': CategoriaAlimento.PROTEINAS,
@@ -57,7 +56,7 @@ export class ExportService {
     'SARDINHA': CategoriaAlimento.PROTEINAS,
     'PROTEÍNA DE SOJA': CategoriaAlimento.PROTEINAS,
     'MÚSCULO': CategoriaAlimento.PROTEINAS,
-    
+
     // Hortifrútis
     'ALHO': CategoriaAlimento.HORTIFRUTI,
     'CEBOLA': CategoriaAlimento.HORTIFRUTI,
@@ -73,31 +72,31 @@ export class ExportService {
     'LIMÃO': CategoriaAlimento.HORTIFRUTI,
     'ABOBRINHA': CategoriaAlimento.HORTIFRUTI,
     'ABÓBORA': CategoriaAlimento.HORTIFRUTI,
-    
+
     // Laticínios
     'LEITE': CategoriaAlimento.LATICINIOS,
     'QUEIJO': CategoriaAlimento.LATICINIOS,
     'IOGURTE': CategoriaAlimento.LATICINIOS,
     'MANTEIGA': CategoriaAlimento.LATICINIOS,
     'MARGARINA': CategoriaAlimento.LATICINIOS,
-    
+
     // Grãos e cereais
     'MILHO': CategoriaAlimento.GRAOS_CEREAIS,
     'AVEIA': CategoriaAlimento.GRAOS_CEREAIS,
     'FLOCOS': CategoriaAlimento.GRAOS_CEREAIS,
     'TAPIOCA': CategoriaAlimento.GRAOS_CEREAIS,
     'LENTILHA': CategoriaAlimento.GRAOS_CEREAIS,
-    
+
     // Panificação
     'BISCOITO': CategoriaAlimento.PANIFICACAO,
     'PÃO': CategoriaAlimento.PANIFICACAO,
     'TORRADA': CategoriaAlimento.PANIFICACAO,
-    
+
     // Condimentos
     'COLORAU': CategoriaAlimento.CONDIMENTOS,
     'TEMPERO': CategoriaAlimento.CONDIMENTOS,
     'PIMENTA': CategoriaAlimento.CONDIMENTOS,
-    
+
     // Bebidas
     'SUCO': CategoriaAlimento.BEBIDAS,
     'ÁGUA': CategoriaAlimento.BEBIDAS,
@@ -110,7 +109,7 @@ export class ExportService {
   private static processarDados(guia: GuiaAbastecimento, options: ExportOptions): ProcessedExportData {
     const dataInicio = new Date(guia.dataInicio);
     const dataFim = new Date(guia.dataFim);
-    
+
     // Processar dados básicos
     const cabecalho = {
       titulo: `GUIA ESCOLA ${guia.instituicaoNome?.toUpperCase() || 'NÃO INFORMADA'} - ALAMBIQUE - EJA`,
@@ -131,8 +130,8 @@ export class ExportService {
     // Processar cada alimento e categorizar
     guia.calculosDistribuicao.forEach(calculo => {
       const categoria = this.determinarCategoria(calculo.alimentoNome);
-      const unidade = options.normalizarUnidades ? 
-        this.normalizarUnidade(calculo.unidadeMedida) : 
+      const unidade = options.normalizarUnidades ?
+        this.normalizarUnidade(calculo.unidadeMedida) :
         calculo.unidadeMedida;
 
       const quantidade = options.formatoNumeros?.decimais !== undefined ?
@@ -179,7 +178,7 @@ export class ExportService {
    */
   private static determinarCategoria(nomeAlimento: string): CategoriaAlimento {
     const nome = nomeAlimento.toUpperCase().trim();
-    
+
     // Busca correspondência exata primeiro
     if (this.CATEGORIA_MAPPING[nome]) {
       return this.CATEGORIA_MAPPING[nome];
@@ -196,7 +195,7 @@ export class ExportService {
     if (nome.includes('CARNE') || nome.includes('FRANGO') || nome.includes('PEIXE')) {
       return CategoriaAlimento.PROTEINAS;
     }
-    
+
     if (nome.includes('VERDURA') || nome.includes('FRUTA') || nome.includes('LEGUME')) {
       return CategoriaAlimento.HORTIFRUTI;
     }
@@ -225,10 +224,148 @@ export class ExportService {
   }
 
   /**
-   * Exporta para formato XLSX com categorização aprimorada
+   * Exporta para formato TXT
    */
+  static async exportarTXT(guia: GuiaAbastecimento, options: ExportOptions): Promise<ExportResult> {
+    try {
+      const dados = this.processarDados(guia, options);
+      let conteudo = '';
+
+      // Cabeçalho
+      if (options.incluirCabecalho) {
+        conteudo += `${dados.cabecalho.titulo}\n`;
+        conteudo += `${'='.repeat(dados.cabecalho.titulo.length)}\n\n`;
+        conteudo += `Abastecimento [Semanas 2 E 3 (${dados.cabecalho.periodo})]\n\n`;
+      }
+
+      if (options.agruparPorCategoria) {
+        // Exportação por categorias separadas (layout lado a lado)
+        const abastecimento = [
+          ...dados.categorias[CategoriaAlimento.ABASTECIMENTO] || [],
+          ...dados.categorias[CategoriaAlimento.GRAOS_CEREAIS] || [],
+          ...dados.categorias[CategoriaAlimento.PROTEINAS] || [],
+          ...dados.categorias[CategoriaAlimento.LATICINIOS] || [],
+          ...dados.categorias[CategoriaAlimento.CONDIMENTOS] || [],
+          ...dados.categorias[CategoriaAlimento.BEBIDAS] || [],
+          ...dados.categorias[CategoriaAlimento.PANIFICACAO] || []
+        ];
+
+        const hortifrutis = dados.categorias[CategoriaAlimento.HORTIFRUTI] || [];
+
+        // Cabeçalho da tabela
+        const separador = '-'.repeat(100);
+        conteudo += `${separador}\n`;
+        conteudo += `${'Itens'.padEnd(35)} ${'Quant./peso'.padEnd(15)} ${'Unid.'.padEnd(10)} ${'Hortifrútis'.padEnd(25)} ${'Quant./peso'.padEnd(15)} ${'Unid.'}\n`;
+        conteudo += `${separador}\n`;
+
+        // Dados lado a lado
+        const maxLinhas = Math.max(abastecimento.length, hortifrutis.length);
+
+        for (let i = 0; i < maxLinhas; i++) {
+          let linha = '';
+
+          // Coluna Abastecimento
+          if (i < abastecimento.length) {
+            const item = abastecimento[i];
+            linha += `${item.nome.toUpperCase().padEnd(35)} `;
+            linha += `${item.quantidade.toString().padEnd(15)} `;
+            linha += `${item.unidade.padEnd(10)} `;
+          } else {
+            linha += ' '.repeat(60);
+          }
+
+          // Coluna Hortifrútis
+          if (i < hortifrutis.length) {
+            const item = hortifrutis[i];
+            linha += `${item.nome.toUpperCase().padEnd(25)} `;
+            linha += `${item.quantidade.toString().padEnd(15)} `;
+            linha += `${item.unidade}`;
+          }
+
+          conteudo += `${linha}\n`;
+        }
+
+        conteudo += `${separador}\n\n`;
+      } else {
+        // Lista única de todos os alimentos
+        conteudo += 'LISTA COMPLETA DE ALIMENTOS\n';
+        conteudo += '============================\n\n';
+
+        const todosAlimentos = Object.values(dados.categorias).flat();
+        todosAlimentos.forEach((item, index) => {
+          conteudo += `${index + 1}. ${item.nome.toUpperCase()} - ${item.quantidade} ${item.unidade} (${item.categoria})\n`;
+        });
+        conteudo += '\n';
+      }
+
+      // Informações finais
+      conteudo += `Quantitativo de alunos: ${dados.cabecalho.totalAlunos} alunos\n\n`;
+
+      // Rodapé com assinatura
+      if (options.incluirRodape && options.incluirAssinatura) {
+        conteudo += `Entregue em ____/____/2025 Horário As____:____Min\n\n`;
+        conteudo += `Recebido por_______________________________________ (________________)\n\n`;
+        conteudo += `Entregador ___________________________________________\n`;
+      }
+
+      // Observações
+      if (dados.observacoes) {
+        conteudo += `\nObservações:\n${dados.observacoes}\n`;
+      }
+
+      // Criar e baixar arquivo
+      const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
+      const nomeArquivo = this.gerarNomeArquivo(guia, 'txt');
+      this.baixarArquivo(blob, nomeArquivo);
+
+      return {
+        sucesso: true,
+        nomeArquivo,
+        tamanhoArquivo: blob.size
+      };
+    } catch (error) {
+      return {
+        sucesso: false,
+        erro: error instanceof Error ? error.message : 'Erro na exportação TXT'
+      };
+    }
+  }
+
+  /**
+   * Gera nome do arquivo baseado na guia
+   */
+  private static gerarNomeArquivo(guia: GuiaAbastecimento, extensao: string): string {
+    const instituicao = (guia.instituicaoNome || 'escola')
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
+
+    const data = new Date().toISOString().split('T')[0];
+
+    return `guia-${instituicao}-${data}.${extensao}`;
+  }
+
+  /**
+   * Baixa arquivo no navegador
+   */
+  private static baixarArquivo(blob: Blob, nomeArquivo: string) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = nomeArquivo;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+  /**
+     * Exporta para formato XLSX com categorização aprimorada
+     */
   static async exportarXLSX(guia: GuiaAbastecimento, options: ExportOptions): Promise<ExportResult> {
     try {
+      // Importação dinâmica do XLSX
+      const XLSX = await import('xlsx');
+
       const dados = this.processarDados(guia, options);
       const workbook = XLSX.utils.book_new();
 
@@ -263,10 +400,10 @@ export class ExportService {
 
         // Dados lado a lado
         const maxLinhas = Math.max(abastecimento.length, hortifrutis.length);
-        
+
         for (let i = 0; i < maxLinhas; i++) {
           const linha: any[] = [];
-          
+
           // Coluna Abastecimento
           if (i < abastecimento.length) {
             const item = abastecimento[i];
@@ -274,7 +411,7 @@ export class ExportService {
           } else {
             linha.push('', '', '');
           }
-          
+
           // Coluna Hortifrútis
           if (i < hortifrutis.length) {
             const item = hortifrutis[i];
@@ -282,13 +419,13 @@ export class ExportService {
           } else {
             linha.push('', '', '');
           }
-          
+
           sheetData.push(linha);
         }
       } else {
         // Lista única de todos os alimentos
         sheetData.push(['Alimento', 'Quantidade', 'Unidade', 'Categoria']);
-        
+
         const todosAlimentos = Object.values(dados.categorias).flat();
         todosAlimentos.forEach(item => {
           sheetData.push([item.nome.toUpperCase(), item.quantidade, item.unidade, item.categoria]);
@@ -299,7 +436,7 @@ export class ExportService {
       if (options.incluirRodape) {
         sheetData.push([]);
         sheetData.push([`Quantitativo de alunos: ${dados.cabecalho.totalAlunos} alunos`]);
-        
+
         if (options.incluirAssinatura) {
           sheetData.push([]);
           sheetData.push(['Entregue em ____/____/2025 Horário As____:____Min']);
@@ -337,21 +474,18 @@ export class ExportService {
         ];
       }
 
-      // Aplicar formatação
-      this.aplicarFormatacaoXLSX(worksheet, sheetData, options);
-
       // Adicionar ao workbook
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Guia de Abastecimento');
 
       // Criar planilha adicional com resumo por categoria
       if (options.agruparPorCategoria) {
-        this.criarPlanilhaResumoCategoria(workbook, dados);
+        this.criarPlanilhaResumoCategoria(workbook, dados, XLSX);
       }
 
       // Gerar e baixar arquivo
       const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-      const blob = new Blob([buffer], { 
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       });
       const nomeArquivo = this.gerarNomeArquivo(guia, 'xlsx');
       this.baixarArquivo(blob, nomeArquivo);
@@ -372,7 +506,7 @@ export class ExportService {
   /**
    * Cria planilha adicional com resumo por categoria
    */
-  private static criarPlanilhaResumoCategoria(workbook: XLSX.WorkBook, dados: ProcessedExportData) {
+  private static criarPlanilhaResumoCategoria(workbook: any, dados: ProcessedExportData, XLSX: any) {
     const resumoData: any[][] = [
       ['RESUMO POR CATEGORIA'],
       [],
@@ -403,28 +537,13 @@ export class ExportService {
   }
 
   /**
-   * Aplica formatação ao worksheet XLSX
-   */
-  private static aplicarFormatacaoXLSX(worksheet: XLSX.WorkSheet, sheetData: any[][], options: ExportOptions) {
-    // Formatação básica - mesclar células do título se necessário
-    if (options.incluirCabecalho && sheetData.length > 0) {
-      const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
-      
-      // Título principal - mesclar colunas
-      worksheet['!merges'] = [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: range.e.c } }
-      ];
-    }
-  }
-
-  /**
    * Exporta para formato PDF com categorização
    */
   static async exportarPDF(guia: GuiaAbastecimento, options: ExportOptions): Promise<ExportResult> {
     try {
       // Importação dinâmica do jsPDF
       const { jsPDF } = await import('jspdf');
-      
+
       const dados = this.processarDados(guia, options);
       const doc = new jsPDF({
         orientation: 'portrait',
@@ -476,6 +595,37 @@ export class ExportService {
   }
 
   /**
+   * Exporta para formato DOCX
+   */
+  static async exportarDOCX(guia: GuiaAbastecimento, options: ExportOptions): Promise<ExportResult> {
+    try {
+      const dados = this.processarDados(guia, options);
+
+      // Criar estrutura HTML para conversão
+      const htmlContent = this.criarHTMLParaDOCX(dados, options);
+
+      // Converter para DOCX usando HTML
+      const blob = new Blob([htmlContent], {
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      });
+
+      const nomeArquivo = this.gerarNomeArquivo(guia, 'docx');
+      this.baixarArquivo(blob, nomeArquivo);
+
+      return {
+        sucesso: true,
+        nomeArquivo,
+        tamanhoArquivo: blob.size
+      };
+    } catch (error) {
+      return {
+        sucesso: false,
+        erro: error instanceof Error ? error.message : 'Erro na exportação DOCX'
+      };
+    }
+  }
+
+  /**
    * Adiciona cabeçalho ao PDF
    */
   private static adicionarCabecalhoPDF(doc: any, dados: ProcessedExportData, yPosition: number): number {
@@ -499,21 +649,20 @@ export class ExportService {
 
     return yPosition + 15;
   }
-
   /**
-   * Adiciona tabela categorizada ao PDF (layout lado a lado)
-   */
+     * Adiciona tabela categorizada ao PDF (layout lado a lado)
+     */
   private static adicionarTabelaCategorizadaPDF(
-    doc: any, 
-    dados: ProcessedExportData, 
-    options: ExportOptions, 
+    doc: any,
+    dados: ProcessedExportData,
+    options: ExportOptions,
     yPosition: number
   ): number {
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
     const margin = 20;
     const tableWidth = pageWidth - (margin * 2);
-    
+
     // Preparar dados
     const abastecimento = [
       ...dados.categorias[CategoriaAlimento.ABASTECIMENTO] || [],
@@ -542,7 +691,7 @@ export class ExportService {
 
     // Desenhar dados
     const maxLinhas = Math.max(abastecimento.length, hortifrutis.length);
-    
+
     for (let i = 0; i < maxLinhas; i++) {
       // Verificar se precisa de nova página
       if (yPosition > pageHeight - 40) {
@@ -552,11 +701,11 @@ export class ExportService {
       }
 
       yPosition = this.desenharLinhaTabelaPDF(
-        doc, 
-        yPosition, 
-        colWidths, 
+        doc,
+        yPosition,
+        colWidths,
         margin,
-        abastecimento[i], 
+        abastecimento[i],
         hortifrutis[i]
       );
     }
@@ -593,19 +742,19 @@ export class ExportService {
     currentX = margin;
     doc.text('Itens', currentX + 2, yPosition);
     currentX += colWidths.item1;
-    
+
     doc.text('Quant./peso', currentX + 2, yPosition);
     currentX += colWidths.quant1;
-    
+
     doc.text('Unid.', currentX + 2, yPosition);
     currentX += colWidths.unit1;
-    
+
     doc.text('Itens', currentX + 2, yPosition);
     currentX += colWidths.item2;
-    
+
     doc.text('Quant./peso', currentX + 2, yPosition);
     currentX += colWidths.quant2;
-    
+
     doc.text('Unid.', currentX + 2, yPosition);
 
     // Bordas
@@ -638,10 +787,10 @@ export class ExportService {
       const nomeAbastecimento = this.truncarTexto(doc, itemAbastecimento.nome.toUpperCase(), colWidths.item1 - 4);
       doc.text(nomeAbastecimento, currentX + 2, yPosition);
       currentX += colWidths.item1;
-      
+
       doc.text(itemAbastecimento.quantidade.toString(), currentX + 2, yPosition);
       currentX += colWidths.quant1;
-      
+
       doc.text(itemAbastecimento.unidade, currentX + 2, yPosition);
       currentX += colWidths.unit1;
     } else {
@@ -653,10 +802,10 @@ export class ExportService {
       const nomeHortifruti = this.truncarTexto(doc, itemHortifruti.nome.toUpperCase(), colWidths.item2 - 4);
       doc.text(nomeHortifruti, currentX + 2, yPosition);
       currentX += colWidths.item2;
-      
+
       doc.text(itemHortifruti.quantidade.toString(), currentX + 2, yPosition);
       currentX += colWidths.quant2;
-      
+
       doc.text(itemHortifruti.unidade, currentX + 2, yPosition);
     }
 
@@ -716,14 +865,14 @@ export class ExportService {
    * Adiciona tabela simples ao PDF (sem categorização)
    */
   private static adicionarTabelaSimplesPDF(
-    doc: any, 
-    dados: ProcessedExportData, 
-    options: ExportOptions, 
+    doc: any,
+    dados: ProcessedExportData,
+    options: ExportOptions,
     yPosition: number
   ): number {
     // Implementação da tabela simples sem categorização
     const todosAlimentos = Object.values(dados.categorias).flat();
-    
+
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.text('LISTA COMPLETA DE ALIMENTOS', 20, yPosition);
@@ -785,7 +934,7 @@ export class ExportService {
       doc.setFont('helvetica', 'bold');
       doc.text('Observações:', 20, yPosition);
       yPosition += 4;
-      
+
       doc.setFont('helvetica', 'normal');
       const linhasObservacoes = this.quebrarTexto(doc, dados.observacoes, 170);
       linhasObservacoes.forEach(linha => {
@@ -793,6 +942,154 @@ export class ExportService {
         yPosition += 4;
       });
     }
+  }
+
+  /**
+   * Cria HTML estruturado para conversão DOCX
+   */
+  private static criarHTMLParaDOCX(dados: ProcessedExportData, options: ExportOptions): string {
+    const abastecimento = [
+      ...dados.categorias[CategoriaAlimento.ABASTECIMENTO] || [],
+      ...dados.categorias[CategoriaAlimento.GRAOS_CEREAIS] || [],
+      ...dados.categorias[CategoriaAlimento.PROTEINAS] || [],
+      ...dados.categorias[CategoriaAlimento.LATICINIOS] || [],
+      ...dados.categorias[CategoriaAlimento.CONDIMENTOS] || [],
+      ...dados.categorias[CategoriaAlimento.BEBIDAS] || [],
+      ...dados.categorias[CategoriaAlimento.PANIFICACAO] || []
+    ];
+
+    const hortifrutis = dados.categorias[CategoriaAlimento.HORTIFRUTI] || [];
+
+    let html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: Arial, sans-serif; margin: 20px; font-size: 12px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .title { font-size: 16px; font-weight: bold; margin-bottom: 10px; }
+        .subtitle { font-size: 14px; margin-bottom: 15px; }
+        .table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .table th, .table td { border: 1px solid #000; padding: 6px; text-align: left; vertical-align: top; }
+        .table th { background-color: #E7E5DF; font-weight: bold; text-align: center; }
+        .footer { margin-top: 30px; }
+        .signature-line { margin: 15px 0; }
+        .students-info { margin: 20px 0; font-weight: bold; }
+      </style>
+    </head>
+    <body>
+  `;
+
+    // Cabeçalho
+    if (options.incluirCabecalho) {
+      html += `
+      <div class="header">
+        <div class="title">${dados.cabecalho.titulo}</div>
+        <div class="subtitle">Abastecimento [Semanas 2 E 3 (${dados.cabecalho.periodo})]</div>
+      </div>
+    `;
+    }
+
+    // Tabela principal
+    html += `
+    <table class="table">
+      <thead>
+        <tr>
+          <th colspan="3">ABASTECIMENTO</th>
+          <th colspan="3">HORTIFRÚTIS</th>
+        </tr>
+        <tr>
+          <th style="width: 25%;">Itens</th>
+          <th style="width: 10%;">Quant./peso</th>
+          <th style="width: 7%;">Unid.</th>
+          <th style="width: 25%;">Itens</th>
+          <th style="width: 10%;">Quant./peso</th>
+          <th style="width: 7%;">Unid.</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+    // Dados da tabela
+    const maxLinhas = Math.max(abastecimento.length, hortifrutis.length);
+
+    for (let i = 0; i < maxLinhas; i++) {
+      html += '<tr>';
+
+      // Coluna Abastecimento
+      if (i < abastecimento.length) {
+        const item = abastecimento[i];
+        html += `
+        <td><strong>${item.nome.toUpperCase()}</strong></td>
+        <td style="text-align: center;"><strong>${item.quantidade}</strong></td>
+        <td style="text-align: center;"><strong>${item.unidade}</strong></td>
+      `;
+      } else {
+        html += '<td></td><td></td><td></td>';
+      }
+
+      // Coluna Hortifrútis
+      if (i < hortifrutis.length) {
+        const item = hortifrutis[i];
+        html += `
+        <td><strong>${item.nome.toUpperCase()}</strong></td>
+        <td style="text-align: center;"><strong>${item.quantidade}</strong></td>
+        <td style="text-align: center;"><strong>${item.unidade}</strong></td>
+      `;
+      } else {
+        html += '<td></td><td></td><td></td>';
+      }
+
+      html += '</tr>';
+    }
+
+    html += `
+      </tbody>
+    </table>
+  `;
+
+    // Informações do rodapé
+    html += `
+      <div class="students-info">
+        Quantitativo de alunos: ${dados.cabecalho.totalAlunos} alunos
+      </div>
+    `;
+
+    // Campos de assinatura
+    if (options.incluirRodape && options.incluirAssinatura) {
+      html += `
+        <div class="footer">
+          <div class="signature-line">
+            <strong>Entregue em</strong> ____/____/2025 
+            <strong>Horário As</strong> ____:____ <strong>Min</strong>
+          </div>
+          <div class="signature-line">
+            <strong>Recebido por</strong>_______________________________________ (________________)
+          </div>
+          <div class="signature-line">
+            <strong>Entregador</strong> ___________________________________________
+          </div>
+        </div>
+      `;
+    }
+
+    // Observações
+    if (dados.observacoes) {
+      html += `
+        <div style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 15px;">
+          <strong>Observações:</strong><br>
+          ${dados.observacoes}
+        </div>
+      `;
+    }
+
+    html += `
+        </body>
+      </html>
+    `;
+
+    return html;
   }
 
   /**
@@ -818,7 +1115,7 @@ export class ExportService {
 
     palavras.forEach(palavra => {
       const testeTexto = linhaAtual ? `${linhaAtual} ${palavra}` : palavra;
-      
+
       if (doc.getTextWidth(testeTexto) <= larguraMaxima) {
         linhaAtual = testeTexto;
       } else {
@@ -836,28 +1133,6 @@ export class ExportService {
     return linhas;
   }
 
-  private static gerarNomeArquivo(guia: GuiaAbastecimento, extensao: string): string {
-    const instituicao = (guia.instituicaoNome || 'escola')
-      .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '');
-    
-    const data = new Date().toISOString().split('T')[0];
-    
-    return `guia-abastecimento-${instituicao}-${data}.${extensao}`;
-  }
-
-  private static baixarArquivo(blob: Blob, nomeArquivo: string) {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = nomeArquivo;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  }
-
   private static calcularTamanhoEstimado(guia: GuiaAbastecimento): number {
     const baseSize = 50 * 1024; // 50KB base
     const itemSize = guia.calculosDistribuicao.length * 200; // ~200 bytes por item
@@ -868,8 +1143,8 @@ export class ExportService {
    * Método principal para exportação
    */
   static async exportar(
-    guia: GuiaAbastecimento, 
-    formato: FormatoExport, 
+    guia: GuiaAbastecimento,
+    formato: FormatoExport,
     options: ExportOptions
   ): Promise<ExportResult> {
     switch (formato) {
@@ -888,15 +1163,6 @@ export class ExportService {
         };
     }
   }
-
-  // Placeholders para outros formatos
-  private static async exportarTXT(guia: GuiaAbastecimento, options: ExportOptions): Promise<ExportResult> {
-    // Implementação TXT existente...
-    return { sucesso: true, nomeArquivo: 'guia.txt' };
-  }
-
-  private static async exportarDOCX(guia: GuiaAbastecimento, options: ExportOptions): Promise<ExportResult> {
-    // Implementação DOCX existente...
-    return { sucesso: true, nomeArquivo: 'guia.docx' };
-  }
 }
+
+
