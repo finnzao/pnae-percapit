@@ -4,7 +4,8 @@ import {
   ExportResult, 
   ExportProgress,
   ExportProgressCallback,
-  FormatoExport
+  FormatoExport,
+  EXPORT_DEFAULTS
 } from '@/types/export';
 import { GuiaAbastecimento } from '@/types';
 import { ExportService } from '@/utils/exportService';
@@ -45,38 +46,16 @@ export function useExport(): UseExportReturn {
     
     try {
       // Configurações padrão
-      const defaultOptions: ExportOptions = {
-        formato: 'TXT',
-        incluirCabecalho: true,
-        incluirRodape: true,
-        incluirAssinatura: true,
-        incluirObservacoes: true,
-        agruparPorCategoria: true,
-        normalizarUnidades: true,
-        mostrarDetalhamento: false,
-        categoriasIncluidas: {
-          incluirTodas: true
-        },
-        ordenacaoItens: {
-          tipo: 'categoria',
-          criterioSecundario: 'alfabetica'
-        },
-        formatoNumeros: {
-          decimais: 2,
-          separadorMilhar: '.',
-          separadorDecimal: ',',
-          mostrarZerosDecimais: false,
-          formatoUnidade: 'depois'
-        },
-        usuario: {
+      const finalOptions: ExportOptions = { 
+        ...EXPORT_DEFAULTS, 
+        ...options,
+        usuario: options.usuario || {
           nome: 'Ana Paula Silva',
           cargo: 'Nutricionista',
           email: 'ana.paula@nutrigestao.com',
           dataExport: new Date()
         }
       };
-
-      const finalOptions = { ...defaultOptions, ...options };
 
       // Etapa 1: Preparação dos dados
       updateProgress({
@@ -164,7 +143,7 @@ export function useExportValidation() {
   const validateOptions = useCallback((options: Partial<ExportOptions>): string[] => {
     const errors: string[] = [];
 
-    if (options.formato && !['TXT', 'XLSX', 'DOCX'].includes(options.formato)) {
+    if (options.formato && !['TXT', 'XLSX', 'DOCX', 'PDF'].includes(options.formato)) {
       errors.push(`Formato ${options.formato} não é suportado`);
     }
 
@@ -187,7 +166,7 @@ export function useExportValidation() {
   }, []);
 
   const isFormatSupported = useCallback((formato: FormatoExport): boolean => {
-    return ['TXT', 'XLSX', 'DOCX'].includes(formato);
+    return ['TXT', 'XLSX', 'DOCX', 'PDF'].includes(formato);
   }, []);
 
   const getFormatInfo = useCallback((formato: FormatoExport) => {
@@ -212,6 +191,13 @@ export function useExportValidation() {
         descricao: 'Documento do Word com layout profissional',
         vantagens: ['Layout profissional', 'Formatação rica', 'Fácil impressão'],
         limitacoes: ['Requer software compatível', 'Menos flexível para dados']
+      },
+      'PDF': {
+        nome: 'PDF',
+        extensao: '.pdf',
+        descricao: 'Documento PDF pronto para impressão',
+        vantagens: ['Layout fixo', 'Compatibilidade universal', 'Pronto para impressão'],
+        limitacoes: ['Não editável', 'Tamanho maior']
       }
     };
 

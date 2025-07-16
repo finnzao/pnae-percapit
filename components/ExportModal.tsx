@@ -1,365 +1,386 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import Header from '@/components/Header';
-import ExportModal from '@/components/ExportModal';
-import { ArrowLeft, Download, Package, Clock, CheckCircle, Printer, Share2, Edit } from 'lucide-react';
+import { 
+  X, 
+  FileText, 
+  Download, 
+  Settings, 
+  Check, 
+  AlertCircle,
+  File,
+  Table
+} from 'lucide-react';
 import { GuiaAbastecimento } from '@/types';
-import { usePreventDoubleClick } from '@/hooks/usePreventDoubleClick';
+import { 
+  ExportOptions, 
+  FormatoExport, 
+  EXPORT_DEFAULTS,
+  FORMATOS_SUPORTADOS,
+} from '@/types/export';
+import { useExport } from '@/hooks/useExport';
+import LoadingOverlay from '@/components/LoadingOverlay';
 
-export default function GuiaDetalhe() {
-    const router = useRouter();
-    const params = useParams();
-    const [guia, setGuia] = useState<GuiaAbastecimento | null>(null);
-    const [carregando, setCarregando] = useState(true);
-    const [erro, setErro] = useState<string | null>(null);
-    const [exportModalOpen, setExportModalOpen] = useState(false);
+interface ExportModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  guia: GuiaAbastecimento;
+}
 
-    // Hook para prevenir duplo clique na atualização de status
-    const { handleClick: handleAtualizarStatus, isLoading: atualizandoStatus } = usePreventDoubleClick(
-        async (novoStatus: 'Rascunho' | 'Finalizado' | 'Distribuído') => {
-            await atualizarStatusAsync(novoStatus);
-        },
-        {
-            delay: 1500,
-            onError: (error) => setErro(error.message)
-        }
-    );
+const FormatIcon = ({ formato }: { formato: FormatoExport }) => {
+  const iconMap = {
+    TXT: FileText,
+    XLSX: Table,
+    DOCX: FileText,
+    PDF: File,
+    CSV: Table
+  };
+  
+  const IconComponent = iconMap[formato] || FileText;
+  return <IconComponent className="w-4 h-4" />;
+};
 
-    useEffect(() => {
-        if (params.id) {
-            carregarGuia(params.id as string);
-        }
-    }, [params.id]);
+export default function ExportModal({ isOpen, onClose, guia }: ExportModalProps) {
+  const [selectedFormat, setSelectedFormat] = useState<FormatoExport>('XLSX');
+  const [exportOptions, setExportOptions] = useState<ExportOptions>(EXPORT_DEFAULTS);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
-    const carregarGuia = async (id: string) => {
-        try {
-            const response = await fetch('/api/guia-abastecimento');
-            const data = await response.json();
+  const { isExporting, progress, error, exportGuia, clearError } = useExport();
 
-            if (data.ok) {
-                const guiaEncontrada = data.data.find((g: GuiaAbastecimento) => g.id === id);
-                if (guiaEncontrada) {
-                    setGuia(guiaEncontrada);
-                } else {
-                    setErro('Guia não encontrada');
-                }
-            } else {
-                setErro('Erro ao carregar guia');
-            }
-        } catch (error) {
-            console.error('Erro ao carregar guia:', error);
-            setErro('Erro ao conectar com o servidor');
-        } finally {
-            setCarregando(false);
-        }
-    };
-
-    const formatarData = (dataString: string | Date) => {
-        const data = new Date(dataString);
-        return data.toLocaleDateString('pt-BR');
-    };
-
-    const formatarPeriodo = (inicio: string | Date, fim: string | Date) => {
-        const dataInicio = new Date(inicio);
-        const dataFim = new Date(fim);
-        return `${formatarData(dataInicio)} a ${formatarData(dataFim)}`;
-    };
-
-    const getDiaSemana = (data: Date) => {
-        const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-        return dias[new Date(data).getDay()];
-    };
-
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'Rascunho':
-                return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-            case 'Finalizado':
-                return 'bg-blue-100 text-blue-800 border-blue-300';
-            case 'Distribuído':
-                return 'bg-green-100 text-green-800 border-green-300';
-            default:
-                return 'bg-gray-100 text-gray-800 border-gray-300';
-        }
-    };
-
-    const atualizarStatusAsync = async (novoStatus: 'Rascunho' | 'Finalizado' | 'Distribuído') => {
-        if (!guia) return;
-
-        const response = await fetch('/api/guia-abastecimento', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                id: guia.id,
-                status: novoStatus
-            })
-        });
-
-        if (!response.ok) {
-            const data = await response.json();
-            throw new Error(data.error || 'Erro ao atualizar status');
-        }
-
-        const data = await response.json();
-        setGuia(data.data);
-    };
-
-    const atualizarStatus = (novoStatus: 'Rascunho' | 'Finalizado' | 'Distribuído') => {
-        handleAtualizarStatus(novoStatus);
-    };
-
-    const compartilharGuia = async () => {
-        if (!guia) return;
-
-        const url = window.location.href;
-        
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: `Guia de Abastecimento - ${guia.instituicaoNome}`,
-                    text: `Período: ${formatarPeriodo(guia.dataInicio, guia.dataFim)}`,
-                    url: url
-                });
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            } catch (error) {
-                // Fallback para clipboard
-                await navigator.clipboard.writeText(url);
-                alert('Link copiado para a área de transferência!');
-            }
-        } else {
-            // Fallback para clipboard
-            await navigator.clipboard.writeText(url);
-            alert('Link copiado para a área de transferência!');
-        }
-    };
-
-    if (carregando) {
-        return (
-            <div className="min-h-screen bg-[#FAFAF8]">
-                <Header />
-                <main className="page-container">
-                    <div className="flex justify-center items-center h-64">
-                        <p className="text-center text-gray-500">Carregando guia...</p>
-                    </div>
-                </main>
-            </div>
-        );
+  useEffect(() => {
+    if (isOpen) {
+      setExportOptions({
+        ...EXPORT_DEFAULTS,
+        formato: selectedFormat
+      });
+      clearError();
     }
+  }, [isOpen, selectedFormat, clearError]);
 
-    if (erro || !guia) {
-        return (
-            <div className="min-h-screen bg-[#FAFAF8]">
-                <Header />
-                <main className="page-container">
-                    <button
-                        onClick={() => router.push('/guia-abastecimento')}
-                        className="flex items-center gap-2 text-[#4C6E5D] hover:text-[#6B7F66] mb-6 transition-colors"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        <span>Voltar às guias</span>
-                    </button>
+  if (!isOpen) return null;
 
-                    <div className="bg-red-50 border border-red-200 text-red-700 p-8 rounded-lg text-center">
-                        <p className="text-lg font-medium mb-4">{erro || 'Guia não encontrada'}</p>
-                        <button
-                            onClick={() => router.push('/guia-abastecimento')}
-                            className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
-                        >
-                            Voltar às Guias
-                        </button>
-                    </div>
-                </main>
-            </div>
-        );
+  const handleExport = async () => {
+    try {
+      const result = await exportGuia(guia, exportOptions, (progressData) => {
+        console.log('Progresso da exportação:', progressData);
+      });
+
+      if (result.sucesso) {
+        onClose();
+      }
+    } catch (error) {
+      console.error('Erro na exportação:', error);
     }
+  };
 
-    return (
-        <div className="min-h-screen bg-[#FAFAF8]">
-            <Header />
+  const updateExportOptions = (updates: Partial<ExportOptions>) => {
+    setExportOptions(prev => ({
+      ...prev,
+      ...updates
+    }));
+  };
 
-            <main className="page-container">
-                <button
-                    onClick={() => router.push('/guia-abastecimento')}
-                    className="flex items-center gap-2 text-[#4C6E5D] hover:text-[#6B7F66] mb-6 transition-colors"
-                >
-                    <ArrowLeft className="w-4 h-4" />
-                    <span>Voltar às guias</span>
-                </button>
-
-                {/* Cabeçalho */}
-                <div className="bg-white p-6 rounded-xl shadow-sm mb-6">
-                    <div className="flex justify-between items-start mb-4">
-                        <div>
-                            <h1 className="text-3xl font-bold text-[#4C6E5D] mb-2">{guia.instituicaoNome}</h1>
-                            <p className="text-lg text-gray-600">
-                                Guia de Abastecimento - {formatarPeriodo(guia.dataInicio, guia.dataFim)}
-                            </p>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                            <span className={`px-3 py-1 text-sm rounded-full border ${getStatusColor(guia.status)}`}>
-                                {guia.status}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                        <div className="text-sm">
-                            <p className="text-gray-500">Gerado em</p>
-                            <p className="font-medium">{formatarData(guia.dataGeracao)}</p>
-                        </div>
-                        <div className="text-sm">
-                            <p className="text-gray-500">Por</p>
-                            <p className="font-medium">{guia.usuarioGeracao}</p>
-                        </div>
-                        <div className="text-sm">
-                            <p className="text-gray-500">Versão</p>
-                            <p className="font-medium">v{guia.versao}</p>
-                        </div>
-                        <div className="text-sm">
-                            <p className="text-gray-500">Dias planejados</p>
-                            <p className="font-medium">{guia.cardapiosDiarios.length} dias</p>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                        <button
-                            onClick={() => setExportModalOpen(true)}
-                            className="px-4 py-2 bg-[#4C6E5D] text-white rounded-lg hover:bg-[#6B7F66] transition flex items-center gap-2"
-                        >
-                            <Download className="w-4 h-4" />
-                            Exportar
-                        </button>
-                        <button
-                            onClick={() => window.print()}
-                            className="px-4 py-2 border border-[#4C6E5D] text-[#4C6E5D] rounded-lg hover:bg-gray-50 transition flex items-center gap-2"
-                        >
-                            <Printer className="w-4 h-4" />
-                            Imprimir
-                        </button>
-                        <button
-                            onClick={compartilharGuia}
-                            className="px-4 py-2 border border-[#4C6E5D] text-[#4C6E5D] rounded-lg hover:bg-gray-50 transition flex items-center gap-2"
-                        >
-                            <Share2 className="w-4 h-4" />
-                            Compartilhar
-                        </button>
-                        <button
-                            onClick={() => router.push(`/guia-abastecimento/editar/${guia.id}`)}
-                            className="px-4 py-2 border border-[#4C6E5D] text-[#4C6E5D] rounded-lg hover:bg-gray-50 transition flex items-center gap-2"
-                        >
-                            <Edit className="w-4 h-4" />
-                            Editar
-                        </button>
-                    </div>
-                </div>
-
-                {/* Status da Guia */}
-                <div className="bg-white p-6 rounded-xl shadow-sm mb-6">
-                    <h2 className="text-xl font-semibold text-[#4C6E5D] mb-4">Status da Guia</h2>
-                    <div className="flex flex-wrap gap-4">
-                        <button
-                            onClick={() => atualizarStatus('Rascunho')}
-                            disabled={atualizandoStatus || guia.status === 'Rascunho'}
-                            className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${guia.status === 'Rascunho'
-                                    ? 'bg-yellow-100 text-yellow-800 cursor-not-allowed'
-                                    : 'bg-gray-100 hover:bg-yellow-100 hover:text-yellow-800'
-                                }`}
-                        >
-                            <Clock className="w-4 h-4" />
-                            Rascunho
-                        </button>
-                        <button
-                            onClick={() => atualizarStatus('Finalizado')}
-                            disabled={atualizandoStatus || guia.status === 'Finalizado'}
-                            className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${guia.status === 'Finalizado'
-                                    ? 'bg-blue-100 text-blue-800 cursor-not-allowed'
-                                    : 'bg-gray-100 hover:bg-blue-100 hover:text-blue-800'
-                                }`}
-                        >
-                            <CheckCircle className="w-4 h-4" />
-                            Finalizado
-                        </button>
-                        <button
-                            onClick={() => atualizarStatus('Distribuído')}
-                            disabled={atualizandoStatus || guia.status === 'Distribuído'}
-                            className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${guia.status === 'Distribuído'
-                                    ? 'bg-green-100 text-green-800 cursor-not-allowed'
-                                    : 'bg-gray-100 hover:bg-green-100 hover:text-green-800'
-                                }`}
-                        >
-                            <Package className="w-4 h-4" />
-                            Distribuído
-                        </button>
-                    </div>
-
-                    {atualizandoStatus && (
-                        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                            <p className="text-blue-800 text-sm">Atualizando status...</p>
-                        </div>
-                    )}
-                </div>
-
-                {/* Cardápios por Dia */}
-                <div className="bg-white p-6 rounded-xl shadow-sm mb-6">
-                    <h2 className="text-xl font-semibold text-[#4C6E5D] mb-4">Cardápios por Dia</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {guia.cardapiosDiarios.map((dia, index) => (
-                            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                <div>
-                                    <p className="font-medium">{formatarData(dia.data)}</p>
-                                    <p className="text-sm text-gray-600">{getDiaSemana(dia.data)}</p>
-                                </div>
-                                <p className="text-sm font-medium text-[#4C6E5D]">{dia.cardapioNome}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Alimentos Consolidados */}
-                <div className="bg-white p-6 rounded-xl shadow-sm mb-6">
-                    <h2 className="text-xl font-semibold text-[#4C6E5D] mb-4">Alimentos Consolidados</h2>
-                    <div className="space-y-4">
-                        {guia.calculosDistribuicao.map((calc, index) => (
-                            <div key={index} className="border border-gray-200 rounded-lg p-4">
-                                <div className="flex justify-between items-start mb-3">
-                                    <h3 className="font-semibold text-lg">{calc.alimentoNome}</h3>
-                                    <span className="text-lg font-bold text-[#4C6E5D]">
-                                        {calc.quantidadeTotal.toFixed(2)} {calc.unidadeMedida}
-                                    </span>
-                                </div>
-                                {calc.detalhamentoRefeicoes.length > 0 && (
-                                    <div className="space-y-1 text-sm text-gray-600">
-                                        {calc.detalhamentoRefeicoes.map((det, i) => (
-                                            <div key={i} className="flex justify-between">
-                                                <span>{det.refeicaoNome}</span>
-                                                <span>{det.quantidade.toFixed(2)} {calc.unidadeMedida}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Observações */}
-                {guia.observacoes && (
-                    <div className="bg-white p-6 rounded-xl shadow-sm">
-                        <h2 className="text-xl font-semibold text-[#4C6E5D] mb-4">Observações</h2>
-                        <p className="text-gray-700 whitespace-pre-wrap">{guia.observacoes}</p>
-                    </div>
-                )}
-
-                {/* Modal de Exportação */}
-                <ExportModal
-                    isOpen={exportModalOpen}
-                    onClose={() => setExportModalOpen(false)}
-                    guia={guia}
-                />
-            </main>
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        {/* Cabeçalho */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">Exportar Guia</h2>
+            <p className="text-sm text-gray-600 mt-1">
+              {guia.instituicaoNome} - {new Date(guia.dataInicio).toLocaleDateString('pt-BR')} a {new Date(guia.dataFim).toLocaleDateString('pt-BR')}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
-    );
+
+        {/* Conteúdo */}
+        <div className="p-6">
+          {/* Seleção de Formato */}
+          <div className="mb-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Escolha o formato</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {Object.entries(FORMATOS_SUPORTADOS).map(([formato, info]) => (
+                <button
+                  key={formato}
+                  onClick={() => setSelectedFormat(formato as FormatoExport)}
+                  className={`p-4 border-2 rounded-lg transition-all text-center ${
+                    selectedFormat === formato
+                      ? 'border-[#4C6E5D] bg-[#4C6E5D]/5'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <FormatIcon formato={formato as FormatoExport} />
+                    <span className="font-medium text-sm">{info.nome}</span>
+                    {selectedFormat === formato && (
+                      <Check className="w-4 h-4 text-[#4C6E5D]" />
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+            
+            {selectedFormat && (
+              <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  {FORMATOS_SUPORTADOS[selectedFormat].descricao}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Opções Básicas */}
+          <div className="mb-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Opções de exportação</h3>
+            <div className="space-y-3">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={exportOptions.incluirCabecalho}
+                  onChange={(e) => updateExportOptions({ incluirCabecalho: e.target.checked })}
+                  className="rounded border-gray-300 text-[#4C6E5D] focus:ring-[#4C6E5D]"
+                />
+                <span className="ml-2 text-sm">Incluir cabeçalho com informações da instituição</span>
+              </label>
+
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={exportOptions.incluirRodape}
+                  onChange={(e) => updateExportOptions({ incluirRodape: e.target.checked })}
+                  className="rounded border-gray-300 text-[#4C6E5D] focus:ring-[#4C6E5D]"
+                />
+                <span className="ml-2 text-sm">Incluir rodapé com informações adicionais</span>
+              </label>
+
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={exportOptions.incluirAssinatura}
+                  onChange={(e) => updateExportOptions({ incluirAssinatura: e.target.checked })}
+                  className="rounded border-gray-300 text-[#4C6E5D] focus:ring-[#4C6E5D]"
+                />
+                <span className="ml-2 text-sm">Incluir campos para assinatura</span>
+              </label>
+
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={exportOptions.agruparPorCategoria}
+                  onChange={(e) => updateExportOptions({ agruparPorCategoria: e.target.checked })}
+                  className="rounded border-gray-300 text-[#4C6E5D] focus:ring-[#4C6E5D]"
+                />
+                <span className="ml-2 text-sm">Agrupar alimentos por categoria</span>
+              </label>
+
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={exportOptions.normalizarUnidades}
+                  onChange={(e) => updateExportOptions({ normalizarUnidades: e.target.checked })}
+                  className="rounded border-gray-300 text-[#4C6E5D] focus:ring-[#4C6E5D]"
+                />
+                <span className="ml-2 text-sm">Normalizar unidades de medida</span>
+              </label>
+
+              {exportOptions.incluirObservacoes !== undefined && (
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={exportOptions.incluirObservacoes}
+                    onChange={(e) => updateExportOptions({ incluirObservacoes: e.target.checked })}
+                    className="rounded border-gray-300 text-[#4C6E5D] focus:ring-[#4C6E5D]"
+                  />
+                  <span className="ml-2 text-sm">Incluir observações da guia</span>
+                </label>
+              )}
+            </div>
+          </div>
+
+          {/* Configurações Avançadas */}
+          <div className="mb-6">
+            <button
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="flex items-center gap-2 text-[#4C6E5D] hover:text-[#6B7F66] transition-colors"
+            >
+              <Settings className="w-4 h-4" />
+              <span>Configurações avançadas</span>
+              <span className="text-sm">({showAdvanced ? 'ocultar' : 'mostrar'})</span>
+            </button>
+
+            {showAdvanced && (
+              <div className="mt-4 space-y-4 p-4 bg-gray-50 rounded-lg">
+                {/* Formato de números */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Casas decimais
+                  </label>
+                  <select
+                    value={exportOptions.formatoNumeros.decimais}
+                    onChange={(e) => updateExportOptions({
+                      formatoNumeros: {
+                        ...exportOptions.formatoNumeros,
+                        decimais: parseInt(e.target.value)
+                      }
+                    })}
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#4C6E5D] focus:border-[#4C6E5D]"
+                  >
+                    <option value={0}>0 decimais</option>
+                    <option value={1}>1 decimal</option>
+                    <option value={2}>2 decimais</option>
+                    <option value={3}>3 decimais</option>
+                  </select>
+                </div>
+
+                {/* Ordenação */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Ordenação dos itens
+                  </label>
+                  <select
+                    value={exportOptions.ordenacaoItens.tipo}
+                    onChange={(e) => updateExportOptions({
+                      ordenacaoItens: {
+                        ...exportOptions.ordenacaoItens,
+                        tipo: e.target.value as any
+                      }
+                    })}
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#4C6E5D] focus:border-[#4C6E5D]"
+                  >
+                    <option value="categoria">Por categoria</option>
+                    <option value="alfabetica">Alfabética</option>
+                    <option value="quantidade_desc">Maior quantidade</option>
+                    <option value="quantidade_asc">Menor quantidade</option>
+                  </select>
+                </div>
+
+                {/* Formato da unidade */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Posição da unidade
+                  </label>
+                  <select
+                    value={exportOptions.formatoNumeros.formatoUnidade}
+                    onChange={(e) => updateExportOptions({
+                      formatoNumeros: {
+                        ...exportOptions.formatoNumeros,
+                        formatoUnidade: e.target.value as any
+                      }
+                    })}
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#4C6E5D] focus:border-[#4C6E5D]"
+                  >
+                    <option value="depois">Depois do número</option>
+                    <option value="antes">Antes do número</option>
+                    <option value="linha_separada">Linha separada</option>
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Progresso da exportação */}
+          {isExporting && progress && (
+            <div className="mb-6">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-4 h-4 border-2 border-[#4C6E5D] border-t-transparent rounded-full animate-spin"></div>
+                  <span className="font-medium text-blue-900">{progress.etapa}</span>
+                </div>
+                <p className="text-sm text-blue-700 mb-2">{progress.mensagem}</p>
+                <div className="w-full bg-blue-200 rounded-full h-2">
+                  <div 
+                    className="bg-[#4C6E5D] h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${progress.progresso}%` }}
+                  ></div>
+                </div>
+                <p className="text-xs text-blue-600 mt-1">{progress.progresso}% concluído</p>
+              </div>
+            </div>
+          )}
+
+          {/* Erro */}
+          {error && (
+            <div className="mb-6">
+              <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-medium">Erro na exportação</p>
+                  <p className="text-sm mt-1">{error}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Resumo */}
+          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <h4 className="font-medium text-gray-900 mb-2">Resumo da exportação</h4>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-gray-600">Formato:</span>
+                <span className="ml-2 font-medium">{FORMATOS_SUPORTADOS[selectedFormat].nome}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Total de alimentos:</span>
+                <span className="ml-2 font-medium">{guia.calculosDistribuicao.length}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Período:</span>
+                <span className="ml-2 font-medium">
+                  {new Date(guia.dataInicio).toLocaleDateString('pt-BR')} - {new Date(guia.dataFim).toLocaleDateString('pt-BR')}
+                </span>
+              </div>
+              <div>
+                <span className="text-gray-600">Agrupamento:</span>
+                <span className="ml-2 font-medium">
+                  {exportOptions.agruparPorCategoria ? 'Por categoria' : 'Lista única'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Rodapé */}
+        <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
+          <button
+            onClick={onClose}
+            disabled={isExporting}
+            className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleExport}
+            disabled={isExporting || !selectedFormat}
+            className="px-4 py-2 bg-[#4C6E5D] text-white rounded-lg hover:bg-[#6B7F66] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            {isExporting ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Exportando...
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4" />
+                Exportar {FORMATOS_SUPORTADOS[selectedFormat]?.nome}
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Loading Overlay */}
+        <LoadingOverlay 
+          isLoading={isExporting} 
+          message={progress?.mensagem || "Exportando guia..."} 
+          overlay={false}
+        />
+      </div>
+    </div>
+  );
 }

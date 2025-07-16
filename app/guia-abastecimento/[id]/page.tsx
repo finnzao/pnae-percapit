@@ -3,7 +3,17 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Header from '@/components/Header';
-import { ArrowLeft, Download, Package, Clock, CheckCircle, Printer } from 'lucide-react';
+import ExportModal from '@/components/ExportModal';
+import { 
+  ArrowLeft, 
+  Download, 
+  Package, 
+  Clock, 
+  CheckCircle, 
+  Printer, 
+  Share2, 
+  Edit 
+} from 'lucide-react';
 import { GuiaAbastecimento } from '@/types';
 import { usePreventDoubleClick } from '@/hooks/usePreventDoubleClick';
 
@@ -13,6 +23,7 @@ export default function GuiaDetalhe() {
     const [guia, setGuia] = useState<GuiaAbastecimento | null>(null);
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState<string | null>(null);
+    const [exportModalOpen, setExportModalOpen] = useState(false);
 
     // Hook para prevenir duplo clique na atualização de status
     const { handleClick: handleAtualizarStatus, isLoading: atualizandoStatus } = usePreventDoubleClick(
@@ -108,7 +119,32 @@ export default function GuiaDetalhe() {
         handleAtualizarStatus(novoStatus);
     };
 
-    const exportarGuia = () => {
+    const compartilharGuia = async () => {
+        if (!guia) return;
+
+        const url = window.location.href;
+        
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: `Guia de Abastecimento - ${guia.instituicaoNome}`,
+                    text: `Período: ${formatarPeriodo(guia.dataInicio, guia.dataFim)}`,
+                    url: url
+                });
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            } catch (error) {
+                // Fallback para clipboard
+                await navigator.clipboard.writeText(url);
+                alert('Link copiado para a área de transferência!');
+            }
+        } else {
+            // Fallback para clipboard
+            await navigator.clipboard.writeText(url);
+            alert('Link copiado para a área de transferência!');
+        }
+    };
+
+    const exportarGuiaSimples = () => {
         if (!guia) return;
 
         let conteudo = `GUIA DE ABASTECIMENTO\n`;
@@ -241,13 +277,20 @@ export default function GuiaDetalhe() {
                         </div>
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                         <button
-                            onClick={exportarGuia}
+                            onClick={() => setExportModalOpen(true)}
                             className="px-4 py-2 bg-[#4C6E5D] text-white rounded-lg hover:bg-[#6B7F66] transition flex items-center gap-2"
                         >
                             <Download className="w-4 h-4" />
-                            Exportar
+                            Exportar Avançado
+                        </button>
+                        <button
+                            onClick={exportarGuiaSimples}
+                            className="px-4 py-2 border border-[#4C6E5D] text-[#4C6E5D] rounded-lg hover:bg-gray-50 transition flex items-center gap-2"
+                        >
+                            <Download className="w-4 h-4" />
+                            Exportar TXT
                         </button>
                         <button
                             onClick={() => window.print()}
@@ -256,13 +299,27 @@ export default function GuiaDetalhe() {
                             <Printer className="w-4 h-4" />
                             Imprimir
                         </button>
+                        <button
+                            onClick={compartilharGuia}
+                            className="px-4 py-2 border border-[#4C6E5D] text-[#4C6E5D] rounded-lg hover:bg-gray-50 transition flex items-center gap-2"
+                        >
+                            <Share2 className="w-4 h-4" />
+                            Compartilhar
+                        </button>
+                        <button
+                            onClick={() => router.push(`/guia-abastecimento/editar/${guia.id}`)}
+                            className="px-4 py-2 border border-[#4C6E5D] text-[#4C6E5D] rounded-lg hover:bg-gray-50 transition flex items-center gap-2"
+                        >
+                            <Edit className="w-4 h-4" />
+                            Editar
+                        </button>
                     </div>
                 </div>
 
                 {/* Status da Guia */}
                 <div className="bg-white p-6 rounded-xl shadow-sm mb-6">
                     <h2 className="text-xl font-semibold text-[#4C6E5D] mb-4">Status da Guia</h2>
-                    <div className="flex gap-4">
+                    <div className="flex flex-wrap gap-4">
                         <button
                             onClick={() => atualizarStatus('Rascunho')}
                             disabled={atualizandoStatus || guia.status === 'Rascunho'}
@@ -297,6 +354,12 @@ export default function GuiaDetalhe() {
                             Distribuído
                         </button>
                     </div>
+
+                    {atualizandoStatus && (
+                        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                            <p className="text-blue-800 text-sm">Atualizando status...</p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Cardápios por Dia */}
@@ -348,6 +411,15 @@ export default function GuiaDetalhe() {
                         <h2 className="text-xl font-semibold text-[#4C6E5D] mb-4">Observações</h2>
                         <p className="text-gray-700 whitespace-pre-wrap">{guia.observacoes}</p>
                     </div>
+                )}
+
+                {/* Modal de Exportação */}
+                {exportModalOpen && (
+                    <ExportModal
+                        isOpen={exportModalOpen}
+                        onClose={() => setExportModalOpen(false)}
+                        guia={guia}
+                    />
                 )}
             </main>
         </div>
